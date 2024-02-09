@@ -25,7 +25,7 @@ export class AuthService {
         if (user.verified) returnErrorResponse('Already a user')
 
         await this.otpService.sendOtpViaEmail(user.email)
-        return successResponse({message:'A one time passcode has been sent to your email', user})
+        return successResponse("A one time passcode has been sent to your email")
     }
 
     async login(loginDto: LoginDto) {
