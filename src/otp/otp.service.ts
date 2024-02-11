@@ -9,11 +9,12 @@ export class OtpService {
     constructor(@InjectModel(Otp.name) private otpModel: Model<Otp>) {
     }
 
-    async sendOtpViaEmail(email){
+    async sendOtpViaEmail(email) {
         const otp = await this.generateOtp({email})
         // send email
-        return true;
+        return null;
     }
+
     async generateOtp(createOtpDto: CreateOtpDto) {
         const {email, phone} = createOtpDto;
         const otp_pass_code = this.generateOtpPassCode();
@@ -31,8 +32,9 @@ export class OtpService {
             .random() * (max - min + 1)) + min;
     }
 
-    async findOne(field: string) {
-        return this.otpModel.findOne({otp: field})
+    async verifyOtpViaMail(email: string, otp: number) {
+        return !!(await this.otpModel.findOneAndDelete({otp, email}));
+
     }
 
     remove(id: number) {

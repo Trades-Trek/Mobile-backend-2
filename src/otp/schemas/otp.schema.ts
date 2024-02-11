@@ -12,8 +12,6 @@ export class Otp {
     @Prop({ required: true, trim: true })
     otp: number;
 
-    @Prop({ required: true, default: false})
-    verified: boolean;
 
     @Prop({ default: Date.now, trim: true })
     createdAt: Date;

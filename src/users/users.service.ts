@@ -17,7 +17,8 @@ export class UsersService {
             username: createUserDto.fullName,
             password: createUserDto.password,
             fullName: createUserDto.fullName,
-            email: createUserDto.email
+            email: createUserDto.email,
+            yourReferrer: createUserDto.referralCode
         }
         return await this.userModel.create(formatted_data)
     }
@@ -26,9 +27,10 @@ export class UsersService {
         return `This action returns all users`;
     }
 
-    async findOne(field: string, fields_to_load = ['email', 'password', 'verified', 'firstName']) {
-        return this.userModel.findOne({$or: [{email: field}, {username: field}]}).select(fields_to_load);
+    async findOne(data: string, fields_to_load = ['email', 'password', 'verified', 'firstName']) {
+        return this.userModel.findOne({$or: [{email: data}, {username: data}, {referalCode: data}]}).select(fields_to_load);
     }
+
 
     update(id: number, updateUserDto: UpdateUserDto) {
         return `This action updates a #${id} user`;

@@ -6,6 +6,7 @@ import {returnErrorResponse, successResponse} from "../utils/response";
 import {OtpService} from "../otp/otp.service";
 import {User} from "../users/schemas/user.schema";
 import {JwtService} from "@nestjs/jwt";
+import {VerifyUserDto} from "./dto/verify-user.dto";
 
 const bcrypt = require("bcrypt");
 
@@ -13,9 +14,11 @@ const bcrypt = require("bcrypt");
 export class AuthService {
     constructor(private userService: UsersService, private otpService: OtpService, private jwtService: JwtService) {
     }
-
     async signup(createAuthDto: SignupDto) {
         const {email, fullName, password, referralCode} = createAuthDto;
+        if(referralCode){
+            if(!await this.userService.findOne(referralCode)) returnErrorResponse('Invalid referral code')
+        }
         const user = await this.userService.findOne(email, ['email', 'verified', '_id']) ?? await this.userService.create({
             fullName,
             email,
@@ -25,16 +28,36 @@ export class AuthService {
         if (user.verified) returnErrorResponse('Already a user')
 
         await this.otpService.sendOtpViaEmail(user.email)
-        return successResponse("A one time passcode has been sent to your email")
+        return successResponse({isVerified: false, message: 'A one time passcode has been sent to your email'})
     }
 
     async login(loginDto: LoginDto) {
         const {email, password} = loginDto;
         const user = await this.userService.findOne(email)
         if (!user) returnErrorResponse('User does not exist')
+
         if (!await this.comparePassword(password, user.password)) returnErrorResponse('Invalid credentials')
-        const access_token = user.verified ? await this.generateAccessToken(user._id, user.username) : null;
-        return successResponse({is_verified: user.verified, access_token})
+
+        const accessToken = user.verified ? await this.generateAccessToken(user._id, user.username) : await this.otpService.sendOtpViaEmail(user.email);
+
+        return successResponse({isVerified: user.verified, accessToken, user: user.verified ? user : null})
+
+    }
+
+    async verifyUser(verifyUserDto: VerifyUserDto) {
+        const {email, otp} = verifyUserDto;
+        if (!await this.otpService.verifyOtpViaMail(email, otp)) returnErrorResponse('Invalid Otp')
+        const user = await this.userService.findOne(email)
+        if (user.verified) returnErrorResponse('Your user account has already been verified')
+        user.verified = true;
+        await user.save();
+
+        if(user.yourReferrer){
+            // referral integration
+        }
+        // generate access token
+        const accessToken = await this.generateAccessToken(user._id, user.username);
+        return successResponse({isVerified: user.verified, accessToken, user})
 
     }
 

@@ -4,6 +4,7 @@ import {SignupDto} from './dto/signup.dto';
 import {LoginDto} from './dto/login.dto';
 import {ApiOperation, ApiResponse} from "@nestjs/swagger";
 import {GoogleOauthGuard} from "./guards/google-oauth.guard";
+import {VerifyUserDto} from "./dto/verify-user.dto";
 
 @Controller('auth')
 export class AuthController {
@@ -13,7 +14,7 @@ export class AuthController {
     @ApiOperation({summary: "Signup", description: "Signup"})
     @ApiResponse({
         status: HttpStatus.OK,
-        description: "returns the user data with an access token"
+        description: "creates a user account"
     })
     @ApiResponse({
         status: HttpStatus.BAD_REQUEST,
@@ -24,7 +25,22 @@ export class AuthController {
         return this.authService.signup(createAuthDto);
     }
 
+
     @ApiOperation({summary: "Login", description: "Login with email and password"})
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: "returns the user data with an access token"
+    })
+    @ApiResponse({
+        status: HttpStatus.BAD_REQUEST,
+        description: "Invalid request or validation errors"
+    })
+    @Post('/verify-user')
+    verifyUser(@Body() verifyUserDto: VerifyUserDto) {
+        return this.authService.verifyUser(verifyUserDto);
+    }
+
+    @ApiOperation({summary: "Verify User", description: "User email verification"})
     @ApiResponse({
         status: HttpStatus.OK,
         description: "returns the user data with an access token"
@@ -41,7 +57,6 @@ export class AuthController {
     @ApiOperation({summary: "Google login", description: "Login with google"})
     @ApiResponse({
         status: HttpStatus.OK,
-        description: "returns the user data with an access token"
     })
     @Get('google')
     @UseGuards(GoogleOauthGuard)

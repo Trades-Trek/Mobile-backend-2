@@ -2,6 +2,7 @@ import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
 import configuration from "../../config/configuration";
 import {SUBSCRIPTION_DURATION} from "../../enums/subscription_duration";
 import {DEVICE_TYPES} from "../../enums/device_types";
+
 @Schema({timestamps: true})
 export class User {
     @Prop({required: true, trim: true})
@@ -63,8 +64,10 @@ export class User {
         default: SUBSCRIPTION_DURATION.TRIAL,
     })
     subscriptionDuration: string;
-    @Prop({default: ''})
-    yourRefferal: string;
+
+    @Prop({default: '', required: false})
+    yourReferrer: string;
+
     @Prop({default: ''})
     joinedRefferal: string;
     @Prop({default: 0})
@@ -87,7 +90,7 @@ export class User {
     @Prop()
     lastSeen: Date;
 
-    @Prop({default:false})
+    @Prop({default: false})
     verified: boolean;
 }
 

@@ -8,6 +8,7 @@ import {UsersModule} from './users/users.module';
 import configuration from "./config/configuration";
 import {PassportModule} from "@nestjs/passport";
 import { OtpModule } from './otp/otp.module';
+import { ReferralsModule } from './referrals/referrals.module';
 
 @Module({
     imports: [
@@ -25,6 +26,7 @@ import { OtpModule } from './otp/otp.module';
         }),
         UsersModule,
         OtpModule,
+        ReferralsModule,
     ],
     controllers: [AppController],
     providers: [AppService],
