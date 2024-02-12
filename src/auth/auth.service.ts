@@ -7,6 +7,7 @@ import {OtpService} from "../otp/otp.service";
 import {User} from "../users/schemas/user.schema";
 import {JwtService} from "@nestjs/jwt";
 import {VerifyUserDto} from "./dto/verify-user.dto";
+import {USER} from "../users/enums/user.enum";
 
 const bcrypt = require("bcrypt");
 
@@ -14,12 +15,21 @@ const bcrypt = require("bcrypt");
 export class AuthService {
     constructor(private userService: UsersService, private otpService: OtpService, private jwtService: JwtService) {
     }
+
     async signup(createAuthDto: SignupDto) {
         const {email, fullName, password, referralCode} = createAuthDto;
-        if(referralCode){
-            if(!await this.userService.findOne(referralCode)) returnErrorResponse('Invalid referral code')
+        if (referralCode) {
+            if (!await this.userService.findOne({
+                field: USER.REFERRAL_CODE,
+                data: referralCode,
+                fields_to_load: USER.REFERRAL_CODE
+            })) returnErrorResponse('Invalid referral code')
         }
-        const user = await this.userService.findOne(email, ['email', 'verified', '_id']) ?? await this.userService.create({
+        const user = await this.userService.findOne({
+            field: USER.EMAIL,
+            data: email,
+            fields_to_load: 'email verified _id'
+        }) ?? await this.userService.create({
             fullName,
             email,
             password: await bcrypt.hash(password, 10),
@@ -28,12 +38,12 @@ export class AuthService {
         if (user.verified) returnErrorResponse('Already a user')
 
         await this.otpService.sendOtpViaEmail(user.email)
-        return successResponse({isVerified: false, message: 'A one time passcode has been sent to your email'})
+        return successResponse({isVerified: false, message: 'A one time passcode has been sent to your email', user})
     }
 
     async login(loginDto: LoginDto) {
         const {email, password} = loginDto;
-        const user = await this.userService.findOne(email)
+        const user = await this.userService.findOne({field: USER.EMAIL, data: email})
         if (!user) returnErrorResponse('User does not exist')
 
         if (!await this.comparePassword(password, user.password)) returnErrorResponse('Invalid credentials')
@@ -47,12 +57,12 @@ export class AuthService {
     async verifyUser(verifyUserDto: VerifyUserDto) {
         const {email, otp} = verifyUserDto;
         if (!await this.otpService.verifyOtpViaMail(email, otp)) returnErrorResponse('Invalid Otp')
-        const user = await this.userService.findOne(email)
+        const user = await this.userService.findOne({field: USER.EMAIL, data: email})
         if (user.verified) returnErrorResponse('Your user account has already been verified')
         user.verified = true;
         await user.save();
 
-        if(user.yourReferrer){
+        if (user.yourReferrer) {
             // referral integration
         }
         // generate access token

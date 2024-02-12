@@ -4,6 +4,7 @@ import {UpdateUserDto} from './dto/update-user.dto';
 import {InjectModel} from "@nestjs/mongoose";
 import {User} from "./schemas/user.schema";
 import {Model} from "mongoose";
+import {UserQueryDto} from "./dto/query.dto";
 
 @Injectable()
 export class UsersService {
@@ -27,8 +28,11 @@ export class UsersService {
         return `This action returns all users`;
     }
 
-    async findOne(data: string, fields_to_load = ['email', 'password', 'verified', 'firstName']) {
-        return this.userModel.findOne({$or: [{email: data}, {username: data}, {referalCode: data}]}).select(fields_to_load);
+    async findOne(query: UserQueryDto) {
+        const queryObj = {};
+        queryObj[query.field] = query.data;
+        console.log(queryObj)
+        return this.userModel.findOne(queryObj).select(query.fields_to_load);
     }
 
 

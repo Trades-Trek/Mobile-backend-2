@@ -23,7 +23,7 @@ export class User {
     password: string;
 
     @Prop()
-    referalCode: string;
+    referralCode: string;
 
     @Prop({default: 0, trim: true})
     status: number;
