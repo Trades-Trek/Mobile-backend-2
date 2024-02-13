@@ -92,6 +92,9 @@ export class User {
 
     @Prop({default: false})
     verified: boolean;
+
+    @Prop({default: ''})
+    resetPasswordToken: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

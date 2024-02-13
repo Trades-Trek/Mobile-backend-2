@@ -8,12 +8,18 @@ import {User} from "../users/schemas/user.schema";
 import {JwtService} from "@nestjs/jwt";
 import {VerifyUserDto} from "./dto/verify-user.dto";
 import {USER} from "../users/enums/user.enum";
-
+import {CreateOtpDto} from "../otp/dto/create-otp.dto";
+import {VerifyOtpDto} from "../otp/dto/verify-otp.dto";
+import {ResetPasswordDto} from "./dto/reset-password.dto";
+import {InjectModel} from "@nestjs/mongoose";
+import {Model, Types} from "mongoose";
+import {ResetPasswordToken} from "../users/schemas/token.schema";
 const bcrypt = require("bcrypt");
+const crypto = require("crypto")
 
 @Injectable()
 export class AuthService {
-    constructor(private userService: UsersService, private otpService: OtpService, private jwtService: JwtService) {
+    constructor(private userService: UsersService, private otpService: OtpService, private jwtService: JwtService, @InjectModel(ResetPasswordToken.name) private resetPasswordTokenModel: Model<ResetPasswordToken>, @InjectModel(User.name) private userModel: Model<User>) {
     }
 
     async signup(createAuthDto: SignupDto) {
@@ -69,6 +75,57 @@ export class AuthService {
         const accessToken = await this.generateAccessToken(user._id, user.username);
         return successResponse({isVerified: user.verified, accessToken, user})
 
+    }
+
+    async sendOtp(sendOtpDto: CreateOtpDto) {
+        const {email} = sendOtpDto;
+        await this.otpService.sendOtpViaEmail(email)
+        return successResponse('Otp sent to your mail')
+    }
+
+    async verifyOtp(sendOtpDto: VerifyOtpDto) {
+        const {email, otp, requestPasswordReset} = sendOtpDto;
+        const user = await this.userService.findOne({
+            field: USER.EMAIL,
+            data: email,
+            fields_to_load: 'email'
+        });
+        if (!user) returnErrorResponse('User does not exist');
+
+        if (!await this.otpService.verifyOtpViaMail(email, otp)) returnErrorResponse('Could not Verify OTP')
+        const token = requestPasswordReset ? await this.requestPasswordReset(user._id) : null;
+        return successResponse({message: 'Otp verified successfully', token})
+    }
+
+
+    async resetPassword(resetPasswordDto: ResetPasswordDto) {
+        const {newPassword, resetPasswordToken, confirmPassword} = resetPasswordDto;
+        let passwordResetToken = await this.resetPasswordTokenModel.findOne({resetPasswordToken});
+        if (!passwordResetToken) returnErrorResponse("Invalid or expired password reset token");
+
+        const isValid = await bcrypt.compare(resetPasswordToken, passwordResetToken.token);
+        if (!isValid) {
+            returnErrorResponse("Invalid or expired password reset token");
+        }
+        const hash = await bcrypt.hash(newPassword, 10);
+        await this.userModel.updateOne(
+            {_id: passwordResetToken.userId},
+            {$set: {password: hash}},
+        );
+        return successResponse('Your password has been reset successfully')
+    }
+
+
+    async requestPasswordReset(userId: Types.ObjectId): Promise<number> {
+        let token = await this.resetPasswordTokenModel.findOne({userId: userId});
+        if (token) await token.deleteOne();
+        let resetToken = crypto.randomBytes(32).toString("hex");
+        const hash = await bcrypt.hash(resetToken, Number(10));
+        await this.resetPasswordTokenModel.create({
+            userId: userId,
+            token: hash,
+        })
+        return resetToken;
     }
 
     async generateAccessToken(user_id: any, username: string) {
