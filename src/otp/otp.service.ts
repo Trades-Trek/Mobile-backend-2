@@ -3,15 +3,22 @@ import {InjectModel} from "@nestjs/mongoose";
 import {Otp} from "./schemas/otp.schema";
 import {Model} from "mongoose";
 import {CreateOtpDto} from "./dto/create-otp.dto";
+import {QueueService} from "../queues/queue.service";
 
 @Injectable()
 export class OtpService {
-    constructor(@InjectModel(Otp.name) private otpModel: Model<Otp>) {
+    constructor(@InjectModel(Otp.name) private otpModel: Model<Otp>, private queueService: QueueService) {
     }
 
     async sendOtpViaEmail(email) {
         const otp = await this.generateOtp({email})
         // send email
+        await this.queueService.sendEmail({
+            to: otp.email,
+            template: '/Otp',
+            subject: 'Trades Trek OTP',
+            context: {otp: otp.otp, email: otp.email}
+        })
         return null;
     }
 

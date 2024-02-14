@@ -1,4 +1,5 @@
 export enum USER {
+    ID = '_id',
     FIRSTNAME = 'firstName',
     LASTNAME = 'lastName',
     FULL_NAME = 'fullName',

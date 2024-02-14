@@ -3,15 +3,20 @@ import {AuthService} from './auth.service';
 import {SignupDto} from './dto/signup.dto';
 import {LoginDto} from './dto/login.dto';
 import {ApiOperation, ApiResponse} from "@nestjs/swagger";
-import {GoogleOauthGuard} from "./guards/google-oauth.guard";
+import {GoogleOauthGuard} from "../guards/google-oauth.guard";
 import {VerifyUserDto} from "./dto/verify-user.dto";
 import {CreateOtpDto} from "../otp/dto/create-otp.dto";
 import {VerifyOtpDto} from "../otp/dto/verify-otp.dto";
 import {ResetPasswordDto} from "./dto/reset-password.dto";
+import {UsersService} from "../users/users.service";
+import {Public} from "../decorators/public-endpoint.decorator";
+import {AuthUser} from "../decorators/user.decorator";
+import {User} from "../users/schemas/user.schema";
+import {successResponse} from "../utils/response";
 
 @Controller('auth')
 export class AuthController {
-    constructor(private readonly authService: AuthService) {
+    constructor(private readonly authService: AuthService, private userService: UsersService) {
     }
 
     @ApiOperation({summary: "Signup", description: "Signup"})
@@ -23,6 +28,7 @@ export class AuthController {
         status: HttpStatus.BAD_REQUEST,
         description: "Invalid request or validation errors"
     })
+    @Public()
     @Post('/signup')
     signup(@Body() createAuthDto: SignupDto) {
         return this.authService.signup(createAuthDto);
@@ -38,6 +44,7 @@ export class AuthController {
         status: HttpStatus.BAD_REQUEST,
         description: "Invalid request or validation errors"
     })
+    @Public()
     @Post('/login')
     login(@Body() loginDto: LoginDto) {
         return this.authService.login(loginDto);
@@ -53,9 +60,20 @@ export class AuthController {
         status: HttpStatus.BAD_REQUEST,
         description: "Invalid request or validation errors"
     })
+    @Public()
     @Post('/verify-user')
     verifyUser(@Body() verifyUserDto: VerifyUserDto) {
         return this.authService.verifyUser(verifyUserDto);
+    }
+
+
+    @ApiOperation({summary: "Auth user", description: "Get logged in user data"})
+    @ApiResponse({
+        status: HttpStatus.OK,
+    })
+    @Get('user')
+    authUser(@AuthUser() user: User) {
+        return successResponse({user})
     }
 
     @ApiOperation({summary: "Send Otp", description: "Send otp to email"})
@@ -68,6 +86,7 @@ export class AuthController {
         description: "Poor network or validation errors"
     })
     @Post('/send-otp')
+    @Public()
     sendOtp(@Body() sendOtpDto: CreateOtpDto) {
         return this.authService.sendOtp(sendOtpDto);
     }
@@ -81,6 +100,7 @@ export class AuthController {
         status: HttpStatus.BAD_REQUEST,
         description: "Poor network or validation errors"
     })
+    @Public()
     @Post('/re-send-otp')
     resendOtp(@Body() sendOtpDto: CreateOtpDto) {
         return this.authService.sendOtp(sendOtpDto);
@@ -95,6 +115,7 @@ export class AuthController {
         status: HttpStatus.BAD_REQUEST,
         description: "Poor network or validation errors"
     })
+    @Public()
     @Post('/verify-otp')
     verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
         return this.authService.verifyOtp(verifyOtpDto);
@@ -109,9 +130,10 @@ export class AuthController {
         status: HttpStatus.BAD_REQUEST,
         description: "Invalid request or validation errors"
     })
+    @Public()
     @Post('/reset-password')
     resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
-        return this.authService.resetPassword(resetPasswordDto);
+        return this.userService.resetPassword(resetPasswordDto);
     }
 
     @ApiOperation({summary: "Google login", description: "Login with google"})

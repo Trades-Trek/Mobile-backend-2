@@ -1,14 +1,21 @@
+import {useAwsServices} from "./aws";
+
 const nodemailer = require('nodemailer')
 const path = require('path')
 const hbs = require('nodemailer-express-handlebars');
+import * as aws from "@aws-sdk/client-ses";
+const awsService = useAwsServices();
+
 
 export const useNodemailerServices = () => {
     const sendMail = async (mailOptions) => {
         const transporter = await nodemailer.createTransport({
-            service: 'SendinBlue', // no need to set host or port etc.
+            port: 465,
+            host: 'email-smtp.us-east-1.amazonaws.com',
+            secure: true,
             auth: {
-                user: process.env.EMAIL,
-                pass: process.env.NODEMAIL_PASS
+                user: 'AKIAUN5PCHRBLC3YREHX',
+                pass: 'BCGfZFRqcwYDo+Y6eX7Ev6+ux3YgzOUy4uDcf7dXck4a'
             }
         });
         transporter.use(

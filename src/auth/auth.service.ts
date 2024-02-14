@@ -19,7 +19,7 @@ const crypto = require("crypto")
 
 @Injectable()
 export class AuthService {
-    constructor(private userService: UsersService, private otpService: OtpService, private jwtService: JwtService, @InjectModel(ResetPasswordToken.name) private resetPasswordTokenModel: Model<ResetPasswordToken>, @InjectModel(User.name) private userModel: Model<User>) {
+    constructor(private userService: UsersService, private otpService: OtpService, private jwtService: JwtService) {
     }
 
     async signup(createAuthDto: SignupDto) {
@@ -93,40 +93,10 @@ export class AuthService {
         if (!user) returnErrorResponse('User does not exist');
 
         if (!await this.otpService.verifyOtpViaMail(email, otp)) returnErrorResponse('Could not Verify OTP')
-        const token = requestPasswordReset ? await this.requestPasswordReset(user._id) : null;
+        const token = requestPasswordReset ? await this.userService.requestPasswordReset(user._id) : null;
         return successResponse({message: 'Otp verified successfully', token})
     }
 
-
-    async resetPassword(resetPasswordDto: ResetPasswordDto) {
-        const {newPassword, resetPasswordToken, confirmPassword} = resetPasswordDto;
-        let passwordResetToken = await this.resetPasswordTokenModel.findOne({resetPasswordToken});
-        if (!passwordResetToken) returnErrorResponse("Invalid or expired password reset token");
-
-        const isValid = await bcrypt.compare(resetPasswordToken, passwordResetToken.token);
-        if (!isValid) {
-            returnErrorResponse("Invalid or expired password reset token");
-        }
-        const hash = await bcrypt.hash(newPassword, 10);
-        await this.userModel.updateOne(
-            {_id: passwordResetToken.userId},
-            {$set: {password: hash}},
-        );
-        return successResponse('Your password has been reset successfully')
-    }
-
-
-    async requestPasswordReset(userId: Types.ObjectId): Promise<number> {
-        let token = await this.resetPasswordTokenModel.findOne({userId: userId});
-        if (token) await token.deleteOne();
-        let resetToken = crypto.randomBytes(32).toString("hex");
-        const hash = await bcrypt.hash(resetToken, Number(10));
-        await this.resetPasswordTokenModel.create({
-            userId: userId,
-            token: hash,
-        })
-        return resetToken;
-    }
 
     async generateAccessToken(user_id: any, username: string) {
         const payload = {sub: user_id, username};

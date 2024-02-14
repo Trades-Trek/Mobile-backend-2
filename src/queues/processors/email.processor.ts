@@ -2,6 +2,7 @@ import {Process, Processor} from "@nestjs/bull";
 import {Job} from "bull";
 import {HttpException, HttpStatus} from "@nestjs/common";
 import {useNodemailerServices} from "../../services/nodemailer";
+
 const useNodemailer = useNodemailerServices()
 
 @Processor('email-queue')
@@ -11,7 +12,7 @@ export class EmailProcessor {
         try {
             const context = job.data.data.context ? job.data.data.context : null
             const data = {
-                from: `Trades Trek ${process.env.FROM}`,
+                from: `Traes Trek info@tradestrek.com`,
                 to: job.data.data.to,
                 subject: job.data.data.subject,
                 template: job.data.data.template,

@@ -9,6 +9,7 @@ import configuration from "./config/configuration";
 import {PassportModule} from "@nestjs/passport";
 import { OtpModule } from './otp/otp.module';
 import { ReferralsModule } from './referrals/referrals.module';
+import {QueueModule} from "./queues/queue.module";
 
 @Module({
     imports: [
@@ -24,6 +25,7 @@ import { ReferralsModule } from './referrals/referrals.module';
             }),
             inject: [ConfigService],
         }),
+        QueueModule,
         UsersModule,
         OtpModule,
         ReferralsModule,
