@@ -10,14 +10,14 @@ export class OtpService {
     constructor(@InjectModel(Otp.name) private otpModel: Model<Otp>, private queueService: QueueService) {
     }
 
-    async sendOtpViaEmail(email) {
+    async sendOtpViaEmail(email, is_verify_user: boolean = false, fullName: string = null) {
         const otp = await this.generateOtp({email})
         // send email
         await this.queueService.sendEmail({
             to: otp.email,
-            template: '/Otp',
+            template: is_verify_user ? '/VerifyUser' : '/Otp',
             subject: 'Trades Trek OTP',
-            context: {otp: otp.otp, email: otp.email}
+            context: {otp: otp.otp, email: otp.email, fullName}
         })
         return null;
     }

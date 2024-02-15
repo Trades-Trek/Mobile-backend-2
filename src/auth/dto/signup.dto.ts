@@ -2,7 +2,10 @@ import {IsEmpty, IsNotEmpty} from "class-validator";
 
 export class SignupDto {
     @IsNotEmpty()
-    fullName:string
+    firstName:string
+
+    @IsNotEmpty()
+    lastName:string
 
     @IsNotEmpty()
     email:string

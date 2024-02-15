@@ -15,7 +15,7 @@ import {VersionGuard} from "../guards/version.guard";
         useFactory: (configService: ConfigService) => ({
             global: true,
             secret: configService.get('JWT_SECRET'),
-            signOptions: {expiresIn: '60s'},
+            signOptions: {expiresIn: '10h'},
         }),
         inject: [ConfigService]
     }),],

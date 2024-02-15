@@ -14,6 +14,7 @@ import {ResetPasswordDto} from "./dto/reset-password.dto";
 import {InjectModel} from "@nestjs/mongoose";
 import {Model, Types} from "mongoose";
 import {ResetPasswordToken} from "../users/schemas/token.schema";
+
 const bcrypt = require("bcrypt");
 const crypto = require("crypto")
 
@@ -23,7 +24,7 @@ export class AuthService {
     }
 
     async signup(createAuthDto: SignupDto) {
-        const {email, fullName, password, referralCode} = createAuthDto;
+        const {email, firstName, lastName, password, referralCode} = createAuthDto;
         if (referralCode) {
             if (!await this.userService.findOne({
                 field: USER.REFERRAL_CODE,
@@ -36,7 +37,8 @@ export class AuthService {
             data: email,
             fields_to_load: 'email verified _id'
         }) ?? await this.userService.create({
-            fullName,
+            firstName,
+            lastName,
             email,
             password: await bcrypt.hash(password, 10),
             referralCode
@@ -44,7 +46,7 @@ export class AuthService {
         if (user.verified) returnErrorResponse('Already a user')
 
         await this.otpService.sendOtpViaEmail(user.email)
-        return successResponse({isVerified: false, message: 'A one time passcode has been sent to your email', user})
+        return successResponse({isVerified: false, message: 'A one time passcode has been sent to your email'})
     }
 
     async login(loginDto: LoginDto) {
@@ -54,7 +56,7 @@ export class AuthService {
 
         if (!await this.comparePassword(password, user.password)) returnErrorResponse('Invalid credentials')
 
-        const accessToken = user.verified ? await this.generateAccessToken(user._id, user.username) : await this.otpService.sendOtpViaEmail(user.email);
+        const accessToken = user.verified ? await this.generateAccessToken(user._id, user.username) : await this.otpService.sendOtpViaEmail(user.email, true, user.fullName);
 
         return successResponse({isVerified: user.verified, accessToken, user: user.verified ? user : null})
 
@@ -93,8 +95,13 @@ export class AuthService {
         if (!user) returnErrorResponse('User does not exist');
 
         if (!await this.otpService.verifyOtpViaMail(email, otp)) returnErrorResponse('Could not Verify OTP')
-        const token = requestPasswordReset ? await this.userService.requestPasswordReset(user._id) : null;
-        return successResponse({message: 'Otp verified successfully', token})
+        const passwordResetToken = requestPasswordReset ? await this.userService.requestPasswordReset(user._id) : null;
+        const returnData = requestPasswordReset ? {
+            message: 'Otp verified successfully',
+            passwordResetToken,
+            user_id: user._id
+        } : {message: 'Otp verified successfully'};
+        return successResponse(returnData)
     }
 
 

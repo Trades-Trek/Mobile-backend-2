@@ -8,6 +8,7 @@ import {UserQueryDto} from "./dto/query.dto";
 import {ResetPasswordDto} from "../auth/dto/reset-password.dto";
 import {returnErrorResponse, successResponse} from "../utils/response";
 import {ResetPasswordToken} from "./schemas/token.schema";
+
 const bcrypt = require("bcrypt");
 const crypto = require("crypto")
 
@@ -18,11 +19,11 @@ export class UsersService {
 
     async create(createUserDto: CreateUserDto) {
         const formatted_data = {
-            firstName: createUserDto.fullName.split(' ').slice(0, -1).join(' '),
-            lastName: createUserDto.fullName.split(' ').slice(-1).join(' '),
-            username: createUserDto.fullName,
+            firstName: createUserDto.firstName,
+            lastName: createUserDto.lastName,
+            username: createUserDto.firstName + '@0' + this.userModel.countDocuments(),
             password: createUserDto.password,
-            fullName: createUserDto.fullName,
+            fullName: createUserDto.firstName + ' ' + createUserDto.lastName,
             email: createUserDto.email,
             yourReferrer: createUserDto.referralCode
         }
@@ -42,10 +43,9 @@ export class UsersService {
 
 
     async resetPassword(resetPasswordDto: ResetPasswordDto) {
-        const {newPassword, resetPasswordToken, confirmPassword} = resetPasswordDto;
-        let passwordResetToken = await this.resetPasswordTokenModel.findOne({resetPasswordToken});
+        const {newPassword, resetPasswordToken, confirmPassword, userId} = resetPasswordDto;
+        let passwordResetToken = await this.resetPasswordTokenModel.findOne({userId});
         if (!passwordResetToken) returnErrorResponse("Invalid or expired password reset token");
-
         const isValid = await bcrypt.compare(resetPasswordToken, passwordResetToken.token);
         if (!isValid) {
             returnErrorResponse("Invalid or expired password reset token");
@@ -55,6 +55,7 @@ export class UsersService {
             {_id: passwordResetToken.userId},
             {$set: {password: hash}},
         );
+        await passwordResetToken.deleteOne()
         return successResponse('Your password has been reset successfully')
     }
 

@@ -1,7 +1,9 @@
 export class CreateUserDto {
-    fullName: string;
-    email:string;
-    password:string;
-    referralCode?:string
+    firstName: string;
+
+    lastName: string;
+    email: string;
+    password: string;
+    referralCode?: string
 
 }
