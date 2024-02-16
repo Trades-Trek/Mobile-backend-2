@@ -2,8 +2,8 @@ import {Injectable} from '@nestjs/common';
 import {CreateUserDto} from './dto/create-user.dto';
 import {UpdateUserDto} from './dto/update-user.dto';
 import {InjectModel} from "@nestjs/mongoose";
-import {User} from "./schemas/user.schema";
-import {Model, Types} from "mongoose";
+import {User, UserDocument} from "./schemas/user.schema";
+import {Model, ObjectId, Types} from "mongoose";
 import {UserQueryDto} from "./dto/query.dto";
 import {ResetPasswordDto} from "../auth/dto/reset-password.dto";
 import {returnErrorResponse, successResponse} from "../utils/response";
@@ -18,16 +18,10 @@ export class UsersService {
     }
 
     async create(createUserDto: CreateUserDto) {
-        const formatted_data = {
-            firstName: createUserDto.firstName,
-            lastName: createUserDto.lastName,
-            username: createUserDto.firstName + '@0' + this.userModel.countDocuments(),
-            password: createUserDto.password,
-            fullName: createUserDto.firstName + ' ' + createUserDto.lastName,
-            email: createUserDto.email,
-            yourReferrer: createUserDto.referralCode
-        }
-        return await this.userModel.create(formatted_data)
+        createUserDto['your_referrer'] = createUserDto.referral_code;
+        createUserDto['full_name'] = createUserDto.first_name + ' ' + createUserDto.last_name;
+        createUserDto['username'] = createUserDto.first_name + '@0' + this.userModel.countDocuments();
+        return await this.userModel.create(createUserDto)
     }
 
     findAll() {
@@ -43,16 +37,16 @@ export class UsersService {
 
 
     async resetPassword(resetPasswordDto: ResetPasswordDto) {
-        const {newPassword, resetPasswordToken, confirmPassword, userId} = resetPasswordDto;
-        let passwordResetToken = await this.resetPasswordTokenModel.findOne({userId});
+        const {new_password, reset_password_token, confirm_password, user_id} = resetPasswordDto;
+        let passwordResetToken = await this.resetPasswordTokenModel.findOne({user_id});
         if (!passwordResetToken) returnErrorResponse("Invalid or expired password reset token");
-        const isValid = await bcrypt.compare(resetPasswordToken, passwordResetToken.token);
+        const isValid = await bcrypt.compare(reset_password_token, passwordResetToken.token);
         if (!isValid) {
             returnErrorResponse("Invalid or expired password reset token");
         }
-        const hash = await bcrypt.hash(newPassword, 10);
+        const hash = await bcrypt.hash(new_password, 10);
         await this.userModel.updateOne(
-            {_id: passwordResetToken.userId},
+            {_id: passwordResetToken.user_id},
             {$set: {password: hash}},
         );
         await passwordResetToken.deleteOne()
@@ -60,21 +54,23 @@ export class UsersService {
     }
 
 
-    async requestPasswordReset(userId: Types.ObjectId): Promise<number> {
-        let token = await this.resetPasswordTokenModel.findOne({userId: userId});
+    async requestPasswordReset(user_id: Types.ObjectId): Promise<number> {
+        let token = await this.resetPasswordTokenModel.findOne({user_id});
         if (token) await token.deleteOne();
-        let resetToken = crypto.randomBytes(32).toString("hex");
+        const resetToken = crypto.randomBytes(32).toString("hex");
         const hash = await bcrypt.hash(resetToken, Number(10));
         await this.resetPasswordTokenModel.create({
-            userId: userId,
+            user_id,
             token: hash,
         })
         return resetToken;
     }
 
 
-    update(id: number, updateUserDto: UpdateUserDto) {
-        return `This action updates a #${id} user`;
+    async update(user:UserDocument, updateUserDto: UpdateUserDto) {
+        updateUserDto['full_name'] = updateUserDto.first_name + ' ' + updateUserDto.last_name;
+        await user.updateOne({id: user.id}, {$set:updateUserDto})
+        return successResponse({message: 'profile updated successfully'})
     }
 
     remove(id: number) {

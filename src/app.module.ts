@@ -10,6 +10,7 @@ import {PassportModule} from "@nestjs/passport";
 import { OtpModule } from './otp/otp.module';
 import { ReferralsModule } from './referrals/referrals.module';
 import {QueueModule} from "./queues/queue.module";
+import { PlansModule } from './plans/plans.module';
 
 @Module({
     imports: [
@@ -29,6 +30,7 @@ import {QueueModule} from "./queues/queue.module";
         UsersModule,
         OtpModule,
         ReferralsModule,
+        PlansModule,
     ],
     controllers: [AppController],
     providers: [AppService],

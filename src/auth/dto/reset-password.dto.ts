@@ -2,14 +2,14 @@ import {IsNotEmpty} from "class-validator";
 
 export class ResetPasswordDto {
     @IsNotEmpty()
-    newPassword: string
+    new_password: string
 
     @IsNotEmpty()
-    resetPasswordToken: string
+    reset_password_token: string
 
     @IsNotEmpty()
-    confirmPassword: string
+    confirm_password: string
 
     @IsNotEmpty()
-    userId: string
+    user_id: string
 }

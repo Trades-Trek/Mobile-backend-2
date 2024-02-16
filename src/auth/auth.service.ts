@@ -24,11 +24,11 @@ export class AuthService {
     }
 
     async signup(createAuthDto: SignupDto) {
-        const {email, firstName, lastName, password, referralCode} = createAuthDto;
-        if (referralCode) {
+        const {email, first_name, last_name, password, referral_code} = createAuthDto;
+        if (referral_code) {
             if (!await this.userService.findOne({
                 field: USER.REFERRAL_CODE,
-                data: referralCode,
+                data: referral_code,
                 fields_to_load: USER.REFERRAL_CODE
             })) returnErrorResponse('Invalid referral code')
         }
@@ -37,11 +37,11 @@ export class AuthService {
             data: email,
             fields_to_load: 'email verified _id'
         }) ?? await this.userService.create({
-            firstName,
-            lastName,
+            first_name,
+            last_name,
             email,
             password: await bcrypt.hash(password, 10),
-            referralCode
+            referral_code
         })
         if (user.verified) returnErrorResponse('Already a user')
 
@@ -56,9 +56,9 @@ export class AuthService {
 
         if (!await this.comparePassword(password, user.password)) returnErrorResponse('Invalid credentials')
 
-        const accessToken = user.verified ? await this.generateAccessToken(user._id, user.username) : await this.otpService.sendOtpViaEmail(user.email, true, user.fullName);
+        const accessToken = user.verified ? await this.generateAccessToken(user._id, user.username) : await this.otpService.sendOtpViaEmail(user.email, true, user.full_name);
 
-        return successResponse({isVerified: user.verified, accessToken, user: user.verified ? user : null})
+        return successResponse({is_verified: user.verified, access_token:accessToken, user: user.verified ? user : null})
 
     }
 
@@ -70,12 +70,12 @@ export class AuthService {
         user.verified = true;
         await user.save();
 
-        if (user.yourReferrer) {
+        if (user.your_referrer) {
             // referral integration
         }
         // generate access token
         const accessToken = await this.generateAccessToken(user._id, user.username);
-        return successResponse({isVerified: user.verified, accessToken, user})
+        return successResponse({is_verified: user.verified, access_token:accessToken, user})
 
     }
 
@@ -86,7 +86,7 @@ export class AuthService {
     }
 
     async verifyOtp(sendOtpDto: VerifyOtpDto) {
-        const {email, otp, requestPasswordReset} = sendOtpDto;
+        const {email, otp, request_password_reset} = sendOtpDto;
         const user = await this.userService.findOne({
             field: USER.EMAIL,
             data: email,
@@ -95,10 +95,10 @@ export class AuthService {
         if (!user) returnErrorResponse('User does not exist');
 
         if (!await this.otpService.verifyOtpViaMail(email, otp)) returnErrorResponse('Could not Verify OTP')
-        const passwordResetToken = requestPasswordReset ? await this.userService.requestPasswordReset(user._id) : null;
-        const returnData = requestPasswordReset ? {
+        const passwordResetToken = request_password_reset ? await this.userService.requestPasswordReset(user._id) : null;
+        const returnData = request_password_reset ? {
             message: 'Otp verified successfully',
-            passwordResetToken,
+            password_reset_token:passwordResetToken,
             user_id: user._id
         } : {message: 'Otp verified successfully'};
         return successResponse(returnData)

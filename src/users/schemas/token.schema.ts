@@ -7,7 +7,7 @@ import mongoose from "mongoose";
 @Schema({expires: '5m'})
 export class ResetPasswordToken {
     @Prop({type: mongoose.Schema.Types.ObjectId, ref: 'User'})
-    userId: string
+    user_id: string
 
     @Prop({required: true})
     token: string

@@ -7,6 +7,7 @@ import {UsersService} from "../users/users.service";
 import {USER} from "../users/enums/user.enum";
 import {Reflector} from "@nestjs/core";
 import {IS_PUBLIC_KEY} from "../decorators/public-endpoint.decorator";
+import {UserDocument} from "../users/schemas/user.schema";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -33,7 +34,9 @@ export class AuthGuard implements CanActivate {
                     secret: this.configService.get('JWT_SECRET'),
                 }
             );
-            request['user'] = await this.userService.findOne({field: USER.ID, data: payload.sub});
+            const user = await this.userService.findOne({field: USER.ID, data: payload.sub});
+            if (!user) new Error();
+            request['user'] = user;
         } catch {
             returnErrorResponse('Unauthorized', HttpStatus.UNAUTHORIZED)
         }
@@ -43,5 +46,12 @@ export class AuthGuard implements CanActivate {
     private extractTokenFromHeader(request: Request): string | undefined {
         const [type, token] = request.headers.authorization?.split(' ') ?? [];
         return type === 'Bearer' ? token : undefined;
+    }
+
+    private isUserResource(request: Request, user: UserDocument): boolean {
+        if (request.params.user_id && user.role !== 'admin') {
+            return request.params.user_id === user.id;
+        }
+        return true;
     }
 }

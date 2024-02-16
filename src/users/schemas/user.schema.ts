@@ -1,20 +1,26 @@
-import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
+import {Prop, raw, Schema, SchemaFactory} from "@nestjs/mongoose";
 import configuration from "../../config/configuration";
 import {SUBSCRIPTION_DURATION} from "../../enums/subscription_duration";
 import {DEVICE_TYPES} from "../../enums/device_types";
+import {Document} from "mongoose";
+
+export type UserDocument = User & Document;
 
 @Schema({timestamps: true})
 export class User {
     @Prop({required: true, trim: true})
-    firstName: string;
+    first_name: string;
     @Prop({required: true, trim: true})
-    lastName: string;
+    last_name: string;
 
     @Prop({required: true})
-    fullName: string;
+    full_name: string;
 
     @Prop({unique: true, trim: true})
     email: string;
+
+    @Prop({default: 'user'})
+    role: string;
 
     @Prop({required: true, trim: true, unique: true, sparse: true})
     username: string;
@@ -23,78 +29,46 @@ export class User {
     password: string;
 
     @Prop()
-    referralCode: string;
+    referral_code: string;
 
-    @Prop({default: 0, trim: true})
-    status: number;
+    @Prop(raw({
+        allow_notifications: {type: Boolean, default: true},
+        allow_face_id: {type: Boolean, default: false},
+        allow_portfolio: {type: Boolean, default: true},
+        allow_stock_news: {type: Boolean, default: true},
+        allow_price_alerts: {type: Boolean, default: true},
+    }))
+    settings: Record<string, any>;
 
-    @Prop({default: ''})
-    profileId: string;
-
-    @Prop({default: 0})
-    profitOrLossDaywise: number;
-
-    @Prop({default: 0})
-    profitOrLossTotal: number;
-    @Prop({default: 0})
-    point: number;
-
-    @Prop({default: 0})
-    annualReturn: number;
-
-    @Prop({default: configuration().STARTING_CASH})
-    cash: number;
-
-    @Prop({default: configuration().STARTING_CASH})
-    accountValue: number;
+    @Prop(raw({
+        plan_id: {type: String},
+    }))
+    subscription: Record<string, any>;
 
     @Prop({default: ''})
     phone: string;
 
-    @Prop({default: configuration().STARTING_CASH})
-    buyingPower: number;
-    @Prop({default: false})
-    block: boolean;
-    @Prop({default: null})
-    currentSubscriptionExpiryDate: Date;
-    @Prop()
-    subscriptionId: string;
-    @Prop({
-        enum: SUBSCRIPTION_DURATION,
-        default: SUBSCRIPTION_DURATION.TRIAL,
-    })
-    subscriptionDuration: string;
-
     @Prop({default: '', required: false})
-    yourReferrer: string;
+    your_referrer: string;
 
-    @Prop({default: ''})
-    joinedRefferal: string;
     @Prop({default: 0})
-    walletAmount: number;
-    @Prop({default: 0})
-    requestAmount: number;
-    @Prop({default: 0})
-    withdrawAmount: number;
+    wallet_balance: number;
+
     @Prop({enum: DEVICE_TYPES, default: DEVICE_TYPES.BROWSER})
     device: string;
-    @Prop({default: true})
-    allowNotification: boolean;
+
     @Prop({
         default:
             'https://firebasestorage.googleapis.com/v0/b/jambapp-3e437.appspot.com/o/default-user-avatar.png?alt=media&token=e58679af-a9e8-4d91-b8f5-4587be5dc714',
     })
-    profilePic: string;
-    @Prop({default: ''})
-    userId: string;
+    profile_pic: string;
+
     @Prop()
-    lastSeen: Date;
+    last_seen: Date;
 
     @Prop({default: false})
     verified: boolean;
 
-    @Prop({default: ''})
-    resetPasswordToken: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

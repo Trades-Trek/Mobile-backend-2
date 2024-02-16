@@ -6,5 +6,5 @@ export class VerifyOtpDto {
 
     @IsNotEmpty()
     otp:number
-    requestPasswordReset:number
+    request_password_reset:number
 }

@@ -2,10 +2,10 @@ import {IsEmpty, IsNotEmpty} from "class-validator";
 
 export class SignupDto {
     @IsNotEmpty()
-    firstName:string
+    first_name:string
 
     @IsNotEmpty()
-    lastName:string
+    last_name:string
 
     @IsNotEmpty()
     email:string
@@ -13,6 +13,6 @@ export class SignupDto {
     @IsNotEmpty()
     password:string
 
-    referralCode?:string
+    referral_code?:string
 
 }
