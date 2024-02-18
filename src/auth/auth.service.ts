@@ -4,7 +4,7 @@ import {LoginDto} from './dto/login.dto';
 import {UsersService} from "../users/users.service";
 import {returnErrorResponse, successResponse} from "../utils/response";
 import {OtpService} from "../otp/otp.service";
-import {User} from "../users/schemas/user.schema";
+import {User, UserDocument} from "../users/schemas/user.schema";
 import {JwtService} from "@nestjs/jwt";
 import {VerifyUserDto} from "./dto/verify-user.dto";
 import {USER} from "../users/enums/user.enum";
@@ -12,7 +12,7 @@ import {CreateOtpDto} from "../otp/dto/create-otp.dto";
 import {VerifyOtpDto} from "../otp/dto/verify-otp.dto";
 import {ResetPasswordDto} from "./dto/reset-password.dto";
 import {InjectModel} from "@nestjs/mongoose";
-import {Model, Types} from "mongoose";
+import {Model, ObjectId, Types} from "mongoose";
 import {ResetPasswordToken} from "../users/schemas/token.schema";
 
 const bcrypt = require("bcrypt");
@@ -51,31 +51,46 @@ export class AuthService {
 
     async login(loginDto: LoginDto) {
         const {email, password} = loginDto;
-        const user = await this.userService.findOne({field: USER.EMAIL, data: email})
+        let user: UserDocument | undefined = await this.userService.findOne({
+            field: USER.EMAIL,
+            data: email,
+            is_server_request: true
+        })
         if (!user) returnErrorResponse('User does not exist')
 
         if (!await this.comparePassword(password, user.password)) returnErrorResponse('Invalid credentials')
 
         const accessToken = user.verified ? await this.generateAccessToken(user._id, user.username) : await this.otpService.sendOtpViaEmail(user.email, true, user.full_name);
-
-        return successResponse({is_verified: user.verified, access_token:accessToken, user: user.verified ? user : null})
+        // load client user data
+        if (user.verified) user = await this.userService.findOne({
+            field: USER.EMAIL,
+            data: email,
+        })
+        return successResponse({
+            is_verified: user.verified,
+            access_token: accessToken,
+            user: user.verified ? user : null
+        })
 
     }
 
     async verifyUser(verifyUserDto: VerifyUserDto) {
         const {email, otp} = verifyUserDto;
         if (!await this.otpService.verifyOtpViaMail(email, otp)) returnErrorResponse('Invalid Otp')
-        const user = await this.userService.findOne({field: USER.EMAIL, data: email})
-        if (user.verified) returnErrorResponse('Your user account has already been verified')
-        user.verified = true;
-        await user.save();
+        let user: UserDocument | undefined = await this.userService.findOne({field: USER.EMAIL, data: email})
+        if (!user) returnErrorResponse('User does not exist')
 
+        if (user.verified) returnErrorResponse('Your account has already been verified')
+
+        await user.updateOne({verified: true}, {new: true})
+
+        user = await this.userService.findOne({field: USER.EMAIL, data: email})
         if (user.your_referrer) {
             // referral integration
         }
         // generate access token
         const accessToken = await this.generateAccessToken(user._id, user.username);
-        return successResponse({is_verified: user.verified, access_token:accessToken, user})
+        return successResponse({is_verified: user.verified, access_token: accessToken, user})
 
     }
 
@@ -98,10 +113,15 @@ export class AuthService {
         const passwordResetToken = request_password_reset ? await this.userService.requestPasswordReset(user._id) : null;
         const returnData = request_password_reset ? {
             message: 'Otp verified successfully',
-            password_reset_token:passwordResetToken,
+            password_reset_token: passwordResetToken,
             user_id: user._id
         } : {message: 'Otp verified successfully'};
         return successResponse(returnData)
+    }
+
+
+    async authUser(userId:ObjectId){
+        return successResponse({user: await this.userService.findOne({field:USER.ID, data:userId})})
     }
 
 

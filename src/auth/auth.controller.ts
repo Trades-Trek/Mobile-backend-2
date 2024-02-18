@@ -13,6 +13,8 @@ import {Public} from "../decorators/public-endpoint.decorator";
 import {AuthUser} from "../decorators/user.decorator";
 import {User} from "../users/schemas/user.schema";
 import {successResponse} from "../utils/response";
+import {AuthId} from "../decorators/user_id.decorator";
+import {ObjectId} from "mongoose";
 
 @Controller('auth')
 export class AuthController {
@@ -72,8 +74,8 @@ export class AuthController {
         status: HttpStatus.OK,
     })
     @Get('user')
-    authUser(@AuthUser() user: User) {
-        return successResponse({user})
+    authUser(@AuthId() userId: ObjectId) {
+        return this.authService.authUser(userId)
     }
 
     @ApiOperation({summary: "Send Otp", description: "Send otp to email"})

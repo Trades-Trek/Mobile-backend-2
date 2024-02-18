@@ -25,7 +25,7 @@ export class User {
     @Prop({required: true, trim: true, unique: true, sparse: true})
     username: string;
 
-    @Prop({required: true, trim: true})
+    @Prop({required: true, trim: true, select:false})
     password: string;
 
     @Prop()
@@ -42,6 +42,7 @@ export class User {
 
     @Prop(raw({
         plan_id: {type: String},
+        next_sub_date: {type: Date}
     }))
     subscription: Record<string, any>;
 
@@ -54,8 +55,20 @@ export class User {
     @Prop({default: 0})
     wallet_balance: number;
 
+    @Prop({default: 0})
+    pin: number;
+
+    @Prop({default: false})
+    has_pin: boolean;
+
     @Prop({enum: DEVICE_TYPES, default: DEVICE_TYPES.BROWSER})
     device: string;
+
+    @Prop({required: true, default:0})
+    total_followers: number;
+
+    @Prop({required: true, default:0})
+    total_following: number;
 
     @Prop({
         default:

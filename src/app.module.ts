@@ -11,6 +11,7 @@ import { OtpModule } from './otp/otp.module';
 import { ReferralsModule } from './referrals/referrals.module';
 import {QueueModule} from "./queues/queue.module";
 import { PlansModule } from './plans/plans.module';
+import { SocialsModule } from './socials/socials.module';
 
 @Module({
     imports: [
@@ -31,6 +32,7 @@ import { PlansModule } from './plans/plans.module';
         OtpModule,
         ReferralsModule,
         PlansModule,
+        SocialsModule,
     ],
     controllers: [AppController],
     providers: [AppService],
