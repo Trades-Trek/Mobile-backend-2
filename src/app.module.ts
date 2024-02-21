@@ -12,6 +12,9 @@ import { ReferralsModule } from './referrals/referrals.module';
 import {QueueModule} from "./queues/queue.module";
 import { PlansModule } from './plans/plans.module';
 import { SocialsModule } from './socials/socials.module';
+import { SubscriptionsModule } from './subscriptions/subscriptions.module';
+import { TransactionsModule } from './transactions/transactions.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
     imports: [
@@ -33,6 +36,9 @@ import { SocialsModule } from './socials/socials.module';
         ReferralsModule,
         PlansModule,
         SocialsModule,
+        SubscriptionsModule,
+        TransactionsModule,
+        NotificationsModule,
     ],
     controllers: [AppController],
     providers: [AppService],

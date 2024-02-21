@@ -1,6 +1,6 @@
 const Pusher = require("pusher");
 
-export const usePusher = () => {
+const usePusherServices = () => {
     const config = {
         appId: process.env.PUSHER_APP_ID,
         key: process.env.PUSHER_KEY,
@@ -8,5 +8,12 @@ export const usePusher = () => {
         cluster: 'eu',
         useTLS: true
     }
-    return new Pusher(config);
+    const pusher = Pusher(config);
+
+    const dispatchEvent = async (channel, event, payload) => {
+        await pusher.trigger(channel, event, payload)
+    }
+    return {dispatchEvent}
 };
+
+export default  usePusherServices

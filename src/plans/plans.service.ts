@@ -2,9 +2,11 @@ import {Injectable} from '@nestjs/common';
 import {CreatePlanDto} from './dto/create-plan.dto';
 import {UpdatePlanDto} from './dto/update-plan.dto';
 import {InjectModel} from "@nestjs/mongoose";
-import {Plan, PlanSchema} from "./schemas/plan.schema";
-import {Model} from "mongoose";
-import {successResponse} from "../utils/response";
+import {Plan, PlanDocument, PlanSchema} from "./schemas/plan.schema";
+import {Model, Types} from "mongoose";
+import {returnErrorResponse, successResponse} from "../utils/response";
+import {UserDocument} from "../users/schemas/user.schema";
+import {AuthUser} from "../decorators/user.decorator";
 
 @Injectable()
 export class PlansService {
@@ -16,13 +18,14 @@ export class PlansService {
         return successResponse({plan, message: 'plan created successfully'})
     }
 
+
     async findAll() {
         const plans = await this.planModel.find().exec();
         return successResponse({plans})
     }
 
-    async findOne(id: number) {
-        return `This action returns a #${id} plan`;
+    async findOne(id: Types.ObjectId): Promise<PlanDocument | undefined> {
+        return this.planModel.findById(id);
     }
 
     update(id: number, updatePlanDto: UpdatePlanDto) {

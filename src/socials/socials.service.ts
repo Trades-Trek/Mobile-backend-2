@@ -1,6 +1,4 @@
 import {Injectable} from '@nestjs/common';
-import {CreateSocialDto} from './dto/create-social.dto';
-import {UpdateSocialDto} from './dto/update-social.dto';
 import {InjectModel} from "@nestjs/mongoose";
 import {Social, SocialDocument} from "./schemas/social.schema";
 import {Model, Types} from "mongoose";
@@ -48,6 +46,7 @@ export class SocialsService {
 
     async incrementFollowers(followed: UserDocument): Promise<boolean> {
         await followed.updateOne({$inc: {total_followers: 1}})
+        // dispatch event 
         return true;
     }
 

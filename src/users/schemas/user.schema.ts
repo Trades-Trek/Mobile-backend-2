@@ -2,7 +2,8 @@ import {Prop, raw, Schema, SchemaFactory} from "@nestjs/mongoose";
 import configuration from "../../config/configuration";
 import {SUBSCRIPTION_DURATION} from "../../enums/subscription_duration";
 import {DEVICE_TYPES} from "../../enums/device_types";
-import {Document} from "mongoose";
+import {Document, Types} from "mongoose";
+import {PLAN_TYPE} from "../../enums/plan_type";
 
 export type UserDocument = User & Document;
 
@@ -25,7 +26,7 @@ export class User {
     @Prop({required: true, trim: true, unique: true, sparse: true})
     username: string;
 
-    @Prop({required: true, trim: true, select:false})
+    @Prop({required: true, trim: true, select: false})
     password: string;
 
     @Prop()
@@ -40,9 +41,13 @@ export class User {
     }))
     settings: Record<string, any>;
 
+
     @Prop(raw({
-        plan_id: {type: String},
-        next_sub_date: {type: Date}
+        plan_id: {type: Types.ObjectId, required: false},
+        renewal_date: {type: Date, required: false},
+        has_expired: {type: Boolean, required: false},
+        no_of_days_used: {type: Number, default: 0},
+        plan_type: {type:String, required: false},
     }))
     subscription: Record<string, any>;
 
@@ -61,13 +66,16 @@ export class User {
     @Prop({default: false})
     has_pin: boolean;
 
+    @Prop({default: false, required:true})
+    has_subscribed: boolean;
+
     @Prop({enum: DEVICE_TYPES, default: DEVICE_TYPES.BROWSER})
     device: string;
 
-    @Prop({required: true, default:0})
+    @Prop({required: true, default: 0})
     total_followers: number;
 
-    @Prop({required: true, default:0})
+    @Prop({required: true, default: 0})
     total_following: number;
 
     @Prop({

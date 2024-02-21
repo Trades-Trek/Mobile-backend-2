@@ -12,13 +12,16 @@ import {UpdateSettingsDto} from "./dto/settings.dto";
 import {isEmpty} from "class-validator";
 import {CreatePinDto, UpdatePinDto} from "./dto/pin.dto";
 import {USER} from "./enums/user.enum";
+import {TransactionsService} from "../transactions/transactions.service";
+import {TRANSACTION_TYPE} from "../enums/transaction_type";
+import {NotificationsService} from "../notifications/notifications.service";
 
 const bcrypt = require("bcrypt");
 const crypto = require("crypto")
 
 @Injectable()
 export class UsersService {
-    constructor(@InjectModel(User.name) private userModel: Model<User>, @InjectModel(ResetPasswordToken.name) private resetPasswordTokenModel: Model<ResetPasswordToken>) {
+    constructor(@InjectModel(User.name) private userModel: Model<User>, @InjectModel(ResetPasswordToken.name) private resetPasswordTokenModel: Model<ResetPasswordToken>, private transactionService: TransactionsService, private notificationService: NotificationsService) {
     }
 
     async create(createUserDto: CreateUserDto) {
@@ -43,7 +46,7 @@ export class UsersService {
 
     async createUserPin(user: UserDocument, createPinDto: CreatePinDto) {
         if (user.pin) returnErrorResponse('cannot create more than one pin')
-        await user.updateOne({pin: createPinDto.pin, has_pin:true})
+        await user.updateOne({pin: createPinDto.pin, has_pin: true})
         return successResponse('Your pin has been created successfully')
     }
 
@@ -102,6 +105,39 @@ export class UsersService {
         updatedFields['full_name'] = updateUserDto.first_name + ' ' + updateUserDto.last_name;
         await user.updateOne(updatedFields)
         return successResponse({message: 'profile updated successfully'})
+    }
+
+    async debitUserWallet(user: UserDocument, amount: number): Promise<boolean> {
+        await user.updateOne({wallet_balance: {$inc: -amount}})
+        await this.transactionService.create({
+            amount,
+            user_id: user.id,
+            description: ` Wallet Debit`,
+            transaction_type: TRANSACTION_TYPE.DEBIT
+        })
+        this.notificationService.create({
+            title: 'Wallet Debited Successfully',
+            description: `Your Trades Trek wallet account has been debited with the sum of ${amount}`,
+            user_id: user.id,
+        })
+        return true
+    }
+
+    async creditUserWallet(user: UserDocument, amount: number): Promise<boolean> {
+        await user.updateOne({wallet_balance: {$inc: amount}})
+        await this.transactionService.create({
+            amount,
+            user_id: user.id,
+            description: ` Wallet Credit`,
+            transaction_type: TRANSACTION_TYPE.CREDIT
+        })
+        this.notificationService.create({
+            title: 'Wallet Credited Successfully',
+            description: `Your Trades Trek wallet account has been credited with the sum of ${amount}`,
+            user_id: user.id,
+            priority: true
+        })
+        return true
     }
 
     remove(id: number) {
