@@ -2,8 +2,6 @@ import {Prop, raw, Schema, SchemaFactory} from "@nestjs/mongoose";
 import {DEVICE_TYPES} from "../../enums/device_types";
 import {Document, Types} from "mongoose";
 import {PLAN_TYPE} from "../../enums/plan_type";
-import {Document} from "mongoose";
-import {Document, Types} from "mongoose";
 import {DEFAULT_CURRENCY} from "../../utils/constant";
 
 export type UserDocument = User & Document;

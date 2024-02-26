@@ -16,8 +16,6 @@ import {successResponse} from "../utils/response";
 import {AuthId} from "../decorators/user_id.decorator";
 import {ObjectId} from "mongoose";
 
-import {AuthId} from "../decorators/user_id.decorator";
-import {ObjectId} from "mongoose";
 import {VerifyBvnAndPhoneDto} from "./dto/verify-bvn.dto";
 
 @Controller('auth')

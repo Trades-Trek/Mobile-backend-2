@@ -136,11 +136,6 @@ export class AuthService {
 
 
 
-    async authUser(userId: ObjectId) {
-        return successResponse({user: await this.userService.findOne({field: USER.ID, data: userId})})
-    }
-
-
     async generateAccessToken(user_id: any, username: string) {
         const payload = {sub: user_id, username};
         return await this.jwtService.signAsync(payload);
