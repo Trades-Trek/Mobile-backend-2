@@ -11,10 +11,19 @@ import {ResetPasswordDto} from "./dto/reset-password.dto";
 import {UsersService} from "../users/users.service";
 import {Public} from "../decorators/public-endpoint.decorator";
 import {AuthUser} from "../decorators/user.decorator";
-import {User} from "../users/schemas/user.schema";
+import {User, UserDocument} from "../users/schemas/user.schema";
 import {successResponse} from "../utils/response";
+<<<<<<< Updated upstream
 import {AuthId} from "../decorators/user_id.decorator";
 import {ObjectId} from "mongoose";
+=======
+<<<<<<< Updated upstream
+=======
+import {AuthId} from "../decorators/user_id.decorator";
+import {ObjectId} from "mongoose";
+import {VerifyBvnAndPhoneDto} from "./dto/verify-bvn.dto";
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
 
 @Controller('auth')
 export class AuthController {
@@ -66,6 +75,21 @@ export class AuthController {
     @Post('/verify-user')
     verifyUser(@Body() verifyUserDto: VerifyUserDto) {
         return this.authService.verifyUser(verifyUserDto);
+    }
+
+    @ApiOperation({summary: "Verify Bvn & Phone number", description: "Used for verifying user bvn"})
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: "returns a boolean value indicating whether the verification is successful"
+    })
+    @ApiResponse({
+        status: HttpStatus.BAD_REQUEST,
+        description: "Invalid request or validation errors"
+    })
+    @Public()
+    @Post('/verify-bvn-phone')
+    verifyBvn(@AuthUser() user: UserDocument, @Body() verifyBvnAndPhoneDto: VerifyBvnAndPhoneDto) {
+        return this.authService.verifyBvnAndPhoneNumber(user, verifyBvnAndPhoneDto);
     }
 
 

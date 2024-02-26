@@ -22,6 +22,7 @@ export class OtpService {
         return null;
     }
 
+
     async generateOtp(createOtpDto: CreateOtpDto) {
         const {email, phone} = createOtpDto;
         const otp_pass_code = this.generateOtpPassCode();

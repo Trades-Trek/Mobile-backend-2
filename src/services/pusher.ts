@@ -16,4 +16,8 @@ const usePusherServices = () => {
     return {dispatchEvent}
 };
 
+<<<<<<< Updated upstream
 export default  usePusherServices
+=======
+export default  usePusherServices()
+>>>>>>> Stashed changes

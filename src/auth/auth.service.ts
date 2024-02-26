@@ -14,6 +14,9 @@ import {ResetPasswordDto} from "./dto/reset-password.dto";
 import {InjectModel} from "@nestjs/mongoose";
 import {Model, ObjectId, Types} from "mongoose";
 import {ResetPasswordToken} from "../users/schemas/token.schema";
+import {VerifyBvnAndPhoneDto} from "./dto/verify-bvn.dto";
+import {SUCCESS_MESSAGES} from "../enums/success-messages";
+import {ERROR_MESSAGES} from "../enums/error-messages";
 
 const bcrypt = require("bcrypt");
 const crypto = require("crypto")
@@ -119,12 +122,31 @@ export class AuthService {
         return successResponse(returnData)
     }
 
+    async verifyBvnAndPhoneNumber(user: UserDocument, verifyBvnAndPhoneDto: VerifyBvnAndPhoneDto) {
+        const {bvn, phone, dob, first_name, last_name} = verifyBvnAndPhoneDto;
+        const isValidBvn = true;
+        if (!isValidBvn) returnErrorResponse(ERROR_MESSAGES.INVALID_BVN)
+        await user.updateOne({bvn_verified: true, phone_verified: true})
+        return successResponse({verified: true, message: SUCCESS_MESSAGES.BVN_VERIFIED})
+    }
 
+<<<<<<< Updated upstream
     async authUser(userId:ObjectId){
         return successResponse({user: await this.userService.findOne({field:USER.ID, data:userId})})
     }
 
 
+=======
+<<<<<<< Updated upstream
+=======
+
+    async authUser(userId: ObjectId) {
+        return successResponse({user: await this.userService.findOne({field: USER.ID, data: userId})})
+    }
+
+
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
     async generateAccessToken(user_id: any, username: string) {
         const payload = {sub: user_id, username};
         return await this.jwtService.signAsync(payload);

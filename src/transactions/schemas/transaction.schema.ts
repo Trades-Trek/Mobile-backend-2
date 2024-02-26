@@ -1,7 +1,11 @@
 import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
 import {Document, Types} from "mongoose";
 import {TRANSACTION_STATUS} from "../../enums/transaction_status";
+<<<<<<< Updated upstream
 import {TRANSACTION_TYPE} from "../../enums/transaction_type";
+=======
+import {TRANSACTION_ENTITY, TRANSACTION_TYPE} from "../../enums/transaction_type";
+>>>>>>> Stashed changes
 
 export type TransactionDocument = Transaction & Document;
 
@@ -16,6 +20,12 @@ export class Transaction {
     @Prop({enum: TRANSACTION_TYPE, required: true})
     type: TRANSACTION_TYPE
 
+<<<<<<< Updated upstream
+=======
+    @Prop({enum: TRANSACTION_ENTITY, required: true})
+    entity: TRANSACTION_ENTITY
+
+>>>>>>> Stashed changes
     @Prop()
     description: string
 

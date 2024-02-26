@@ -1,5 +1,8 @@
 import {Injectable} from '@nestjs/common';
+<<<<<<< Updated upstream
 import {UpdateSubscriptionDto} from './dto/update-subscription.dto';
+=======
+>>>>>>> Stashed changes
 import {UserDocument} from "../users/schemas/user.schema";
 import {Model, Types} from "mongoose";
 import {returnErrorResponse, successResponse} from "../utils/response";
@@ -13,6 +16,10 @@ import {TransactionsService} from "../transactions/transactions.service";
 import {InjectModel} from "@nestjs/mongoose";
 import {SubscriptionHistory} from "./schemas/subscription-history.schema";
 import {NotificationsService} from "../notifications/notifications.service";
+<<<<<<< Updated upstream
+=======
+import {ERROR_MESSAGES} from "../enums/error-messages";
+>>>>>>> Stashed changes
 
 @Injectable()
 export class SubscriptionsService {
@@ -26,11 +33,19 @@ export class SubscriptionsService {
         const userSub = user.subscription;
         // check if user has already subscribed to this plan
         if (user.has_subscribed) {
+<<<<<<< Updated upstream
             if (userSub.plan_id === planId) returnErrorResponse('You are already subscribed to this plan')
             if (userSub.plan_type === PLAN_TYPE.PAID && !userSub.has_expired) returnErrorResponse('You are currently on a paid plan')
         }
         // check if user has enough funds in his/her wallet
         if (user.wallet_balance < plan.amount && plan.type === PLAN_TYPE.PAID) returnErrorResponse('Insufficient funds in your wallet')
+=======
+            if (userSub.plan_id === planId) returnErrorResponse(ERROR_MESSAGES.SUBSCRIBED)
+            if (userSub.plan_type === PLAN_TYPE.PAID && !userSub.has_expired) returnErrorResponse(ERROR_MESSAGES.PAID_PLAN_ACTIVE)
+        }
+        // check if user has enough funds in his/her trek coin balance
+        if (user.trek_coin_balance < plan.amount && plan.type === PLAN_TYPE.PAID) returnErrorResponse(ERROR_MESSAGES.INSUFFICIENT_TRADE_COINS_BALANCE)
+>>>>>>> Stashed changes
         // subscribe user to this plan
         await this.renewSubscription(user, plan)
         // dispatch event
@@ -38,6 +53,7 @@ export class SubscriptionsService {
     }
 
     async renew(@AuthUser() user: UserDocument) {
+<<<<<<< Updated upstream
         if (!user.has_subscribed) returnErrorResponse('You are not subscribed to any plan')
         const userSub = user.subscription;
         if (!userSub.has_expired) returnErrorResponse('Your subscription has not expired')
@@ -47,6 +63,17 @@ export class SubscriptionsService {
         await this.renewSubscription(user, plan)
         // dispatch event
         return successResponse('subscription renewed successfully')
+=======
+        if (!user.has_subscribed) returnErrorResponse(ERROR_MESSAGES.NO_SUBSCRIPTION)
+        const userSub = user.subscription;
+        if (!userSub.has_expired) returnErrorResponse(ERROR_MESSAGES.SUBSCRIPTION_EXPIRED)
+        const plan: PlanDocument | undefined = await this.planService.findOne(userSub.plan_id)
+        if (user.trek_coin_balance < plan.amount) returnErrorResponse(ERROR_MESSAGES.INSUFFICIENT_TRADE_COINS_BALANCE)
+        // renew plan
+        await this.renewSubscription(user, plan)
+        // dispatch event
+        return successResponse('Subscription renewed successfully')
+>>>>>>> Stashed changes
     }
 
 
