@@ -13,11 +13,7 @@ export class NotificationsService {
 
     async create(createNotificationDto: CreateNotificationDto): Promise<boolean> {
         const notification = await this.notificationModel.create(createNotificationDto)
-<<<<<<< Updated upstream
-        await usePusherServices().dispatchEvent(`private-channel-user-${createNotificationDto.user_id}`, 'new-notification', {notification})
-=======
         await usePusherServices.dispatchEvent(`private-channel-user-${createNotificationDto.user_id}`, 'new-notification', {notification})
->>>>>>> Stashed changes
         return true;
     }
 

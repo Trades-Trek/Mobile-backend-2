@@ -1,19 +1,9 @@
-<<<<<<< Updated upstream
-import {Injectable} from '@nestjs/common';
-=======
 import {HttpStatus, Injectable, Post, Body, forwardRef, Inject} from '@nestjs/common';
->>>>>>> Stashed changes
 import {CreateTransactionDto} from './dto/create-transaction.dto';
 import {UpdateTransactionDto} from './dto/update-transaction.dto';
 import {InjectModel} from "@nestjs/mongoose";
 import {Transaction} from "./schemas/transaction.schema";
 import {Model} from "mongoose";
-<<<<<<< Updated upstream
-
-@Injectable()
-export class TransactionsService {
-    constructor(@InjectModel(Transaction.name) private transactionModel: Model<Transaction>) {
-=======
 import {PAYSTACK_WEBHOOK_EVENTS} from "../enums/paystack_events";
 import {UsersService} from "../users/users.service";
 import {USER} from "../users/enums/user.enum";
@@ -29,21 +19,12 @@ import {ERROR_MESSAGES} from "../enums/error-messages";
 @Injectable()
 export class TransactionsService {
     constructor(@InjectModel(Transaction.name) private transactionModel: Model<Transaction>, @Inject(forwardRef(() => UsersService)) private userService: UsersService) {
->>>>>>> Stashed changes
     }
 
     async create(createTransactionDto: CreateTransactionDto): Promise<void> {
         await this.transactionModel.create(createTransactionDto)
     }
 
-<<<<<<< Updated upstream
-    findAll() {
-        return `This action returns all transactions`;
-    }
-
-    findOne(id: number) {
-        return `This action returns a #${id} transaction`;
-=======
     async paystackWebhookHandler(payload: any) {
         switch (payload.event) {
             case PAYSTACK_WEBHOOK_EVENTS.CHARGE_SUCCESS:
@@ -85,7 +66,6 @@ export class TransactionsService {
         const verified = await usePaystackService.verifyTransaction(verifyTransactionDto.payment_reference)
         const message = verified ? SUCCESS_MESSAGES.VERIFIED_TRANSACTION : ERROR_MESSAGES.UNVERIFIED_TRANSACTION;
         return successResponse({verified, message})
->>>>>>> Stashed changes
     }
 
 }

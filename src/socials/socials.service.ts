@@ -46,11 +46,7 @@ export class SocialsService {
 
     async incrementFollowers(followed: UserDocument): Promise<boolean> {
         await followed.updateOne({$inc: {total_followers: 1}})
-<<<<<<< Updated upstream
-        // dispatch event 
-=======
         // dispatch event
->>>>>>> Stashed changes
         return true;
     }
 

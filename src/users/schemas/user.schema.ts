@@ -1,16 +1,10 @@
 import {Prop, raw, Schema, SchemaFactory} from "@nestjs/mongoose";
 import {DEVICE_TYPES} from "../../enums/device_types";
-<<<<<<< Updated upstream
 import {Document, Types} from "mongoose";
 import {PLAN_TYPE} from "../../enums/plan_type";
-=======
-<<<<<<< Updated upstream
 import {Document} from "mongoose";
-=======
 import {Document, Types} from "mongoose";
 import {DEFAULT_CURRENCY} from "../../utils/constant";
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 
 export type UserDocument = User & Document;
 
@@ -50,22 +44,13 @@ export class User {
 
 
     @Prop(raw({
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-        plan_id: {type: String},
-=======
->>>>>>> Stashed changes
+
         plan_id: {type: Types.ObjectId, required: false},
         renewal_date: {type: Date, required: false},
         has_expired: {type: Boolean, required: false},
         no_of_days_used: {type: Number, default: 0},
-<<<<<<< Updated upstream
         plan_type: {type:String, required: false},
-=======
-        plan_type: {type: String, required: false},
->>>>>>> Stashed changes
->>>>>>> Stashed changes
+
     }))
     subscription: Record<string, any>;
 
@@ -84,34 +69,27 @@ export class User {
     @Prop(raw({
         balance: {type: Number, default: 0},
         currency_code: {type: String, default: DEFAULT_CURRENCY.code},
-        currency_symbol: {type: String, default: DEFAULT_CURRENCY.symbol}
     }))
     wallet: Record<string, any>;
 
     @Prop({default: 0})
-<<<<<<< Updated upstream
-=======
+
     trek_coin_balance: number;
 
-<<<<<<< Updated upstream
-=======
+
     @Prop({default: 0})
->>>>>>> Stashed changes
+
     pin: number;
 
     @Prop({default: false})
     has_pin: boolean;
 
-<<<<<<< Updated upstream
+
     @Prop({default: false, required:true})
     has_subscribed: boolean;
 
-=======
-    @Prop({default: false, required: true})
-    has_subscribed: boolean;
 
->>>>>>> Stashed changes
->>>>>>> Stashed changes
+
     @Prop({enum: DEVICE_TYPES, default: DEVICE_TYPES.BROWSER})
     device: string;
 

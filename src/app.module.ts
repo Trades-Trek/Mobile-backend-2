@@ -20,11 +20,7 @@ import { SocialsModule } from './socials/socials.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { NotificationsModule } from './notifications/notifications.module';
-<<<<<<< Updated upstream
-=======
 import { BanksModule } from './banks/banks.module';
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 
 @Module({
     imports: [
@@ -45,20 +41,11 @@ import { BanksModule } from './banks/banks.module';
         OtpModule,
         ReferralsModule,
         PlansModule,
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
->>>>>>> Stashed changes
         SocialsModule,
         SubscriptionsModule,
         TransactionsModule,
         NotificationsModule,
-<<<<<<< Updated upstream
-=======
         BanksModule,
->>>>>>> Stashed changes
->>>>>>> Stashed changes
     ],
     controllers: [AppController],
     providers: [AppService],

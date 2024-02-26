@@ -13,11 +13,7 @@ import {isEmpty} from "class-validator";
 import {CreatePinDto, UpdatePinDto} from "./dto/pin.dto";
 import {USER} from "./enums/user.enum";
 import {TransactionsService} from "../transactions/transactions.service";
-<<<<<<< Updated upstream
-import {TRANSACTION_TYPE} from "../enums/transaction_type";
-=======
 import {TRANSACTION_ENTITY, TRANSACTION_TYPE} from "../enums/transaction_type";
->>>>>>> Stashed changes
 import {NotificationsService} from "../notifications/notifications.service";
 
 const bcrypt = require("bcrypt");
@@ -112,21 +108,13 @@ export class UsersService {
     }
 
     async debitUserWallet(user: UserDocument, amount: number): Promise<boolean> {
-<<<<<<< Updated upstream
-        await user.updateOne({wallet_balance: {$inc: -amount}})
-=======
         await user.updateOne({wallet:{balance:{$inc: -amount}}})
->>>>>>> Stashed changes
         await this.transactionService.create({
             amount,
             user_id: user.id,
             description: ` Wallet Debit`,
-<<<<<<< Updated upstream
-            transaction_type: TRANSACTION_TYPE.DEBIT
-=======
             transaction_type: TRANSACTION_TYPE.DEBIT,
             entity:TRANSACTION_ENTITY.WALLET
->>>>>>> Stashed changes
         })
         this.notificationService.create({
             title: 'Wallet Debited Successfully',
@@ -137,21 +125,13 @@ export class UsersService {
     }
 
     async creditUserWallet(user: UserDocument, amount: number): Promise<boolean> {
-<<<<<<< Updated upstream
-        await user.updateOne({wallet_balance: {$inc: amount}})
-=======
         await user.updateOne({wallet:{balance:{$inc: amount}}})
->>>>>>> Stashed changes
         await this.transactionService.create({
             amount,
             user_id: user.id,
             description: ` Wallet Credit`,
-<<<<<<< Updated upstream
-            transaction_type: TRANSACTION_TYPE.CREDIT
-=======
             transaction_type: TRANSACTION_TYPE.CREDIT,
             entity:TRANSACTION_ENTITY.WALLET
->>>>>>> Stashed changes
         })
         this.notificationService.create({
             title: 'Wallet Credited Successfully',

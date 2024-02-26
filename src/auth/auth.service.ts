@@ -130,23 +130,17 @@ export class AuthService {
         return successResponse({verified: true, message: SUCCESS_MESSAGES.BVN_VERIFIED})
     }
 
-<<<<<<< Updated upstream
     async authUser(userId:ObjectId){
         return successResponse({user: await this.userService.findOne({field:USER.ID, data:userId})})
     }
 
 
-=======
-<<<<<<< Updated upstream
-=======
 
     async authUser(userId: ObjectId) {
         return successResponse({user: await this.userService.findOne({field: USER.ID, data: userId})})
     }
 
 
->>>>>>> Stashed changes
->>>>>>> Stashed changes
     async generateAccessToken(user_id: any, username: string) {
         const payload = {sub: user_id, username};
         return await this.jwtService.signAsync(payload);
