@@ -11,11 +11,6 @@ import { OtpModule } from './otp/otp.module';
 import { ReferralsModule } from './referrals/referrals.module';
 import {QueueModule} from "./queues/queue.module";
 import { PlansModule } from './plans/plans.module';
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-=======
->>>>>>> Stashed changes
 import { SocialsModule } from './socials/socials.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { TransactionsModule } from './transactions/transactions.module';
