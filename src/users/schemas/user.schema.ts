@@ -42,7 +42,6 @@ export class User {
 
 
     @Prop(raw({
-
         plan_id: {type: Types.ObjectId, required: false},
         renewal_date: {type: Date, required: false},
         has_expired: {type: Boolean, required: false},

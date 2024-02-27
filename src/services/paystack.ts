@@ -116,8 +116,6 @@ const usePaystackService = () => {
             console.log(e.response)
             e.response.data == ERROR_MESSAGES.INVALID_BANK_ACCOUNT ? returnErrorResponse(e.response.data) : returnErrorResponse(ERROR_MESSAGES.PAYSTACK_BAD_GATE);
         }
-
-
     };
 
 
@@ -144,7 +142,8 @@ const usePaystackService = () => {
         authenticate,
         getNigerianBanks,
         createTransferRecipient,
-        initiateTransfer
+        initiateTransfer,
+        getReference
     };
 };
 

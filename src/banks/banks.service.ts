@@ -7,28 +7,24 @@ import {InjectModel} from "@nestjs/mongoose";
 import {Bank, BankDocument} from "./schemas/bank.schema";
 import {Model, Types} from "mongoose";
 import {successResponse} from "../utils/response";
-import {WithdrawDto} from "./dto/withdraw.dto";
 
 @Injectable()
 export class BanksService {
     constructor(@InjectModel(Bank.name) private bankModel: Model<Bank>) {
     }
 
-    async withdraw(user: UserDocument, withdrawDto: WithdrawDto) {
-        const {account_number, amount, bank_code} = withdrawDto;
-        const bankAccount: BankDocument | undefined = await this.saveBankAccount(user, account_number, bank_code);
-        // intitialise withdrawal
-    }
 
-    async saveBankAccount(user: UserDocument, account_number: string, bank_code: string): Promise<BankDocument> {
+    async saveAndRetrieveBankAccount(user: UserDocument, account_number: string, bank_code: string): Promise<BankDocument> {
         let bankAccount: BankDocument | undefined = await this.bankModel.findOne({user_id: user.id})
         if (bankAccount) {
+            // check if it is a new bank account
             if (bankAccount.account_number !== account_number || bankAccount.bank_code !== bank_code) {
                 // verify and update new bank account
                 const {
                     verifiedBankAccount,
                     paystackRecipient
                 } = await this.verifyAndCreatePaystackRecipent(account_number, bank_code)
+
                 const formattedBankInfo = this.formatBankAccountInfo(user.id, verifiedBankAccount, paystackRecipient, bank_code)
                 bankAccount = await this.update(bankAccount.id, formattedBankInfo)
             }

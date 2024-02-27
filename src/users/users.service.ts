@@ -27,7 +27,7 @@ export class UsersService {
     async create(createUserDto: CreateUserDto) {
         createUserDto['your_referrer'] = createUserDto.referral_code;
         createUserDto['full_name'] = createUserDto.first_name + ' ' + createUserDto.last_name;
-        createUserDto['username'] = createUserDto.first_name + '@0' + this.userModel.countDocuments({});
+        createUserDto['username'] = createUserDto.first_name + '@0' + await this.userModel.countDocuments({});
         return await this.userModel.create(createUserDto)
     }
 
@@ -107,40 +107,6 @@ export class UsersService {
         return successResponse({message: 'profile updated successfully'})
     }
 
-    async debitUserWallet(user: UserDocument, amount: number): Promise<boolean> {
-        await user.updateOne({wallet:{balance:{$inc: -amount}}})
-        await this.transactionService.create({
-            amount,
-            user_id: user.id,
-            description: ` Wallet Debit`,
-            transaction_type: TRANSACTION_TYPE.DEBIT,
-            entity:TRANSACTION_ENTITY.WALLET
-        })
-        this.notificationService.create({
-            title: 'Wallet Debited Successfully',
-            description: `Your Trades Trek wallet account has been debited with the sum of ${amount}`,
-            user_id: user.id,
-        })
-        return true
-    }
-
-    async creditUserWallet(user: UserDocument, amount: number): Promise<boolean> {
-        await user.updateOne({wallet:{balance:{$inc: amount}}})
-        await this.transactionService.create({
-            amount,
-            user_id: user.id,
-            description: ` Wallet Credit`,
-            transaction_type: TRANSACTION_TYPE.CREDIT,
-            entity:TRANSACTION_ENTITY.WALLET
-        })
-        this.notificationService.create({
-            title: 'Wallet Credited Successfully',
-            description: `Your Trades Trek wallet account has been credited with the sum of ${amount}`,
-            user_id: user.id,
-            priority: true
-        })
-        return true
-    }
 
     remove(id: number) {
         return `This action removes a #${id} user`;

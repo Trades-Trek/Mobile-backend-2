@@ -13,10 +13,11 @@ import {InjectModel} from "@nestjs/mongoose";
 import {SubscriptionHistory} from "./schemas/subscription-history.schema";
 import {NotificationsService} from "../notifications/notifications.service";
 import {ERROR_MESSAGES} from "../enums/error-messages";
+import {WalletService} from "../wallet/wallet.service";
 
 @Injectable()
 export class SubscriptionsService {
-    constructor(private planService: PlansService, private userService: UsersService, private transactionService: TransactionsService, @InjectModel(SubscriptionHistory.name) private subscriptionsHistoryModel: Model<SubscriptionHistory>, private notificationService: NotificationsService) {
+    constructor(private planService: PlansService, private userService: UsersService, private transactionService: TransactionsService, @InjectModel(SubscriptionHistory.name) private subscriptionsHistoryModel: Model<SubscriptionHistory>, private notificationService: NotificationsService, private walletService: WalletService) {
     }
 
 
@@ -30,7 +31,8 @@ export class SubscriptionsService {
             if (userSub.plan_type === PLAN_TYPE.PAID && !userSub.has_expired) returnErrorResponse(ERROR_MESSAGES.PAID_PLAN_ACTIVE)
         }
         // check if user has enough funds in his/her trek coin balance
-        if (user.trek_coin_balance < plan.amount && plan.type === PLAN_TYPE.PAID) returnErrorResponse(ERROR_MESSAGES.INSUFFICIENT_TRADE_COINS_BALANCE)
+        const planAmountInTrekCoins = this.walletService.convertToTrekCoins(plan.amount)
+        if (user.trek_coin_balance < planAmountInTrekCoins && plan.type === PLAN_TYPE.PAID) returnErrorResponse(ERROR_MESSAGES.INSUFFICIENT_TREK_COINS_BALANCE)
         // subscribe user to this plan
         await this.renewSubscription(user, plan)
         // dispatch event
@@ -42,7 +44,8 @@ export class SubscriptionsService {
         const userSub = user.subscription;
         if (!userSub.has_expired) returnErrorResponse(ERROR_MESSAGES.SUBSCRIPTION_EXPIRED)
         const plan: PlanDocument | undefined = await this.planService.findOne(userSub.plan_id)
-        if (user.trek_coin_balance < plan.amount) returnErrorResponse(ERROR_MESSAGES.INSUFFICIENT_TRADE_COINS_BALANCE)
+        const planAmountInTrekCoins = this.walletService.convertToTrekCoins(plan.amount)
+        if (user.trek_coin_balance < planAmountInTrekCoins) returnErrorResponse(ERROR_MESSAGES.INSUFFICIENT_TREK_COINS_BALANCE)
         // renew plan
         await this.renewSubscription(user, plan)
         // dispatch event
@@ -53,7 +56,8 @@ export class SubscriptionsService {
     async renewSubscription(user: UserDocument, plan: PlanDocument): Promise<boolean> {
         const today = useDayJs.getDate();
         const renewalDate = useDayJs.addDays(today, plan.no_of_days)
-        await this.userService.debitUserWallet(user, plan.amount)
+        const trekCoins = this.walletService.convertToTrekCoins(plan.amount)
+        await this.walletService.debitUserTrekCoins(user, trekCoins)
         await user.updateOne({
             subscription: {
                 plan_id: plan.id,

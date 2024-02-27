@@ -8,12 +8,13 @@ const usePusherServices = () => {
         cluster: 'eu',
         useTLS: true
     }
-    const pusher = Pusher(config);
+    const pusher = new Pusher(config);
 
     const dispatchEvent = async (channel, event, payload) => {
-        await pusher.trigger(channel, event, payload)
+        //  await pusher.trigger(channel, event, payload)
+        return true;
     }
     return {dispatchEvent}
 };
 
-export default  usePusherServices()
+export default usePusherServices()

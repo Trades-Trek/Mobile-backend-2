@@ -15,10 +15,11 @@ import usePaystackService from "../services/paystack";
 import {VerifyTransactionDto} from "./dto/verify.dto";
 import {SUCCESS_MESSAGES} from "../enums/success-messages";
 import {ERROR_MESSAGES} from "../enums/error-messages";
+import {WalletService} from "../wallet/wallet.service";
 
 @Injectable()
 export class TransactionsService {
-    constructor(@InjectModel(Transaction.name) private transactionModel: Model<Transaction>, @Inject(forwardRef(() => UsersService)) private userService: UsersService) {
+    constructor(@InjectModel(Transaction.name) private transactionModel: Model<Transaction>, @Inject(forwardRef(() => UsersService)) private userService: UsersService, private walletService:WalletService) {
     }
 
     async create(createTransactionDto: CreateTransactionDto): Promise<void> {
@@ -53,8 +54,8 @@ export class TransactionsService {
             data: userId,
             is_server_request: true
         })
-        if (user) this.userService.creditUserWallet(user, amount_paid)
-        logger.info('Credited user successfully added')
+        if (user) this.walletService.creditUserWallet(user, amount_paid)
+        logger.info('Credited user successfully')
     }
 
     async initializeTransaction(initializeTransactionDto: InitializeTransactionDto) {

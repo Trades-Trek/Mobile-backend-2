@@ -1,6 +1,6 @@
 import {IsNotEmpty} from "class-validator";
 
-export class WithdrawDto {
+export class BankTransferDto{
     @IsNotEmpty()
     account_number: string;
 
@@ -9,5 +9,4 @@ export class WithdrawDto {
 
     @IsNotEmpty()
     amount: number;
-
 }

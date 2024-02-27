@@ -16,6 +16,7 @@ import { SubscriptionsModule } from './subscriptions/subscriptions.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { BanksModule } from './banks/banks.module';
+import { WalletModule } from './wallet/wallet.module';
 
 @Module({
     imports: [
@@ -41,6 +42,7 @@ import { BanksModule } from './banks/banks.module';
         TransactionsModule,
         NotificationsModule,
         BanksModule,
+        WalletModule,
     ],
     controllers: [AppController],
     providers: [AppService],

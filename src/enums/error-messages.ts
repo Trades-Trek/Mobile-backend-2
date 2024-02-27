@@ -1,6 +1,6 @@
 export enum ERROR_MESSAGES {
     INSUFFICIENT_WALLET_BALANCE = 'Insufficient funds in your wallet',
-    INSUFFICIENT_TRADE_COINS_BALANCE = '',
+    INSUFFICIENT_TREK_COINS_BALANCE = 'Insufficient trek coins',
     SUBSCRIPTION_EXPIRED = 'Your subscription has not expired',
     NO_SUBSCRIPTION = 'You are not subscribed to any plan',
     SUBSCRIBED = 'You are already subscribed to this plan',

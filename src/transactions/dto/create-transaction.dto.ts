@@ -6,13 +6,17 @@ import {TRANSACTION_ENTITY, TRANSACTION_TYPE} from "../../enums/transaction_type
 export class CreateTransactionDto {
     user_id:Types.ObjectId
 
+    transfer_code?:string
+
+    reference:string
+
     amount:number
 
     status?:TRANSACTION_STATUS
 
     description:string
 
-    transaction_type:TRANSACTION_TYPE
+    type:TRANSACTION_TYPE
 
     entity:TRANSACTION_ENTITY
 }

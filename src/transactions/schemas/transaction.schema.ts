@@ -13,6 +13,13 @@ export class Transaction {
     @Prop({type: Types.ObjectId, required: true})
     user_id: Types.ObjectId
 
+    @Prop({type: String, required: false})
+    transfer_code: string
+
+    @Prop({type: String, required: true})
+    reference: string
+
+
     @Prop({enum: TRANSACTION_TYPE, required: true})
     type: TRANSACTION_TYPE
 

@@ -3,12 +3,13 @@ import production from "./production";
 import staging from "./staging";
 
 export default () => ({
-    JWT_SECRET:process.env.JWT_SECRET,
-    STARTING_CASH:process.env.STARTING_CASH,
-    GOOGLE_CALLBACK_URL:process.env.GOOGLE_CALLBACK_URL,
-    GOOGLE_CLIENT_ID:process.env.GOOGLE_CLIENT_ID,
-    GOOGLE_CLIENT_SECRET:process.env.GOOGLE_CLIENT_SECRET,
+    JWT_SECRET: process.env.JWT_SECRET,
+    STARTING_CASH: process.env.STARTING_CASH,
+    GOOGLE_CALLBACK_URL: process.env.GOOGLE_CALLBACK_URL,
+    GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
     NODE_ENV: process.env.NODE_ENV,
+    TREK_COINS_CONVERSION_RATE_IN_NAIRA: parseInt(process.env.TREK_COINS_CONVERSION_RATE_IN_NAIRA),
     PORT: parseInt(process.env.PORT, 10) || 3000,
     ...process.env.NODE_ENV === 'development' ? development() : process.env.NODE_ENV === 'staging' ? staging() : production()
 });
