@@ -14,7 +14,7 @@ export class BanksService {
     }
 
 
-    async saveAndRetrieveBankAccount(user: UserDocument, account_number: string, bank_code: string): Promise<BankDocument> {
+    async saveAndRetrieveBankAccount(user: UserDocument, account_number: string, bank_code: string, bank_name:string): Promise<BankDocument> {
         let bankAccount: BankDocument | undefined = await this.bankModel.findOne({user_id: user.id})
         if (bankAccount) {
             // check if it is a new bank account
@@ -25,7 +25,7 @@ export class BanksService {
                     paystackRecipient
                 } = await this.verifyAndCreatePaystackRecipent(account_number, bank_code)
 
-                const formattedBankInfo = this.formatBankAccountInfo(user.id, verifiedBankAccount, paystackRecipient, bank_code)
+                const formattedBankInfo = this.formatBankAccountInfo(user.id, verifiedBankAccount, paystackRecipient, bank_code, bank_name)
                 bankAccount = await this.update(bankAccount.id, formattedBankInfo)
             }
         } else {
@@ -34,7 +34,7 @@ export class BanksService {
                 verifiedBankAccount,
                 paystackRecipient
             } = await this.verifyAndCreatePaystackRecipent(account_number, bank_code)
-            const formattedBankInfo = this.formatBankAccountInfo(user.id, verifiedBankAccount, paystackRecipient, bank_code)
+            const formattedBankInfo = this.formatBankAccountInfo(user.id, verifiedBankAccount, paystackRecipient, bank_code, bank_name)
             bankAccount = await this.create(formattedBankInfo)
         }
         return bankAccount
@@ -47,9 +47,9 @@ export class BanksService {
         return {verifiedBankAccount, paystackRecipient}
     }
 
-    formatBankAccountInfo(userId: Types.ObjectId, verifiedBankAccount, paystackRecipient, bank_code: string): any {
+    formatBankAccountInfo(userId: Types.ObjectId, verifiedBankAccount, paystackRecipient, bank_code: string, bank_name:string): any {
         return {
-            bank_name: verifiedBankAccount.bank_name,
+            bank_name,
             bank_code,
             recipient_code: paystackRecipient.recipient_code,
             account_name: verifiedBankAccount.account_name,

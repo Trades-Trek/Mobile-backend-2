@@ -59,6 +59,7 @@ export class SubscriptionsService {
         const trekCoins = this.walletService.convertToTrekCoins(plan.amount)
         await this.walletService.debitUserTrekCoins(user, trekCoins)
         await user.updateOne({
+            has_subscribed:true,
             subscription: {
                 plan_id: plan.id,
                 has_expired: false,

@@ -4,12 +4,13 @@ import {UpdateTransactionDto} from './dto/update-transaction.dto';
 import {InjectModel} from "@nestjs/mongoose";
 import {Transaction} from "./schemas/transaction.schema";
 import {Model} from "mongoose";
-import {PAYSTACK_WEBHOOK_EVENTS} from "../enums/paystack_events";
+import {PAYSTACK_STATUS, PAYSTACK_WEBHOOK_EVENTS} from "../enums/paystack_events";
 import {UsersService} from "../users/users.service";
 import {USER} from "../users/enums/user.enum";
 import {UserDocument} from "../users/schemas/user.schema";
 import {InitializeTransactionDto} from "./dto/intialise.dto";
 import {successResponse} from "../utils/response";
+
 const logger = require('../utils/logger');
 import usePaystackService from "../services/paystack";
 import {VerifyTransactionDto} from "./dto/verify.dto";
@@ -19,7 +20,7 @@ import {WalletService} from "../wallet/wallet.service";
 
 @Injectable()
 export class TransactionsService {
-    constructor(@InjectModel(Transaction.name) private transactionModel: Model<Transaction>, @Inject(forwardRef(() => UsersService)) private userService: UsersService, private walletService:WalletService) {
+    constructor(@InjectModel(Transaction.name) private transactionModel: Model<Transaction>, @Inject(forwardRef(() => UsersService)) private userService: UsersService, private walletService: WalletService) {
     }
 
     async create(createTransactionDto: CreateTransactionDto): Promise<void> {
@@ -33,16 +34,21 @@ export class TransactionsService {
                 break;
             case PAYSTACK_WEBHOOK_EVENTS.TRANSFER_SUCCESS:
                 // handle transfer success
+                this.handleTransfer(payload.data)
                 break;
             case PAYSTACK_WEBHOOK_EVENTS.TRANSFER_FAILED:
+                this.handleTransfer(payload.data)
+                break;
             // handle failed transfer
             case PAYSTACK_WEBHOOK_EVENTS.TRANSFER_REVERSED:
                 // handle reversed transfer
+                this.handleTransfer(payload.data)
                 break;
             default:
                 console.log('hmmhmhhmhmhmhmhmhmhm')
         }
     }
+
 
     async handleDeposit(data: any): Promise<void> {
         const userId = data.metadata.user_id;
@@ -56,6 +62,27 @@ export class TransactionsService {
         })
         if (user) this.walletService.creditUserWallet(user, amount_paid)
         logger.info('Credited user successfully')
+    }
+
+    async handleTransfer(paystackResponse) {
+        const transfer_code = paystackResponse.transfer_code;
+        // get transaction
+        const transaction = await this.transactionModel.findOne({transfer_code})
+        if (transaction) {
+            // update transaction status
+            await transaction.updateOne({status: paystackResponse.status})
+            // check if transfer failed or reversed
+            if (paystackResponse.status === PAYSTACK_STATUS.FAILED || paystackResponse.status === PAYSTACK_STATUS.REVERSED) {
+                const user = await this.userService.findOne({
+                    data: transaction.user_id,
+                    field: USER.ID,
+                    is_server_request: true
+                })
+                //  refund user
+                this.walletService.creditUserWallet(user, transaction.amount)
+            }
+        }
+
     }
 
     async initializeTransaction(initializeTransactionDto: InitializeTransactionDto) {

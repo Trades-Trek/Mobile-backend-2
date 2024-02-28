@@ -20,7 +20,7 @@ export class PlansService {
 
 
     async findAll() {
-        const plans = await this.planModel.find().exec();
+        const plans = await this.planModel.find();
         return successResponse({plans})
     }
 

@@ -1,7 +1,6 @@
 import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
 import {CURRENCIES, DEFAULT_CURRENCY} from "../../utils/constant";
 import {Document, Types} from "mongoose";
-import {User} from "../../users/schemas/user.schema";
 export type BankDocument = Bank & Document;
 @Schema({timestamps:true})
 export class Bank {

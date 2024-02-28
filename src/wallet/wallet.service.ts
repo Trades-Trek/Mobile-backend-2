@@ -20,8 +20,9 @@ export class WalletService {
     }
 
     async transferToBankAccount(user: UserDocument, bankTransferDto: BankTransferDto): Promise<any> {
-        const {account_number, amount, bank_code} = bankTransferDto;
-        const bankAccount: BankDocument | undefined = await this.bankService.saveAndRetrieveBankAccount(user, account_number, bank_code);
+        const {account_number, amount, bank_code, bank_name} = bankTransferDto;
+        if (user.wallet.balance < amount) returnErrorResponse(ERROR_MESSAGES.INSUFFICIENT_WALLET_BALANCE)
+        const bankAccount: BankDocument | undefined = await this.bankService.saveAndRetrieveBankAccount(user, account_number, bank_code, bank_name);
         // initiate transfer
         const transferResponse = await usePaystackService.initiateTransfer(amount, bankAccount.recipient_code)
         console.log(`Transer id - ${transferResponse.id}`);
@@ -79,7 +80,7 @@ export class WalletService {
     }
 
     async debitUserTrekCoins(user: UserDocument, trekCoins: number): Promise<boolean> {
-        await user.updateOne({trek_coin_balance: {$inc: -trekCoins}})
+        await user.updateOne({$inc: {trek_coin_balance: -trekCoins}})
         await this.transactionService.create({
             amount: trekCoins,
             user_id: user.id,

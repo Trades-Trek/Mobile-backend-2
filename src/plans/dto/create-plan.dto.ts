@@ -9,6 +9,9 @@ export class CreatePlanDto {
     @IsNotEmpty()
     duration: SUBSCRIPTION_DURATION
 
+    @IsNotEmpty()
+    no_of_days: number
+
     discount: number
 
     @IsNotEmpty()

@@ -5,3 +5,10 @@ export enum PAYSTACK_WEBHOOK_EVENTS {
 
     TRANSFER_FAILED = "transfer.failed",
 }
+
+export enum PAYSTACK_STATUS {
+    FAILED = "failed",
+    REVERSED = "reversed",
+    SUCCESS = "success",
+
+}

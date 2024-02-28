@@ -8,5 +8,8 @@ export class BankTransferDto{
     bank_code: string;
 
     @IsNotEmpty()
+    bank_name: string;
+
+    @IsNotEmpty()
     amount: number;
 }

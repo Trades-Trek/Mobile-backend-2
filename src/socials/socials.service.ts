@@ -35,7 +35,7 @@ export class SocialsService {
         const following: UserDocument | undefined = await this.userService.findOne({
             field: USER.ID,
             data: followingId,
-            fields_to_load: '_id'
+            fields_to_load: USER.ID
         })
         if (!following) returnErrorResponse('Invalid User');
         await this.socialModel.findOneAndDelete({following_id: followingId, follower_id: follower.id})
