@@ -12,12 +12,12 @@ export class UpdatePinDto {
     @IsNotEmpty()
     @IsNumber()
     @Min(4)
-    @Max(4)
+    // @Max(4)
     current_pin:number;
 
     @IsNotEmpty()
     @IsNumber()
     @Min(4)
-    @Max(4)
+    // @Max(4)
     new_pin:number;
 }
