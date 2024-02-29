@@ -33,7 +33,7 @@ export class TransactionsController {
         status: HttpStatus.OK,
         description: "returns a success message with an access code"
     })
-    @Post("initialize")
+    @Post("transactions/initialize")
     initialize(@Body() initializeTransactionDto: InitializeTransactionDto) {
         return this.transactionService.initializeTransaction(initializeTransactionDto);
     }
@@ -43,7 +43,7 @@ export class TransactionsController {
         status: HttpStatus.OK,
         description: "returns a boolean value and a message"
     })
-    @Post("verify")
+    @Post("transactions/verify")
     async verify(@Body() verifyTransactionDto: VerifyTransactionDto) {
        return this.transactionService.verifyTransaction(verifyTransactionDto)
     }
