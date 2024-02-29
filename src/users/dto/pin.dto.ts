@@ -4,7 +4,7 @@ export class CreatePinDto {
     @IsNotEmpty()
     @IsNumber()
     @Min(4)
-    @Max(4)
+    // @Max(4)
     pin:number;
 }
 
