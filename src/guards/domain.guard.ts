@@ -8,7 +8,7 @@ export class DomainGuard implements CanActivate {
 
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
-        if (!this.isValidDomain(request)) returnErrorResponse('Forbidden', HttpStatus.FORBIDDEN)
+        if (!this.isValidDomain(request) && !request.path.includes("webhook")) returnErrorResponse('Forbidden', HttpStatus.FORBIDDEN)
         return true;
     }
 
