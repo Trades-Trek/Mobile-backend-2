@@ -1,4 +1,4 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete} from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, Query} from '@nestjs/common';
 import {WalletService} from './wallet.service';
 import { FundTrekCoinsDto} from './dto/wallet.dto';
 import {successResponse} from "../utils/response";
@@ -12,12 +12,12 @@ export class WalletController {
     }
 
     @Get('trek-coins/convert')
-    convertToTrekCoins(@Param('amount') amount: number) {
+    convertToTrekCoins(@Query('amount') amount: number) {
         return successResponse({trek_coins: this.walletService.convertToTrekCoins(amount)})
     }
 
     @Get('trek-coins/convert/cash')
-    convertTrekCoinsToCash(@Param('trek_coins') trekCoins: number) {
+    convertTrekCoinsToCash(@Query('trek_coins') trekCoins: number) {
         return successResponse({cash: this.walletService.convertTrekCoinsToCash(trekCoins)})
     }
 

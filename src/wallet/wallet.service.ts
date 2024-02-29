@@ -91,7 +91,7 @@ export class WalletService {
         })
         this.notificationService.create({
             title: 'Trek Coins Account Debit',
-            description: `Your Trek coin account has been debited with the sum of ${trekCoins}`,
+            description: `Your Trek coins account has been debited with the sum of ${trekCoins}`,
             user_id: user.id,
             priority: true
         })
@@ -138,6 +138,7 @@ export class WalletService {
     }
 
     convertToTrekCoins(amount: number, currency = DEFAULT_CURRENCY.code): number {
+        console.log(amount)
         return amount / parseInt(this.configService.get('TREK_COINS_CONVERSION_RATE_IN_NAIRA'))
     }
 
