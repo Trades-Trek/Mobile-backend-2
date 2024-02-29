@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { PlansService } from './plans.service';
 import { CreatePlanDto } from './dto/create-plan.dto';
 import { UpdatePlanDto } from './dto/update-plan.dto';
+import {Types} from "mongoose";
 
 @Controller('plans')
 export class PlansController {
@@ -18,8 +19,8 @@ export class PlansController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.plansService.findOne(+id);
+  findOne(@Param('id') id: Types.ObjectId) {
+    return this.plansService.findOne(id);
   }
 
   @Patch(':id')

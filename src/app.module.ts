@@ -11,6 +11,12 @@ import { OtpModule } from './otp/otp.module';
 import { ReferralsModule } from './referrals/referrals.module';
 import {QueueModule} from "./queues/queue.module";
 import { PlansModule } from './plans/plans.module';
+import { SocialsModule } from './socials/socials.module';
+import { SubscriptionsModule } from './subscriptions/subscriptions.module';
+import { TransactionsModule } from './transactions/transactions.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { BanksModule } from './banks/banks.module';
+import { WalletModule } from './wallet/wallet.module';
 
 @Module({
     imports: [
@@ -31,6 +37,12 @@ import { PlansModule } from './plans/plans.module';
         OtpModule,
         ReferralsModule,
         PlansModule,
+        SocialsModule,
+        SubscriptionsModule,
+        TransactionsModule,
+        NotificationsModule,
+        BanksModule,
+        WalletModule,
     ],
     controllers: [AppController],
     providers: [AppService],

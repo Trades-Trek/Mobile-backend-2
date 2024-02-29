@@ -1,8 +1,8 @@
 import {Prop, raw, Schema, SchemaFactory} from "@nestjs/mongoose";
-import configuration from "../../config/configuration";
-import {SUBSCRIPTION_DURATION} from "../../enums/subscription_duration";
 import {DEVICE_TYPES} from "../../enums/device_types";
-import {Document} from "mongoose";
+import {Document, Types} from "mongoose";
+import {PLAN_TYPE} from "../../enums/plan_type";
+import {DEFAULT_CURRENCY} from "../../utils/constant";
 
 export type UserDocument = User & Document;
 
@@ -25,37 +25,76 @@ export class User {
     @Prop({required: true, trim: true, unique: true, sparse: true})
     username: string;
 
-    @Prop({required: true, trim: true})
+    @Prop({required: true, trim: true, select: false})
     password: string;
 
     @Prop()
     referral_code: string;
 
     @Prop(raw({
-        allow_notifications: {type: Boolean, default: true},
+        allow_notifications: {type: Boolean, default:true},
         allow_face_id: {type: Boolean, default: false},
         allow_portfolio: {type: Boolean, default: true},
         allow_stock_news: {type: Boolean, default: true},
-        allow_price_alerts: {type: Boolean, default: true},
+        allow_price_alerts: {type: Boolean, default: true}
     }))
     settings: Record<string, any>;
 
+
     @Prop(raw({
-        plan_id: {type: String},
+        plan_id: {type: Types.ObjectId, required: false},
+        renewal_date: {type: Date, required: false},
+        has_expired: {type: Boolean, required: false},
+        no_of_days_used: {type: Number, default: 0},
+        plan_type: {type:String, required: false},
+
     }))
     subscription: Record<string, any>;
 
     @Prop({default: ''})
     phone: string;
 
+    @Prop({type: Boolean, default: false})
+    bvn_verified: boolean;
+
+    @Prop({type: Boolean, default: false})
+    phone_verified: boolean;
+
     @Prop({default: '', required: false})
     your_referrer: string;
 
+    @Prop(raw({
+        balance: {type: Number, default: 0},
+        currency_code: {type: String, default: DEFAULT_CURRENCY.code},
+    }))
+    wallet: Record<string, any>;
+
     @Prop({default: 0})
-    wallet_balance: number;
+
+    trek_coin_balance: number;
+
+
+    @Prop({default: 0})
+
+    pin: number;
+
+    @Prop({default: false})
+    has_pin: boolean;
+
+
+    @Prop({default: false, required:true})
+    has_subscribed: boolean;
+
+
 
     @Prop({enum: DEVICE_TYPES, default: DEVICE_TYPES.BROWSER})
     device: string;
+
+    @Prop({required: true, default: 0})
+    total_followers: number;
+
+    @Prop({required: true, default: 0})
+    total_following: number;
 
     @Prop({
         default:
