@@ -1,23 +1,23 @@
-import {IsNotEmpty, IsNumber, Max, Min} from "class-validator";
+import {IsNotEmpty, IsNumber, Max, MaxLength, Min, MinLength} from "class-validator";
 
 export class CreatePinDto {
     @IsNotEmpty()
     @IsNumber()
-    @Min(4)
-    // @Max(4)
+    @MinLength(4)
+    @MaxLength(4)
     pin:number;
 }
 
 export class UpdatePinDto {
     @IsNotEmpty()
     @IsNumber()
-    @Min(4)
-    // @Max(4)
+    @MinLength(4)
+    @MaxLength(4)
     current_pin:number;
 
     @IsNotEmpty()
     @IsNumber()
-    @Min(4)
-    // @Max(4)
+    @MinLength(4)
+    @MaxLength(4)
     new_pin:number;
 }
