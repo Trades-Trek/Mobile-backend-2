@@ -25,7 +25,7 @@ export class UsersService {
     }
 
     async create(createUserDto: CreateUserDto) {
-        createUserDto['your_referrer'] = createUserDto.referral_code;
+        createUserDto['referrer_code'] = createUserDto.referral_code;
         createUserDto['full_name'] = createUserDto.first_name + ' ' + createUserDto.last_name;
         createUserDto['username'] = createUserDto.first_name + '@0' + await this.userModel.countDocuments({}) + 1;
         return await this.userModel.create(createUserDto)

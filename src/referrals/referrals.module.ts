@@ -3,12 +3,14 @@ import {ReferralsService} from './referrals.service';
 import {ReferralsController} from './referrals.controller';
 import {MongooseModule} from "@nestjs/mongoose";
 import {Referral, RefferalSchema} from "./schemas/referral.schema";
+import {WalletModule} from "../wallet/wallet.module";
+import {WalletService} from "../wallet/wallet.service";
 
 @Global()
 @Module({
-    imports: [MongooseModule.forFeature([{name: Referral.name, schema: RefferalSchema}])],
+    imports: [WalletModule, MongooseModule.forFeature([{name: Referral.name, schema: RefferalSchema}])],
     controllers: [ReferralsController],
-    providers: [ReferralsService],
+    providers: [ReferralsService, WalletService],
     exports:[ReferralsService]
 })
 export class ReferralsModule {

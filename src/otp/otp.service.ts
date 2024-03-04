@@ -26,9 +26,7 @@ export class OtpService {
     async generateOtp(createOtpDto: CreateOtpDto) {
         const {email, phone} = createOtpDto;
         const otp_pass_code = this.generateOtpPassCode();
-        console.log(otp_pass_code)
-        console.log(email)
-        return await this.otpModel.findOneAndUpdate({email}, {otp: otp_pass_code}) ?? await this.otpModel.create({
+        return await this.otpModel.findOneAndUpdate({email}, {otp: otp_pass_code}, {new:true}) ?? await this.otpModel.create({
             email,
             phone,
             otp: otp_pass_code

@@ -28,7 +28,7 @@ export class User {
     @Prop({required: true, trim: true, select: false})
     password: string;
 
-    @Prop()
+    @Prop({unique:true})
     referral_code: string;
 
     @Prop(raw({
@@ -61,7 +61,7 @@ export class User {
     phone_verified: boolean;
 
     @Prop({default: '', required: false})
-    your_referrer: string;
+    referrer_code: string;
 
     @Prop(raw({
         balance: {type: Number, default: 0},

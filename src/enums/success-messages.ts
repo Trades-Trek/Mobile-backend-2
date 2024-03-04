@@ -8,5 +8,9 @@ export enum SUCCESS_MESSAGES {
     WALLET_CREDIT_DESCRIPTION ='',
 
     TREK_COINS_FUNDED = 'successful',
-    TRANSFER_QUEUED = 'Your transfer has been queued'
+    TRANSFER_QUEUED = 'Your transfer has been queued',
+
+    REFER_A_FRIEND_SUCCESS = 'Your referral invite has been sent successfully',
+    REFERRAL_REWARD_TITLE = 'Referral Completion',
+    REFERRAL_REWARD_DESCRIPTION = `The person you referred just signed up, you've just earned 250 trek coins `
 }
