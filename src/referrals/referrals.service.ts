@@ -76,7 +76,7 @@ export class ReferralsService {
         const trekCoinsEarned = parseInt(this.configService.get('REFERRAL_REWARD'))
         await referral.updateOne({amount_earned: trekCoinsEarned})
         // credit referrer's trek coins with amount earned
-        referrer.has_subscribed ? await this.walletService.creditUserTrekCoins(referrer, trekCoinsEarned) : await this.walletService.creditUserInactiveTrekCoins(referrer, trekCoinsEarned)
+        this.walletService.creditUserTrekCoins(referrer, trekCoinsEarned)
         // notify user
         await this.notificationService.create({
             title: SUCCESS_MESSAGES.REFERRAL_REWARD_TITLE,

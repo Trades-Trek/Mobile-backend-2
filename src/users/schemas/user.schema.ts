@@ -78,11 +78,6 @@ export class User {
 
     @Prop({default: 0})
 
-    in_active_trek_coin_balance: number;
-
-
-    @Prop({default: 0})
-
     pin: number;
 
     @Prop({default: false})
@@ -91,7 +86,6 @@ export class User {
 
     @Prop({default: false, required:true})
     has_subscribed: boolean;
-
 
 
     @Prop({enum: DEVICE_TYPES, default: DEVICE_TYPES.BROWSER})
