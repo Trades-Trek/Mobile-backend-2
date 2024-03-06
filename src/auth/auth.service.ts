@@ -17,13 +17,15 @@ import {ResetPasswordToken} from "../users/schemas/token.schema";
 import {VerifyBvnAndPhoneDto} from "./dto/verify-bvn.dto";
 import {SUCCESS_MESSAGES} from "../enums/success-messages";
 import {ERROR_MESSAGES} from "../enums/error-messages";
+import {generateCode} from "../utils/constant";
+import {ReferralsService} from "../referrals/referrals.service";
 
 const bcrypt = require("bcrypt");
 const crypto = require("crypto")
 
 @Injectable()
 export class AuthService {
-    constructor(private userService: UsersService, private otpService: OtpService, private jwtService: JwtService) {
+    constructor(private userService: UsersService, private otpService: OtpService, private jwtService: JwtService, private referralService: ReferralsService) {
     }
 
     async signup(createAuthDto: SignupDto) {
@@ -49,7 +51,7 @@ export class AuthService {
         if (user.verified) returnErrorResponse('Already a user')
 
         await this.otpService.sendOtpViaEmail(user.email)
-        return successResponse({isVerified: false, message: 'A one time passcode has been sent to your email'})
+        return successResponse({is_verified: false, message: 'A one time passcode has been sent to your email'})
     }
 
     async login(loginDto: LoginDto) {
@@ -85,11 +87,20 @@ export class AuthService {
 
         if (user.verified) returnErrorResponse('Your account has already been verified')
 
-        await user.updateOne({verified: true}, {new: true})
+        await user.updateOne({verified: true, referral_code: generateCode(6)})
 
         user = await this.userService.findOne({field: USER.EMAIL, data: email})
-        if (user.your_referrer) {
-            // referral integration
+        // check if user was referred
+        if (user.referrer_code) {
+            const referrer = await this.userService.findOne({
+                data: user.referrer_code,
+                field: USER.REFERRAL_CODE,
+                is_server_request: true
+            })
+            const referral = await this.referralService.findOrCreate(user.email, referrer)
+            if(referral) {
+                this.referralService.reward(referrer, referral)
+            }
         }
         // generate access token
         const accessToken = await this.generateAccessToken(user._id, user.username);
@@ -130,10 +141,9 @@ export class AuthService {
         return successResponse({verified: true, message: SUCCESS_MESSAGES.BVN_VERIFIED})
     }
 
-    async authUser(userId:ObjectId){
-        return successResponse({user: await this.userService.findOne({field:USER.ID, data:userId})})
+    async authUser(userId: ObjectId) {
+        return successResponse({user: await this.userService.findOne({field: USER.ID, data: userId})})
     }
-
 
 
     async generateAccessToken(user_id: any, username: string) {

@@ -945,3 +945,12 @@ export const CURRENCIES = [
     "name_plural": "Zambian kwachas"
 }]
 export const DEFAULT_CURRENCY = CURRENCIES.find(currency => currency.code === 'NGN')
+
+export const generateCode = (length:number) => {
+    const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let retVal = '';
+    for (let i = 0, n = charset.length; i < length; ++i) {
+        retVal += charset.charAt(Math.floor(Math.random() * n)).toUpperCase();
+    }
+    return retVal;
+}

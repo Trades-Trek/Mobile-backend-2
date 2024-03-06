@@ -10,6 +10,7 @@ export default () => ({
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
     NODE_ENV: process.env.NODE_ENV,
     TREK_COINS_CONVERSION_RATE_IN_NAIRA: parseInt(process.env.TREK_COINS_CONVERSION_RATE_IN_NAIRA),
+    REFERRAL_REWARD:process.env.REFERRAL_REWARD,
     PORT: parseInt(process.env.PORT, 10) || 3000,
     ...process.env.NODE_ENV === 'development' ? development() : process.env.NODE_ENV === 'staging' ? staging() : production()
 });
