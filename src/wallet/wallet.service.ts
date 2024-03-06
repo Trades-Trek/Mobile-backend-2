@@ -19,7 +19,7 @@ import {ReferralsService} from "../referrals/referrals.service";
 
 @Injectable()
 export class WalletService {
-    constructor(@Inject(forwardRef(() => TransactionsService)) private transactionService: TransactionsService, private notificationService: NotificationsService, private configService: ConfigService, private bankService: BanksService, private userService: UsersService, private referralService: ReferralsService) {
+    constructor(@Inject(forwardRef(() => TransactionsService)) private transactionService: TransactionsService, private notificationService: NotificationsService, private configService: ConfigService, private bankService: BanksService, @Inject(forwardRef(() => UsersService)) private userService: UsersService, private referralService: ReferralsService) {
     }
 
     async transferToBankAccount(user: UserDocument, bankTransferDto: BankTransferDto): Promise<any> {
@@ -90,6 +90,19 @@ export class WalletService {
             description: `Your Trek coins account has been credited with the sum of ${trekCoins}`,
             user_id: user.id,
             priority: true
+        })
+        return true
+    }
+
+    async creditUserInactiveTrekCoins(user: UserDocument, trekCoins: number): Promise<boolean> {
+        await user.updateOne({$inc: {in_active_trek_coin_balance: trekCoins}})
+        await this.transactionService.create({
+            amount: trekCoins,
+            user_id: user.id,
+            description: `Trek Coins Credit`,
+            type: TRANSACTION_TYPE.CREDIT,
+            entity: TRANSACTION_ENTITY.TREK_COINS,
+            reference: usePaystackService.getReference()
         })
         return true
     }
