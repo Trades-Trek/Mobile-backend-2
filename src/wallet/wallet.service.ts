@@ -13,10 +13,13 @@ import {BankTransferDto} from "./dto/bank-transfer.dto";
 import {BankDocument} from "../banks/schemas/bank.schema";
 import {BanksService} from "../banks/banks.service";
 import usePaystackService from '../services/paystack'
+import {UsersService} from "../users/users.service";
+import {USER} from "../users/enums/user.enum";
+import {ReferralsService} from "../referrals/referrals.service";
 
 @Injectable()
 export class WalletService {
-    constructor(@Inject(forwardRef(() => TransactionsService)) private transactionService: TransactionsService, private notificationService: NotificationsService, private configService: ConfigService, private bankService: BanksService) {
+    constructor(@Inject(forwardRef(() => TransactionsService)) private transactionService: TransactionsService, private notificationService: NotificationsService, private configService: ConfigService, private bankService: BanksService, @Inject(forwardRef(() => UsersService)) private userService: UsersService, private referralService: ReferralsService) {
     }
 
     async transferToBankAccount(user: UserDocument, bankTransferDto: BankTransferDto): Promise<any> {
@@ -48,6 +51,18 @@ export class WalletService {
         if (user.wallet.balance < amountInCash) returnErrorResponse(ERROR_MESSAGES.INSUFFICIENT_WALLET_BALANCE)
         await this.debitUserWallet(user, amountInCash)
         await this.creditUserTrekCoins(user, trek_coins)
+        if (user.referrer_code && user.is_first_trek_coins_purchase) {
+            // get referrer for reward
+            const referrer = await this.userService.findOne({
+                data: user.referrer_code,
+                field: USER.REFERRAL_CODE,
+                is_server_request: true
+            })
+            // get the logged referral
+            const referral = await this.referralService.findOrCreate(user.email, referrer)
+            if (referrer && referral) this.referralService.reward(referrer, referral)
+            await user.updateOne({is_first_trek_coins_purchase: false})
+        }
         return successResponse(SUCCESS_MESSAGES.TREK_COINS_FUNDED)
     }
 
@@ -75,6 +90,19 @@ export class WalletService {
             description: `Your Trek coins account has been credited with the sum of ${trekCoins}`,
             user_id: user.id,
             priority: true
+        })
+        return true
+    }
+
+    async creditUserInactiveTrekCoins(user: UserDocument, trekCoins: number): Promise<boolean> {
+        await user.updateOne({$inc: {in_active_trek_coin_balance: trekCoins}})
+        await this.transactionService.create({
+            amount: trekCoins,
+            user_id: user.id,
+            description: `Trek Coins Credit`,
+            type: TRANSACTION_TYPE.CREDIT,
+            entity: TRANSACTION_ENTITY.TREK_COINS,
+            reference: usePaystackService.getReference()
         })
         return true
     }

@@ -63,6 +63,9 @@ export class User {
     @Prop({default: '', required: false})
     referrer_code: string;
 
+    @Prop({default: true, required: false})
+    is_first_trek_coins_purchase: boolean;
+
     @Prop(raw({
         balance: {type: Number, default: 0},
         currency_code: {type: String, default: DEFAULT_CURRENCY.code},
@@ -72,7 +75,6 @@ export class User {
     @Prop({default: 0})
 
     trek_coin_balance: number;
-
 
     @Prop({default: 0})
 
@@ -84,7 +86,6 @@ export class User {
 
     @Prop({default: false, required:true})
     has_subscribed: boolean;
-
 
 
     @Prop({enum: DEVICE_TYPES, default: DEVICE_TYPES.BROWSER})

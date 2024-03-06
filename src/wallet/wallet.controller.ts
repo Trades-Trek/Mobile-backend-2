@@ -1,10 +1,11 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, Query} from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards} from '@nestjs/common';
 import {WalletService} from './wallet.service';
 import { FundTrekCoinsDto} from './dto/wallet.dto';
 import {successResponse} from "../utils/response";
 import {AuthUser} from "../decorators/user.decorator";
 import {UserDocument} from "../users/schemas/user.schema";
 import {BankTransferDto} from "./dto/bank-transfer.dto";
+import {SubscribedGuard} from "../guards/subscribed.guard";
 
 @Controller('wallet')
 export class WalletController {
@@ -25,7 +26,7 @@ export class WalletController {
     fundTrekCoinsViaWallet(@AuthUser() user:UserDocument, @Body() fundTrekCoinsDto:FundTrekCoinsDto){
         return this.walletService.fundTrekCoinsViaWallet(user,fundTrekCoinsDto)
     }
-
+    @UseGuards(SubscribedGuard)
     @Post('trek-coins/convert/cash')
     withdrawTrekCoins(@AuthUser() user:UserDocument, @Body() fundTrekCoinsViaWalletDto:FundTrekCoinsDto){
         return this.walletService.withdrawTrekCoins(user,fundTrekCoinsViaWalletDto)

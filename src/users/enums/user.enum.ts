@@ -27,6 +27,7 @@ export enum USER {
     REFERRER = 'referer_code',
 
     TREK_COIN_BALANCE = 'trek_coin_balance',
+
     TOTAL_FOLLOWING = 'total_following',
 
 

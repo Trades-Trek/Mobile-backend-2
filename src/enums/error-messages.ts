@@ -10,4 +10,6 @@ export enum ERROR_MESSAGES {
     INVALID_BANK_ACCOUNT = 'Could not resolve account name. Check parameters or try again.',
     PAYSTACK_BAD_GATE = 'Oops, seems our network is poor please try again',
 
+    ALREADY_REFERRED = "This user already joined trades trek"
+
 }

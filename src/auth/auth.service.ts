@@ -99,7 +99,7 @@ export class AuthService {
             })
             const referral = await this.referralService.findOrCreate(user.email, referrer)
             if(referral) {
-                this.referralService.reward(referrer, referral)
+                this.referralService.joined(referrer, referral)
             }
         }
         // generate access token

@@ -1,19 +1,21 @@
-import {Injectable} from '@nestjs/common';
+import {forwardRef, Inject, Injectable} from '@nestjs/common';
 import {ReferralDto} from './dto/referral.dto';
 import {InjectModel} from "@nestjs/mongoose";
 import {Referral, ReferralDocument} from "./schemas/referral.schema";
 import {Model} from "mongoose";
 import {UserDocument} from "../users/schemas/user.schema";
 import {QueueService} from "../queues/queue.service";
-import {successResponse} from "../utils/response";
+import {returnErrorResponse, successResponse} from "../utils/response";
 import {SUCCESS_MESSAGES} from "../enums/success-messages";
 import {ConfigService} from "@nestjs/config";
 import {WalletService} from "../wallet/wallet.service";
 import {NotificationsService} from "../notifications/notifications.service";
+import useDayJs from '../services/dayjs'
+import {ERROR_MESSAGES} from "../enums/error-messages";
 
 @Injectable()
 export class ReferralsService {
-    constructor(@InjectModel(Referral.name) private referralModel: Model<Referral>, private queueService: QueueService, private configService: ConfigService, private walletService: WalletService, private notificationService: NotificationsService) {
+    constructor(@InjectModel(Referral.name) private referralModel: Model<Referral>, private queueService: QueueService, private configService: ConfigService, @Inject(forwardRef(() => WalletService)) private walletService: WalletService, private notificationService: NotificationsService) {
     }
 
     async findOrCreate(email: string, referrer: UserDocument) {
@@ -27,6 +29,7 @@ export class ReferralsService {
 
     async referAFriend(referrer: UserDocument, referralDto: ReferralDto) {
         const referral = await this.findOrCreate(referralDto.email, referrer)
+        if (referral.joined) returnErrorResponse(ERROR_MESSAGES.ALREADY_REFERRED)
         // send invite via mail
         await this.queueService.sendEmail({
             to: referral.email,
@@ -64,11 +67,17 @@ export class ReferralsService {
 
     }
 
+    async joined(referrer: UserDocument, referral: ReferralDocument): Promise<void> {
+        await referral.updateOne({joined: true, joined_date: useDayJs.getDate()})
+        // inform referrer via push
+    }
+
     async reward(referrer: UserDocument, referral: ReferralDocument): Promise<void> {
-        const amountEarned = parseInt(this.configService.get('REFERRAL_REWARD'))
-        await referral.updateOne({joined: true, amount_earned: amountEarned})
+        const trekCoinsEarned = parseInt(this.configService.get('REFERRAL_REWARD'))
+        await referral.updateOne({amount_earned: trekCoinsEarned})
         // credit referrer's trek coins with amount earned
-        await this.walletService.creditUserTrekCoins(referrer, amountEarned)
+        this.walletService.creditUserTrekCoins(referrer, trekCoinsEarned)
+        // notify user
         await this.notificationService.create({
             title: SUCCESS_MESSAGES.REFERRAL_REWARD_TITLE,
             description: SUCCESS_MESSAGES.REFERRAL_REWARD_DESCRIPTION,
