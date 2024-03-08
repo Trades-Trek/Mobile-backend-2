@@ -12,5 +12,8 @@ export enum SUCCESS_MESSAGES {
 
     REFER_A_FRIEND_SUCCESS = 'Your referral invite has been sent successfully',
     REFERRAL_REWARD_TITLE = 'Referral Completion',
-    REFERRAL_REWARD_DESCRIPTION = `The person you referred just signed up, you've just earned 250 trek coins `
+    REFERRAL_REWARD_DESCRIPTION = `The person you referred just signed up, you've just earned 250 trek coins `,
+
+    RATING_REWARD_TITLE = 'Rating Feedback Reward',
+    RATING_REWARD_DESCRIPTION = "You've just been rewarded for your rating feedback"
 }

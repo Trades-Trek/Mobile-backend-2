@@ -13,7 +13,6 @@ import {isEmpty} from "class-validator";
 import {CreatePinDto, UpdatePinDto} from "./dto/pin.dto";
 import {USER} from "./enums/user.enum";
 import {TransactionsService} from "../transactions/transactions.service";
-import {TRANSACTION_ENTITY, TRANSACTION_TYPE} from "../enums/transaction_type";
 import {NotificationsService} from "../notifications/notifications.service";
 
 const bcrypt = require("bcrypt");

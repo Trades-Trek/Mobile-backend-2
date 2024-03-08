@@ -49,6 +49,11 @@ export class ReferralsService {
         const totalCompleted = await this.referralModel.countDocuments({referrer_id: user.id, joined: true})
         const totalEarning = await this.referralModel.aggregate([
             {
+                $match: {
+                    'referrer_id': user.id,
+                },
+            },
+            {
                 $group: {
                     _id: null,
                     total: {
