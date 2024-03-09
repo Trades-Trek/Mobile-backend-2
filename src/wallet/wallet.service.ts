@@ -94,19 +94,6 @@ export class WalletService {
         return true
     }
 
-    async creditUserInactiveTrekCoins(user: UserDocument, trekCoins: number): Promise<boolean> {
-        await user.updateOne({$inc: {in_active_trek_coin_balance: trekCoins}})
-        await this.transactionService.create({
-            amount: trekCoins,
-            user_id: user.id,
-            description: `Trek Coins Credit`,
-            type: TRANSACTION_TYPE.CREDIT,
-            entity: TRANSACTION_ENTITY.TREK_COINS,
-            reference: usePaystackService.getReference()
-        })
-        return true
-    }
-
     async debitUserTrekCoins(user: UserDocument, trekCoins: number): Promise<boolean> {
         await user.updateOne({$inc: {trek_coin_balance: -trekCoins}})
         await this.transactionService.create({

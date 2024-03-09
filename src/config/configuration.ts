@@ -11,6 +11,8 @@ export default () => ({
     NODE_ENV: process.env.NODE_ENV,
     TREK_COINS_CONVERSION_RATE_IN_NAIRA: parseInt(process.env.TREK_COINS_CONVERSION_RATE_IN_NAIRA),
     REFERRAL_REWARD:process.env.REFERRAL_REWARD,
+    RATING_REWARD:process.env.RATING_REWARD,
+    REWARD_USERS_RATING:process.env.REWARD_USERS_RATING,
     PORT: parseInt(process.env.PORT, 10) || 3000,
     ...process.env.NODE_ENV === 'development' ? development() : process.env.NODE_ENV === 'staging' ? staging() : production()
 });
