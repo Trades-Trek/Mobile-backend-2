@@ -63,7 +63,6 @@ export class RatingsService {
             user_id: user.id,
             priority: true
         })
-
     }
 
 }
