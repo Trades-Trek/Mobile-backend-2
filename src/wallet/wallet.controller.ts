@@ -7,6 +7,9 @@ import {UserDocument} from "../users/schemas/user.schema";
 import {BankTransferDto} from "./dto/bank-transfer.dto";
 import {SubscribedGuard} from "../guards/subscribed.guard";
 import {ApiOperation, ApiResponse} from "@nestjs/swagger";
+import {FeatureGuard} from "../guards/feature.guard";
+import {hasFeatures} from "../decorators/features.decorator";
+import {FEATURES} from "../enums/features";
 
 @Controller('wallet')
 export class WalletController {
@@ -32,6 +35,8 @@ export class WalletController {
         status: HttpStatus.BAD_REQUEST,
         description: "Invalid request or validation errors"
     })
+    @hasFeatures(FEATURES.USER_CAN_CONVERT_WALLET_FUNDS_TO_TREK_COINS)
+    @UseGuards(SubscribedGuard,FeatureGuard)
     @Post('trek-coins/convert')
     fundTrekCoinsViaWallet(@AuthUser() user:UserDocument, @Body() fundTrekCoinsDto:FundTrekCoinsDto){
         return this.walletService.fundTrekCoinsViaWallet(user,fundTrekCoinsDto)
@@ -46,7 +51,8 @@ export class WalletController {
         status: HttpStatus.BAD_REQUEST,
         description: "Invalid request or validation errors"
     })
-    @UseGuards(SubscribedGuard)
+    @hasFeatures(FEATURES.USER_CAN_CONVERT_WALLET_FUNDS_TO_TREK_COINS)
+    @UseGuards(SubscribedGuard, FeatureGuard)
     @Post('trek-coins/convert/cash')
     withdrawTrekCoins(@AuthUser() user:UserDocument, @Body() fundTrekCoinsViaWalletDto:FundTrekCoinsDto){
         return this.walletService.withdrawTrekCoins(user,fundTrekCoinsViaWalletDto)

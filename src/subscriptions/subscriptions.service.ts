@@ -46,8 +46,8 @@ export class SubscriptionsService {
         // notify recipient
         this.notificationService.create({
             user_id: recipient.id,
-            title:`You've been gifted a plan`,
-            description:`Hi ${recipient.first_name}, ${giver.full_name} just gifted you a ${plan.name} plan. Please check your profile settings to see more of this plan and its features`,
+            title: `You've been gifted a plan`,
+            description: `Hi ${recipient.first_name}, ${giver.full_name} just gifted you a ${plan.name} plan. Please check your profile settings to see more of this plan and its features`,
             priority: true
         })
         return successResponse('successful')

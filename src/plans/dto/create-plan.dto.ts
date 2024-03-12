@@ -1,5 +1,6 @@
-import {IsNotEmpty, IsArray} from "class-validator";
+import {IsNotEmpty, IsArray, ArrayNotEmpty} from "class-validator";
 import {SUBSCRIPTION_DURATION} from "../../enums/subscription_duration";
+import {Types} from "mongoose";
 
 export class CreatePlanDto {
     @IsNotEmpty()
@@ -12,9 +13,13 @@ export class CreatePlanDto {
     @IsNotEmpty()
     no_of_days: number
 
+    @IsNotEmpty()
+    amount: number
+
     discount: number
 
     @IsNotEmpty()
     @IsArray()
-    features: [string]
+    @ArrayNotEmpty()
+    features: [Types.ObjectId]
 }

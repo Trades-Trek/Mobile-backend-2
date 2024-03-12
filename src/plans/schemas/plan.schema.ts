@@ -29,8 +29,6 @@ export class Plan {
     @Prop({required: true, default: 30})
     no_of_days: number;
 
-    @Prop({type: [String]})
-    features: [String]
 }
 
 export const PlanSchema = SchemaFactory.createForClass(Plan);

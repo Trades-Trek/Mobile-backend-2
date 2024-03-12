@@ -18,9 +18,12 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { BanksModule } from './banks/banks.module';
 import { WalletModule } from './wallet/wallet.module';
 import { RatingsModule } from './ratings/ratings.module';
+import { FeaturesModule } from './features/features.module';
+import {CacheModule} from "@nestjs/cache-manager";
 
 @Module({
     imports: [
+        CacheModule.register({isGlobal:true}),
         ConfigModule.forRoot({
             isGlobal: true,
             load: [configuration],
@@ -45,6 +48,7 @@ import { RatingsModule } from './ratings/ratings.module';
         BanksModule,
         WalletModule,
         RatingsModule,
+        FeaturesModule,
     ],
     controllers: [AppController],
     providers: [AppService],
