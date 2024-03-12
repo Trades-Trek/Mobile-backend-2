@@ -5,6 +5,8 @@ export enum ERROR_MESSAGES {
     NO_SUBSCRIPTION = 'You are not subscribed to any plan',
     SUBSCRIBED = 'You are already subscribed to this plan',
     PAID_PLAN_ACTIVE = 'You are currently on a paid plan',
+
+    RECIPIENT_ON_PAID_PLAN = 'This recipient is currently on an active plan',
     INVALID_BVN = 'Invalid Bvn',
     UNVERIFIED_TRANSACTION = 'Could not verify transaction',
     INVALID_BANK_ACCOUNT = 'Could not resolve account name. Check parameters or try again.',

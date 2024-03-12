@@ -38,5 +38,19 @@ export class SubscriptionsController {
         return this.subscriptionsService.renew(user);
     }
 
+    @ApiOperation({summary: "Gift Subscription Plan"})
+    @ApiResponse({
+        status: HttpStatus.OK,
+        description: "returns a successful message"
+    })
+    @ApiResponse({
+        status: HttpStatus.BAD_REQUEST,
+        description: "Invalid request or validation errors"
+    })
+    @Post('/gift-plan/:recipient_id/:plan_id')
+    giftPlan(@AuthUser() giver: UserDocument, @Param('recipient_id') recipientId:Types.ObjectId, @Param('plan_id') planId: Types.ObjectId) {
+        return this.subscriptionsService.giftPlan(giver, recipientId, planId);
+    }
+
 
 }

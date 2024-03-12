@@ -16,4 +16,5 @@ export enum SUCCESS_MESSAGES {
 
     RATING_REWARD_TITLE = 'Rating Feedback Reward',
     RATING_REWARD_DESCRIPTION = "You've just been rewarded for your rating feedback"
+
 }
