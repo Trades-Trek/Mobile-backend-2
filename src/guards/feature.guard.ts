@@ -2,7 +2,6 @@ import {Injectable, CanActivate, ExecutionContext} from '@nestjs/common';
 import {Observable} from 'rxjs';
 import {Reflector} from '@nestjs/core';
 import {PlansService} from "../plans/plans.service";
-import {PlanFeature} from "../plans/schemas/plan_features.schema";
 
 @Injectable()
 export class FeatureGuard implements CanActivate {

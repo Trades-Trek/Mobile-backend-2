@@ -4,6 +4,7 @@ import {CreatePlanDto} from './dto/create-plan.dto';
 import {UpdatePlanDto} from './dto/update-plan.dto';
 import {Types} from "mongoose";
 import {successResponse} from "../utils/response";
+import {CreateListingDto} from "./dto/create-listing.dto";
 
 
 @Controller('plans')
@@ -15,6 +16,12 @@ export class PlansController {
     async create(@Body() createPlanDto: CreatePlanDto) {
         await this.plansService.createOrUpdatePlan(createPlanDto);
         return successResponse('plan created successfully')
+    }
+
+    @Post('listing')
+    async createListing(@Body() createListingDto: CreateListingDto) {
+        await this.plansService.createListing(createListingDto);
+        return successResponse('listing created successfully')
     }
 
     @Get()

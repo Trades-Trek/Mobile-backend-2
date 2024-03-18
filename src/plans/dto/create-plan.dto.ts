@@ -16,10 +16,13 @@ export class CreatePlanDto {
     @IsNotEmpty()
     amount: number
 
-    discount: number
-
     @IsNotEmpty()
     @IsArray()
     @ArrayNotEmpty()
     features: [Types.ObjectId]
+
+    @IsNotEmpty()
+    @IsArray()
+    @ArrayNotEmpty()
+    listings: Array<any>
 }

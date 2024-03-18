@@ -17,13 +17,15 @@ import {VerifyTransactionDto} from "./dto/verify.dto";
 import {SUCCESS_MESSAGES} from "../enums/success-messages";
 import {ERROR_MESSAGES} from "../enums/error-messages";
 import {WalletService} from "../wallet/wallet.service";
+import {ConfigService} from "@nestjs/config";
 
 @Injectable()
 export class TransactionsService {
-    constructor(@InjectModel(Transaction.name) private transactionModel: Model<Transaction>, @Inject(forwardRef(() => UsersService)) private userService: UsersService, private walletService: WalletService) {
+    constructor(@InjectModel(Transaction.name) private transactionModel: Model<Transaction>, @Inject(forwardRef(() => UsersService)) private userService: UsersService, private walletService: WalletService, private configService:ConfigService) {
     }
 
     async create(createTransactionDto: CreateTransactionDto): Promise<void> {
+        createTransactionDto['conversion_rate'] = this.configService.get('TREK_COINS_CONVERSION_RATE_IN_NAIRA')
         await this.transactionModel.create(createTransactionDto)
     }
 

@@ -19,4 +19,7 @@ export class CreateTransactionDto {
     type:TRANSACTION_TYPE
 
     entity:TRANSACTION_ENTITY
+    wallet_balance_before_transaction:number
+    trek_coin_balance_before_transaction:number
+
 }
