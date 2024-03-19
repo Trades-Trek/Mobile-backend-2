@@ -18,9 +18,23 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { BanksModule } from './banks/banks.module';
 import { WalletModule } from './wallet/wallet.module';
 import { RatingsModule } from './ratings/ratings.module';
+import { FeaturesModule } from './features/features.module';
+import {CacheModule} from "@nestjs/cache-manager";
+import { PromoCodesModule } from './promo-codes/promo-codes.module';
+
 
 @Module({
     imports: [
+        CacheModule.register({isGlobal:true}),
+        // TypeOrmModule.forRootAsync({
+        //     imports: [MongooseModule],
+        //     useFactory:(configService:ConfigService) => ({
+        //         url:configService.get('POST_G_DB_URL'),
+        //         entities: ['dist/**/*.entity{ .ts,.js}'],
+        //         synchronize: true,
+        //         logging:true
+        //     })
+        // }),
         ConfigModule.forRoot({
             isGlobal: true,
             load: [configuration],
@@ -45,9 +59,14 @@ import { RatingsModule } from './ratings/ratings.module';
         BanksModule,
         WalletModule,
         RatingsModule,
+        FeaturesModule,
+        PromoCodesModule,
     ],
     controllers: [AppController],
     providers: [AppService],
 })
-export class AppModule {
+
+export class AppModule{
+
 }
+

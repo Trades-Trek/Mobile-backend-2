@@ -46,8 +46,8 @@ export class SubscriptionsService {
         // notify recipient
         this.notificationService.create({
             user_id: recipient.id,
-            title:`You've been gifted a plan`,
-            description:`Hi ${recipient.first_name}, ${giver.full_name} just gifted you a ${plan.name} plan. Please check your profile settings to see more of this plan and its features`,
+            title: `You've been gifted a plan`,
+            description: `Hi ${recipient.first_name}, ${giver.full_name} just gifted you a ${plan.name} plan. Please check your profile settings to see more of this plan and its features`,
             priority: true
         })
         return successResponse('successful')
@@ -57,6 +57,8 @@ export class SubscriptionsService {
         const plan: PlanDocument | undefined = await this.planService.findOne(planId)
         if (!plan) returnErrorResponse('plan does not exist');
         const userSub = user.subscription;
+        // check if plan is a gift plan
+        if (plan.is_gift_plan) returnErrorResponse('You cannot subscribe to gift plans')
         // check if user has already subscribed to this plan
         if (user.has_subscribed) {
             if (userSub.plan_id === planId) returnErrorResponse(ERROR_MESSAGES.SUBSCRIBED)

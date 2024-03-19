@@ -26,6 +26,15 @@ export class Transaction {
     @Prop({enum: TRANSACTION_ENTITY, required: true})
     entity: string
 
+    @Prop({required: true, default:0})
+    conversion_rate: number
+
+    @Prop({required: true, default:0})
+    wallet_balance_before_transaction: number
+
+    @Prop({required: true, default:0})
+    trek_coin_balance_before_transaction: number
+
     @Prop()
     description: string
 

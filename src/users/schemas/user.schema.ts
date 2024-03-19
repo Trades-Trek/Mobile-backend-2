@@ -31,6 +31,9 @@ export class User {
     @Prop({unique:true})
     referral_code: string;
 
+    @Prop({default:'english'})
+    language: string;
+
     @Prop(raw({
         allow_notifications: {type: Boolean, default:true},
         allow_face_id: {type: Boolean, default: false},
@@ -40,14 +43,13 @@ export class User {
     }))
     settings: Record<string, any>;
 
-
     @Prop(raw({
         plan_id: {type: Types.ObjectId, required: false},
         renewal_date: {type: Date, required: false},
         has_expired: {type: Boolean, required: false},
-        no_of_days_used: {type: Number, default: 0},
+        no_of_days_used: {type: Number, required: false},
         plan_type: {type:String, required: false},
-
+        is_recurring:{type:Boolean, required: false},
     }))
     subscription: Record<string, any>;
 
