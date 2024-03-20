@@ -12,6 +12,10 @@ export enum ERROR_MESSAGES {
     INVALID_BANK_ACCOUNT = 'Could not resolve account name. Check parameters or try again.',
     PAYSTACK_BAD_GATE = 'Oops, seems our network is poor please try again',
 
-    ALREADY_REFERRED = "This user already joined trades trek"
+    ALREADY_REFERRED = "This user already joined trades trek",
+    PROMO_EXPIRED = 'Promotion campaign has already expired',
+
+    PROMO_NOT_STARTED = 'Promotion campaign is yet to begin',
+    PROMO_INVALID = 'Invalid Promo Code'
 
 }
