@@ -1,1 +1,3 @@
-export class CreateWatchlistDto {}
+export class CreateWatchlistDto {
+
+}
