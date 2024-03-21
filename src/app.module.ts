@@ -21,6 +21,8 @@ import { RatingsModule } from './ratings/ratings.module';
 import { FeaturesModule } from './features/features.module';
 import {CacheModule} from "@nestjs/cache-manager";
 import { PromoCodesModule } from './promo-codes/promo-codes.module';
+import { WatchlistModule } from './watchlist/watchlist.module';
+import { ActivitiesModule } from './activities/activities.module';
 
 
 @Module({
@@ -61,6 +63,8 @@ import { PromoCodesModule } from './promo-codes/promo-codes.module';
         RatingsModule,
         FeaturesModule,
         PromoCodesModule,
+        WatchlistModule,
+        ActivitiesModule,
     ],
     controllers: [AppController],
     providers: [AppService],
