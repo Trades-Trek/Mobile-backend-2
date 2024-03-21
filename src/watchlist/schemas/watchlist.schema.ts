@@ -1,13 +1,18 @@
 import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
-import {ResetPasswordToken} from "../../users/schemas/token.schema";
+import  {Types} from "mongoose";
+import {User} from "../../users/schemas/user.schema";
 
-@Schema({timestamps:true})
+@Schema({timestamps: true})
 export class Watchlist {
-    @Prop({required:true})
-    stock_id:string
+    @Prop({required:true, unique:true})
+    stock_price_symbol: string
 
-    @Prop({required:true})
-    user_id:string
+    @Prop({type: Types.ObjectId, ref: 'User'})
+    user: Types.ObjectId
+
+    @Prop({type: Boolean, required:true, default: false})
+    price_alert: boolean
+
 }
 
-export const WatchListSchema = SchemaFactory.createForClass(Watchlist);
+export const WatchlistSchema = SchemaFactory.createForClass(Watchlist);

@@ -16,6 +16,7 @@ export enum ERROR_MESSAGES {
     PROMO_EXPIRED = 'Promotion campaign has already expired',
 
     PROMO_NOT_STARTED = 'Promotion campaign is yet to begin',
-    PROMO_INVALID = 'Invalid Promo Code'
+    PROMO_INVALID = 'Invalid Promo Code',
+    ALREADY_EXIST_IN_WATCH_LIST = 'Stock price has already been added to your watchlist'
 
 }

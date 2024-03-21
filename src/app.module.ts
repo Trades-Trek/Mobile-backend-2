@@ -21,22 +21,29 @@ import { RatingsModule } from './ratings/ratings.module';
 import { FeaturesModule } from './features/features.module';
 import {CacheModule} from "@nestjs/cache-manager";
 import { PromoCodesModule } from './promo-codes/promo-codes.module';
-import { WatchlistModule } from './watchlist/watchlist.module';
 import { ActivitiesModule } from './activities/activities.module';
+import {TypeOrmModule} from "@nestjs/typeorm";
+import { StockModule } from './stock/stock.module';
+import { WatchlistModule } from './watchlist/watchlist.module';
 
-
+// configService.get('POST_G_DB_URL')
 @Module({
     imports: [
         CacheModule.register({isGlobal:true}),
-        // TypeOrmModule.forRootAsync({
-        //     imports: [MongooseModule],
-        //     useFactory:(configService:ConfigService) => ({
-        //         url:configService.get('POST_G_DB_URL'),
-        //         entities: ['dist/**/*.entity{ .ts,.js}'],
-        //         synchronize: true,
-        //         logging:true
-        //     })
-        // }),
+        TypeOrmModule.forRootAsync({
+            imports: [ConfigModule],
+            useFactory:(configService:ConfigService) => ({
+                type: 'mysql',
+                host: 'ttwebadmin.c3g8gce48972.us-east-1.rds.amazonaws.com',
+                port: 3306,
+                username: 'ttadmin',
+                password: '5vOwv851szeR',
+                database: 'ttwebadmin',
+                entities: ['dist/**/*.entity{ .ts,.js}'],
+                // synchronize: true,
+                logging:true
+            })
+        }),
         ConfigModule.forRoot({
             isGlobal: true,
             load: [configuration],
@@ -65,6 +72,8 @@ import { ActivitiesModule } from './activities/activities.module';
         PromoCodesModule,
         WatchlistModule,
         ActivitiesModule,
+        StockModule,
+        WatchlistModule,
     ],
     controllers: [AppController],
     providers: [AppService],

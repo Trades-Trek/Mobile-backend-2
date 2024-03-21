@@ -55,6 +55,7 @@ export class AuthService {
     }
 
     async login(loginDto: LoginDto) {
+        console.log(loginDto)
         const {email, password} = loginDto;
         let user: UserDocument | undefined = await this.userService.findOne({
             field: USER.EMAIL,

@@ -43,6 +43,7 @@
     "dayjs": "^1.11.10",
     "mongoose": "^8.1.1",
     "mongoose-paginate-v2": "^1.8.0",
+    "mysql2": "^3.9.2",
     "nodemailer": "^6.9.9",
     "nodemailer-express-handlebars": "^6.1.0",
     "passport": "^0.7.0",
