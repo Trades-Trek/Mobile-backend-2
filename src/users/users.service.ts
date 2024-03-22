@@ -24,10 +24,16 @@ export class UsersService {
     }
 
     async create(createUserDto: CreateUserDto) {
-        createUserDto['referrer_code'] = createUserDto.referral_code;
-        createUserDto['full_name'] = createUserDto.first_name + ' ' + createUserDto.last_name;
-        createUserDto['username'] = createUserDto.first_name + '@0' + await this.userModel.countDocuments({}) + 1;
-        return await this.userModel.create(createUserDto)
+        const data = {
+            referrer_code: createUserDto.referral_code,
+            first_name:createUserDto.first_name,
+            last_name:createUserDto.last_name,
+            email:createUserDto.email,
+            full_name: createUserDto.first_name + ' ' + createUserDto.last_name,
+            username: createUserDto.first_name + '@0' + await this.userModel.countDocuments({}) + 1,
+            password: createUserDto.password,
+        }
+        return await this.userModel.create(data)
     }
 
     async updateUserSettings(user: UserDocument, updateSettingsDto: UpdateSettingsDto) {
