@@ -5,6 +5,8 @@ import {Public} from "../decorators/public-endpoint.decorator";
 import {ApiOperation, ApiResponse} from "@nestjs/swagger";
 import {InitializeTransactionDto} from "./dto/intialise.dto";
 import {VerifyTransactionDto} from "./dto/verify.dto";
+import {AuthUser} from "../decorators/user.decorator";
+import {UserDocument} from "../users/schemas/user.schema";
 
 const logger = require('../utils/logger');
 
@@ -26,6 +28,11 @@ export class TransactionsController {
             console.log("not authenticated");
         }
         res.sendStatus(200);
+    }
+
+    @Get('transactions')
+    getUserTransactions(@AuthUser() user:UserDocument){
+        return this.transactionService.getUserTransactions(user)
     }
 
     @ApiOperation({summary: "Initialize transaction/payment"})
