@@ -28,7 +28,7 @@ export class User {
     @Prop({required: true, trim: true, select: false})
     password: string;
 
-    @Prop({unique:true})
+    @Prop()
     referral_code: string;
 
     @Prop({default:'english'})
