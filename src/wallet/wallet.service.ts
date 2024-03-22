@@ -41,8 +41,8 @@ export class WalletService {
             description: `Transfer From Your Wallet to ${bankAccount.account_name}`,
             type: TRANSACTION_TYPE.TRANSFER,
             reference: transferResponse.reference,
-            wallet_balance_before_transaction:user.wallet.balance,
-            trek_coin_balance_before_transaction:user.trek_coin_balance
+            wallet_balance_before_transaction: user.wallet.balance,
+            trek_coin_balance_before_transaction: user.trek_coin_balance
         });
         return successResponse(SUCCESS_MESSAGES.TRANSFER_QUEUED)
     }
@@ -63,10 +63,14 @@ export class WalletService {
             // get the logged referral
             const referral = await this.referralService.findOrCreate(user.email, referrer)
             if (referrer && referral) this.referralService.reward(referrer, referral)
-            await user.updateOne({is_first_trek_coins_purchase: false})
         }
+        if (user.is_first_trek_coins_purchase) await user.updateOne({is_first_trek_coins_purchase: false})
         const conversionRate = this.configService.get('TREK_COINS_CONVERSION_RATE_IN_NAIRA')
-        return successResponse({message:SUCCESS_MESSAGES.TREK_COINS_FUNDED, conversion_rate:conversionRate, cash_converted:amountInCash })
+        return successResponse({
+            message: SUCCESS_MESSAGES.TREK_COINS_FUNDED,
+            conversion_rate: conversionRate,
+            cash_converted: amountInCash
+        })
     }
 
     async withdrawTrekCoins(user: UserDocument, fundTrekCoinsDto: FundTrekCoinsDto) {
@@ -76,7 +80,11 @@ export class WalletService {
         await this.debitUserTrekCoins(user, trek_coins)
         await this.creditUserWallet(user, amountInCash)
         const conversionRate = this.configService.get('TREK_COINS_CONVERSION_RATE_IN_NAIRA')
-        return successResponse({message:SUCCESS_MESSAGES.TREK_COINS_FUNDED, conversion_rate:conversionRate, cash_converted:amountInCash })
+        return successResponse({
+            message: SUCCESS_MESSAGES.TREK_COINS_FUNDED,
+            conversion_rate: conversionRate,
+            cash_converted: amountInCash
+        })
     }
 
     async creditUserTrekCoins(user: UserDocument, trekCoins: number): Promise<boolean> {
@@ -88,8 +96,8 @@ export class WalletService {
             type: TRANSACTION_TYPE.CREDIT,
             entity: TRANSACTION_ENTITY.TREK_COINS,
             reference: usePaystackService.getReference(),
-            wallet_balance_before_transaction:user.wallet.balance,
-            trek_coin_balance_before_transaction:user.trek_coin_balance
+            wallet_balance_before_transaction: user.wallet.balance,
+            trek_coin_balance_before_transaction: user.trek_coin_balance
         })
         this.notificationService.create({
             title: SUCCESS_MESSAGES.TREK_COINS_CREDIT_TITLE.toString(),
@@ -109,8 +117,8 @@ export class WalletService {
             type: TRANSACTION_TYPE.DEBIT,
             entity: TRANSACTION_ENTITY.TREK_COINS,
             reference: usePaystackService.getReference(),
-            wallet_balance_before_transaction:user.wallet.balance,
-            trek_coin_balance_before_transaction:user.trek_coin_balance
+            wallet_balance_before_transaction: user.wallet.balance,
+            trek_coin_balance_before_transaction: user.trek_coin_balance
         })
         this.notificationService.create({
             title: 'Trek Coins Account Debit',
@@ -130,8 +138,8 @@ export class WalletService {
             type: TRANSACTION_TYPE.CREDIT,
             entity: TRANSACTION_ENTITY.WALLET,
             reference: usePaystackService.getReference(),
-            wallet_balance_before_transaction:user.wallet.balance,
-            trek_coin_balance_before_transaction:user.trek_coin_balance
+            wallet_balance_before_transaction: user.wallet.balance,
+            trek_coin_balance_before_transaction: user.trek_coin_balance
         })
         this.notificationService.create({
             title: 'Wallet Credited Successfully',
@@ -152,8 +160,8 @@ export class WalletService {
                 type: TRANSACTION_TYPE.DEBIT,
                 entity: TRANSACTION_ENTITY.WALLET,
                 reference: usePaystackService.getReference(),
-                wallet_balance_before_transaction:user.wallet.balance,
-                trek_coin_balance_before_transaction:user.trek_coin_balance
+                wallet_balance_before_transaction: user.wallet.balance,
+                trek_coin_balance_before_transaction: user.trek_coin_balance
             })
             this.notificationService.create({
                 title: 'Wallet Debited Successfully',
