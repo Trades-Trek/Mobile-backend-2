@@ -29,6 +29,11 @@ export class TransactionsService {
         await this.transactionModel.create(createTransactionDto)
     }
 
+    async getUserTransactions(user:UserDocument){
+        const transactions = await this.transactionModel.find({user_id:user.id});
+        return successResponse({transactions})
+    }
+
     async paystackWebhookHandler(payload: any) {
         switch (payload.event) {
             case PAYSTACK_WEBHOOK_EVENTS.CHARGE_SUCCESS:
