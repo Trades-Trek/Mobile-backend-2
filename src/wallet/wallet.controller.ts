@@ -42,8 +42,8 @@ export class WalletController {
         status: HttpStatus.BAD_REQUEST,
         description: "Invalid request or validation errors"
     })
-    @hasFeatures(FEATURES.USER_CAN_CONVERT_WALLET_FUNDS_TO_TREK_COINS)
-    @UseGuards(SubscribedGuard, FeatureGuard)
+    // @hasFeatures(FEATURES.USER_CAN_CONVERT_WALLET_FUNDS_TO_TREK_COINS)
+    // @UseGuards(SubscribedGuard, FeatureGuard)
     @Post('trek-coins/convert')
     fundTrekCoinsViaWallet(@AuthUser() user: UserDocument, @Body() fundTrekCoinsDto: FundTrekCoinsDto) {
         return this.walletService.fundTrekCoinsViaWallet(user, fundTrekCoinsDto)
