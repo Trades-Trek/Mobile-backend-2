@@ -75,7 +75,8 @@ export class WalletService {
         const amountInCash = this.convertTrekCoinsToCash(trek_coins)
         await this.debitUserTrekCoins(user, trek_coins)
         await this.creditUserWallet(user, amountInCash)
-        return successResponse(SUCCESS_MESSAGES.TREK_COINS_FUNDED)
+        const conversionRate = this.configService.get('TREK_COINS_CONVERSION_RATE_IN_NAIRA')
+        return successResponse({message:SUCCESS_MESSAGES.TREK_COINS_FUNDED, conversion_rate:conversionRate, cash_converted:amountInCash })
     }
 
     async creditUserTrekCoins(user: UserDocument, trekCoins: number): Promise<boolean> {
