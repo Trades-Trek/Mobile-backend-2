@@ -5,12 +5,12 @@ import {AuthUser} from "../decorators/user.decorator";
 import {UserDocument} from "../users/schemas/user.schema";
 import {Watchlist} from "./schemas/watchlist.schema";
 import {InjectModel} from "@nestjs/mongoose";
-import {Model} from "mongoose";
+import {Model, Types} from "mongoose";
 import {returnErrorResponse, successResponse} from "../utils/response";
 import {ERROR_MESSAGES} from "../enums/error-messages";
 import {SUCCESS_MESSAGES} from "../enums/success-messages";
-import {PaginationDto, PaginationParams} from "../decorators/pagination.decorator";
 import {StockPriceService} from "../stock/services/stock_price.service";
+import {Pagination} from "../enums/pagination.enum";
 
 @Injectable()
 export class WatchlistService {
@@ -18,18 +18,33 @@ export class WatchlistService {
 
     }
 
-    async create(stockPriceSymbol: string, @AuthUser() user?: UserDocument) {
-        console.log(user)
-        if (await this.findOne({stock_price_symbol: stockPriceSymbol})) returnErrorResponse(ERROR_MESSAGES.ALREADY_EXIST_IN_WATCH_LIST)
+    async create(stockPriceSymbol: string, user: UserDocument) {
+        if (await this.findOne({
+            stock_price_symbol: stockPriceSymbol,
+            user: user.id
+        })) returnErrorResponse(ERROR_MESSAGES.ALREADY_EXIST_IN_WATCH_LIST)
         // check if stock price does exist
-        if (!await this.stockPriceService.findStockPrice({symbol: stockPriceSymbol}, ['symbol']))
-            returnErrorResponse('Stock price does not exist')
+        const stockPrice = await this.stockPriceService.findStockPrice({symbol: stockPriceSymbol}, ['symbol', 'last']);
+        if (!stockPrice) returnErrorResponse('Stock price does not exist')
         // add to watch list
-        const watchList = await this.watchlistModel.create({stock_price_symbol: stockPriceSymbol, user: user.id})
+        const watchList = await this.watchlistModel.create({
+            stock_price_symbol: stockPriceSymbol,
+            user: user.id,
+            price: stockPrice.last
+        })
         return successResponse({watch_list: watchList, message: SUCCESS_MESSAGES.STOCK_PRICE_ADDED_TO_WATCHLIST})
     }
 
-    async findAll(@AuthUser() user?: UserDocument, @PaginationParams() paginationParams?: PaginationDto) {
+    async setPriceAlert(watchlistId: string, user: UserDocument) {
+        let watchlist = await this.watchlistModel.findById(watchlistId)
+        if (!watchlist) returnErrorResponse(ERROR_MESSAGES.WATCHLIST_NOT_FOUND)
+        if (watchlist.user !== user.id) returnErrorResponse('Unauthorised')
+        // update watch list
+        watchlist = await this.watchlistModel.findByIdAndUpdate(watchlistId, {price_alert: !watchlist.price_alert}, {new: true})
+        return successResponse({watchlist, message: 'successful'})
+    }
+
+    async findAll(user: UserDocument, paginationParams: Pagination) {
         const watchLists = await this.watchlistModel.find({user}, {}, {
             limit: paginationParams.limit,
             skip: paginationParams.page
@@ -41,7 +56,8 @@ export class WatchlistService {
         return this.watchlistModel.findOne(filter);
     }
 
-    remove(id: number) {
-        return `This action removes a #${id} watchlist`;
+    async remove(watchlistId: Types.ObjectId) {
+        await this.watchlistModel.findByIdAndDelete(watchlistId)
+        return successResponse(SUCCESS_MESSAGES.STOCK_PRICE_REMOVED_FROM_WATCHLIST)
     }
 }

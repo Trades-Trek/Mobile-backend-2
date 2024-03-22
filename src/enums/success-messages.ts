@@ -22,6 +22,8 @@ export enum SUCCESS_MESSAGES {
     PROMO_UPDATED = "Promo code updated successfully",
 
     PROMO_DELETED = "Promo code deleted successfully",
-    STOCK_PRICE_ADDED_TO_WATCHLIST = 'Stock price added to your watchlist successfully'
+    STOCK_PRICE_ADDED_TO_WATCHLIST = 'Stock price added to your watchlist successfully',
+    STOCK_PRICE_REMOVED_FROM_WATCHLIST = 'Stock price removed from your watchlist successfully',
+
 
 }

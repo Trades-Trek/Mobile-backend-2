@@ -4,8 +4,7 @@ import {CreateRatingDto} from './dto/create-rating.dto';
 import {UpdateRatingDto} from './dto/update-rating.dto';
 import {AuthUser} from "../decorators/user.decorator";
 import {UserDocument} from "../users/schemas/user.schema";
-import {PaginationDto} from "../decorators/pagination.decorator";
-import {PaginationParams} from "../decorators/pagination.decorator";
+import {Pagination} from "../enums/pagination.enum";
 
 @Controller('ratings')
 export class RatingsController {
@@ -18,7 +17,7 @@ export class RatingsController {
     }
 
     @Get()
-    findAll(@AuthUser() user: UserDocument, @PaginationParams() paginationParameters: PaginationDto) {
+    findAll(@AuthUser() user: UserDocument, paginationParameters: Pagination) {
         return this.ratingsService.findAll(user, paginationParameters);
     }
 

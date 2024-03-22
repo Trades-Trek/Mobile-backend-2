@@ -65,7 +65,8 @@ export class WalletService {
             if (referrer && referral) this.referralService.reward(referrer, referral)
             await user.updateOne({is_first_trek_coins_purchase: false})
         }
-        return successResponse(SUCCESS_MESSAGES.TREK_COINS_FUNDED)
+        const conversionRate = this.configService.get('TREK_COINS_CONVERSION_RATE_IN_NAIRA')
+        return successResponse({message:SUCCESS_MESSAGES.TREK_COINS_FUNDED, conversion_rate:conversionRate, cash_converted:amountInCash })
     }
 
     async withdrawTrekCoins(user: UserDocument, fundTrekCoinsDto: FundTrekCoinsDto) {
