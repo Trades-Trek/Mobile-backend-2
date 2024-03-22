@@ -13,6 +13,9 @@ export class Watchlist {
     @Prop({type: Boolean, required:true, default: false})
     price_alert: boolean
 
+    @Prop({required:true})
+    price: number
+
 }
 
 export const WatchlistSchema = SchemaFactory.createForClass(Watchlist);

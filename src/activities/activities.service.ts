@@ -4,7 +4,7 @@ import {UpdateActivityDto} from './dto/update-activity.dto';
 import {InjectModel} from "@nestjs/mongoose";
 import {Activity} from "./schemas/activity.schema";
 import {Model, Types} from "mongoose";
-import {PaginationDto, PaginationParams} from "../decorators/pagination.decorator";
+import {Pagination} from "../enums/pagination.enum";
 
 @Injectable()
 export class ActivitiesService {
@@ -15,7 +15,7 @@ export class ActivitiesService {
         await this.activityModel.create(createActivityDto)
     }
 
-    async findAllUserActivities(userId: Types.ObjectId, @PaginationParams() pagination?: PaginationDto): Promise<Activity[]> {
+    async findAllUserActivities(userId: Types.ObjectId,  pagination: Pagination): Promise<Activity[]> {
         return this.activityModel.find({by: userId}, {}, {limit: pagination.limit, skip: pagination.page});
     }
 

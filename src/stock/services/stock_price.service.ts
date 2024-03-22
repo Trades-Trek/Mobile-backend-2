@@ -17,7 +17,7 @@ export class StockPriceService {
         return successResponse({stock_prices:stockPrices})
     }
 
-    async findStockPrice(filter: any, columnsToLoad: [string]): Promise<StockPrice> {
+    async findStockPrice(filter: any, columnsToLoad: Array<string>): Promise<StockPrice> {
         let columns_to_load;
         columns_to_load = columnsToLoad.length ? columnsToLoad : ['company_id', 'id']
             return await this.stockPriceRepository.findOne({where: filter, select: columns_to_load});

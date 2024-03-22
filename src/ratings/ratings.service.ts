@@ -10,7 +10,7 @@ import {ConfigService} from "@nestjs/config";
 import {NotificationsService} from "../notifications/notifications.service";
 import {SUCCESS_MESSAGES} from "../enums/success-messages";
 import {WalletService} from "../wallet/wallet.service";
-import {PaginationDto} from "../decorators/pagination.decorator";
+import {Pagination} from "../enums/pagination.enum";
 
 @Injectable()
 export class RatingsService {
@@ -25,7 +25,7 @@ export class RatingsService {
         return successResponse('Rating feedback submitted successfully');
     }
 
-    async findAll(user: UserDocument, paginationParameters: PaginationDto) {
+    async findAll(user: UserDocument, paginationParameters: Pagination) {
         const ratings = await this.ratingModel.find({user: user.id});
         console.log(paginationParameters)
         const {totalRating, ratingCount} = await this.getUserRating(user.id)
