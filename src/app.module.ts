@@ -25,6 +25,7 @@ import { ActivitiesModule } from './activities/activities.module';
 import {TypeOrmModule} from "@nestjs/typeorm";
 import { StockModule } from './stock/stock.module';
 import { WatchlistModule } from './watchlist/watchlist.module';
+import { CompetitionsModule } from './competitions/competitions.module';
 
 // configService.get('POST_G_DB_URL')
 @Module({
@@ -74,6 +75,7 @@ import { WatchlistModule } from './watchlist/watchlist.module';
         ActivitiesModule,
         StockModule,
         WatchlistModule,
+        CompetitionsModule,
     ],
     controllers: [AppController],
     providers: [AppService],

@@ -1,4 +1,4 @@
 import { PartialType } from '@nestjs/swagger';
-import { CreateWatchlistDto } from './create-watchlist.dto';
+import { WatchlistDto } from './watchlist.dto';
 
-export class UpdateWatchlistDto extends PartialType(CreateWatchlistDto) {}
+export class UpdateWatchlistDto extends PartialType(WatchlistDto) {}

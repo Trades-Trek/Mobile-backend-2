@@ -18,6 +18,8 @@ export enum ERROR_MESSAGES {
     PROMO_NOT_STARTED = 'Promotion campaign is yet to begin',
     PROMO_INVALID = 'Invalid Promo Code',
     ALREADY_EXIST_IN_WATCH_LIST = 'Stock price has already been added to your watchlist',
-    WATCHLIST_NOT_FOUND = 'Watchlist does not exist'
+    WATCHLIST_NOT_FOUND = 'Watchlist does not exist',
+
+    COMPETITION_NOT_FOUND = 'Competition does not exist'
 
 }

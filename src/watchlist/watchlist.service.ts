@@ -1,5 +1,5 @@
 import {Injectable} from '@nestjs/common';
-import {CreateWatchlistDto} from './dto/create-watchlist.dto';
+import {WatchlistDto, WatchlistPriceAlertDto} from './dto/watchlist.dto';
 import {UpdateWatchlistDto} from './dto/update-watchlist.dto';
 import {AuthUser} from "../decorators/user.decorator";
 import {UserDocument} from "../users/schemas/user.schema";
@@ -11,38 +11,45 @@ import {ERROR_MESSAGES} from "../enums/error-messages";
 import {SUCCESS_MESSAGES} from "../enums/success-messages";
 import {StockPriceService} from "../stock/services/stock_price.service";
 import {Pagination} from "../enums/pagination.enum";
+import {CompanyService} from "../stock/services/company.service";
 
 @Injectable()
 export class WatchlistService {
-    constructor(@InjectModel(Watchlist.name) private watchlistModel: Model<Watchlist>, private stockPriceService: StockPriceService) {
+    constructor(@InjectModel(Watchlist.name) private watchlistModel: Model<Watchlist>, private companyService: CompanyService, private stockPriceService: StockPriceService) {
 
     }
 
-    async create(stockPriceSymbol: string, user: UserDocument) {
+    async create(companyId: number, user: UserDocument) {
         if (await this.findOne({
-            stock_price_symbol: stockPriceSymbol,
+            company_id: companyId,
             user: user.id
         })) returnErrorResponse(ERROR_MESSAGES.ALREADY_EXIST_IN_WATCH_LIST)
         // check if stock price does exist
-        const stockPrice = await this.stockPriceService.findStockPrice({symbol: stockPriceSymbol}, ['symbol', 'last']);
-        if (!stockPrice) returnErrorResponse('Stock price does not exist')
+        const company = await this.companyService.findCompany({id: companyId},);
+        if (!company) returnErrorResponse('Company does not exist')
+        // get stock price
+        const stockPrice = await this.stockPriceService.findStockPrice({symbol: company.ticker_symbol})
         // add to watch list
         const watchList = await this.watchlistModel.create({
-            stock_price_symbol: stockPriceSymbol,
+            company_id: companyId,
             user: user.id,
             price: stockPrice.last
         })
         return successResponse({watch_list: watchList, message: SUCCESS_MESSAGES.STOCK_PRICE_ADDED_TO_WATCHLIST})
     }
 
-    async setPriceAlert(watchlistId: string, user: UserDocument) {
+    async setPriceAlert(watchlistId: string, priceAlertDto: WatchlistPriceAlertDto, user: UserDocument) {
         let watchlist = await this.watchlistModel.findById(watchlistId)
         if (!watchlist) returnErrorResponse(ERROR_MESSAGES.WATCHLIST_NOT_FOUND)
+
         if (watchlist.user !== user.id) returnErrorResponse('Unauthorised')
-        // update watch list
-        watchlist = await this.watchlistModel.findByIdAndUpdate(watchlistId, {price_alert: !watchlist.price_alert}, {new: true})
+        // set price alert
+        const updateFields = {price_alert:priceAlertDto.value, order: priceAlertDto.order, order_price: priceAlertDto.order_price}
+        watchlist = await this.watchlistModel.findByIdAndUpdate(watchlistId, updateFields, {new: true})
         return successResponse({watchlist, message: 'successful'})
     }
+
+
 
     async findAll(user: UserDocument, paginationParams: Pagination) {
         const watchLists = await this.watchlistModel.find({user}, {}, {

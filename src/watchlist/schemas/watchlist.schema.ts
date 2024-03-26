@@ -4,17 +4,23 @@ import {User} from "../../users/schemas/user.schema";
 
 @Schema({timestamps: true})
 export class Watchlist {
-    @Prop({required:true, unique:true})
-    stock_price_symbol: string
+    @Prop({required:true})
+    company_id: string
 
     @Prop({type: Types.ObjectId, ref: 'User'})
     user: Types.ObjectId
 
-    @Prop({type: Boolean, required:true, default: false})
-    price_alert: boolean
+    @Prop({type: Number, required:true, default: 0})
+    price_alert: number
 
     @Prop({required:true})
     price: number
+
+    @Prop({required:false})
+    order: string
+    @Prop({required:true})
+    order_price: string
+
 
 }
 
