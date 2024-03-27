@@ -8,6 +8,7 @@ import {GetPagination} from "../decorators/pagination.decorator";
 import {Pagination} from "../enums/pagination.enum";
 import {Types} from "mongoose";
 import {ApiTags} from "@nestjs/swagger";
+import {successResponse} from "../utils/response";
 @ApiTags('Competitions')
 @Controller('competitions')
 export class CompetitionsController {
@@ -18,9 +19,20 @@ export class CompetitionsController {
     return this.competitionsService.create(user,createCompetitionDto);
   }
 
+  @Post('join/:competition_id')
+  async join(@AuthUser() user:UserDocument, @Param('competition_id') competitionId:Types.ObjectId) {
+     await this.competitionsService.joinCompetition(user,competitionId);
+     return successResponse('Joined successfully')
+  }
+
   @Get()
   findAll(@AuthUser() user:UserDocument, @GetPagination() pagination:Pagination) {
     return this.competitionsService.findAll(user, pagination);
+  }
+
+  @Get('/requests')
+  competitionRequests(@AuthUser() user:UserDocument, @GetPagination() pagination:Pagination) {
+    return this.competitionsService.getCompetitionRequests(user, pagination);
   }
 
   @Get(':competition_id')
@@ -28,10 +40,10 @@ export class CompetitionsController {
     return this.competitionsService.findOne(competitionId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCompetitionDto: UpdateCompetitionDto) {
-    return this.competitionsService.update(+id, updateCompetitionDto);
-  }
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateCompetitionDto: UpdateCompetitionDto) {
+  //   return this.competitionsService.update(+id, updateCompetitionDto);
+  // }
 
   @Delete(':competition_id')
   remove(@Param('competition_id') competitionId: Types.ObjectId, @AuthUser() user:UserDocument) {

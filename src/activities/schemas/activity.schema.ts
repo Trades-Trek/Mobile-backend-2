@@ -4,8 +4,11 @@ import {User} from "../../users/schemas/user.schema";
 
 @Schema({timestamps:true})
 export class Activity {
-    @Prop()
+    @Prop({required:true})
     activity: string;
+
+    @Prop({required:true})
+    entity: string;
 
     @Prop({
         type: Types.ObjectId,

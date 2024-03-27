@@ -1,7 +1,7 @@
 import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
 import {COMPETITION_TYPE} from "../../enums/competition.enum";
-import {Types} from "mongoose";
-
+import {Document, Types} from "mongoose";
+export type ParticipantDocument = Participant & Document;
 @Schema({timestamps: true})
 export class Participant {
     @Prop({required: false, type: Types.ObjectId,
@@ -10,6 +10,9 @@ export class Participant {
 
     @Prop({required: false})
     email: string
+
+    @Prop({required: false, default:false})
+    is_owner: boolean
 
     @Prop({
         type: Types.ObjectId,
@@ -20,6 +23,9 @@ export class Participant {
 
     @Prop({required: true, default:false})
     joined: boolean
+
+    @Prop({required: true, default:true})
+    invited: boolean
 
 }
 

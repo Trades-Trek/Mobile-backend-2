@@ -4,4 +4,5 @@ import {UserDocument} from "../../users/schemas/user.schema";
 export class ReferralDto {
     email:string
 
+
 }

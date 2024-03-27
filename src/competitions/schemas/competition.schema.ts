@@ -1,7 +1,8 @@
 import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
 import {COMPETITION_TYPE} from "../../enums/competition.enum";
-import {Types} from "mongoose";
+import {Document, Types} from "mongoose";
 
+export type CompetitionDocument = Competition & Document;
 @Schema({timestamps: true})
 export class Competition {
     @Prop({required: false, type: Types.ObjectId,
@@ -36,6 +37,9 @@ export class Competition {
 
     @Prop({required: false})
     commission: number
+
+    @Prop({required: false})
+    password: string
 
     @Prop({required: true})
     allow_late_entry: number

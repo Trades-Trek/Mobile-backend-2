@@ -1,5 +1,5 @@
-import {IsEnum, IsNotEmpty, IsNumber, IsString, Max, Min} from "class-validator";
-import {COMPETITION_TYPE} from "../../enums/competition.enum";
+import {IsEnum, IsNotEmpty, IsNumber, IsString, Max, Min, ValidateIf} from "class-validator";
+import {COMPETITION_ENTRY, COMPETITION_TYPE, COMPETITION_VISIBILITY} from "../../enums/competition.enum";
 import {ApiProperty} from "@nestjs/swagger";
 
 export class CreateCompetitionDto {
@@ -11,12 +11,24 @@ export class CreateCompetitionDto {
     @IsString()
     description: string
 
+    @ValidateIf((data) => data.type === COMPETITION_TYPE.GROUP)
+    @IsNotEmpty()
+    @IsNumber()
+    capacity?: number
+
     @ApiProperty({
         enum: COMPETITION_TYPE
     })
     @IsNotEmpty()
     @IsEnum(COMPETITION_TYPE)
     type: COMPETITION_TYPE
+
+    @ApiProperty({
+        enum: COMPETITION_ENTRY
+    })
+    @IsNotEmpty()
+    @IsEnum(COMPETITION_ENTRY)
+    entry: COMPETITION_ENTRY
 
     @IsNotEmpty()
     @Max(0)
@@ -28,6 +40,13 @@ export class CreateCompetitionDto {
     @Max(0)
     @Min(1)
     allow_portfolio_viewing: number
+
+    @ApiProperty({
+        enum: COMPETITION_VISIBILITY
+    })
+    @IsNotEmpty()
+    @IsEnum(COMPETITION_VISIBILITY)
+    visibility: COMPETITION_VISIBILITY
 
     @IsNotEmpty()
     @IsNumber()
@@ -53,8 +72,8 @@ export class CreateCompetitionDto {
     commission: number
 
     @IsNotEmpty()
-    start_cash: number
+    starting_cash: number
 
-    participant?: string
+    participant_email?: string
 
 }
