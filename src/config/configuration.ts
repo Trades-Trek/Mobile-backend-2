@@ -15,7 +15,7 @@ export default () => ({
     REWARD_USERS_RATING:process.env.REWARD_USERS_RATING,
     MIN_STARTING_CASH:process.env.MIN_STARTING_CASH,
     MAX_STARTING_CASH:process.env.MAX_STARTING_CASH,
-    PARTICIPANT_FEE:process.env.PARTICIPANT_FEE,
+    CAPACITY_FEE:process.env.CAPACITY_FEE,
     PORT: parseInt(process.env.PORT, 10) || 3000,
     ...process.env.NODE_ENV === 'development' ? development() : process.env.NODE_ENV === 'staging' ? staging() : production()
 });

@@ -6,7 +6,7 @@ export type ParticipantDocument = Participant & Document;
 export class Participant {
     @Prop({required: false, type: Types.ObjectId,
         ref: 'User'})
-    participant: string
+    participant: Types.ObjectId
 
     @Prop({required: false})
     email: string

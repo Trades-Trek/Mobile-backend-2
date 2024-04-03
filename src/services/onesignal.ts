@@ -1,9 +1,11 @@
-const useOneSignalService = () => {
+import {Types} from "mongoose";
+
+export const useOneSignalService = () => {
     const headers = {
         Authorization: "Basic " + process.env.ONE_SIGNAL_API_KEY,
         "Content-Type": "application/json"
     };
-    const sendPushNotification = async (userId:string, title:string, description:string, payload:any) => {
+    const sendPushNotification = async (userId:Types.ObjectId, title:string, description:string, payload:any) => {
         const notification = {
             app_id: process.env.ONE_SIGNAL_APP_ID,
             headings: {en: title},
@@ -22,4 +24,6 @@ const useOneSignalService = () => {
             console.log(e)
         }
     }
+
+    return {sendPushNotification}
 }

@@ -15,23 +15,27 @@ import {generateCode} from "../utils/constant";
 import {ActivitiesService} from "../activities/activities.service";
 import {ACTIVITY_ENTITY, ACTIVITY_MESSAGES} from "../enums/activities.enum";
 import {Participant, ParticipantDocument} from "./schemas/participant.schema";
+import {QueueService} from "../queues/queue.service";
+import {EMAIL_SUBJECTS} from "../enums/emails.enum";
+import {useOneSignalService} from "../services/onesignal";
+const onesignalService = useOneSignalService()
 
 @Injectable()
 export class CompetitionsService {
-    constructor(@InjectModel(Competition.name) private competitionModel: Model<Competition>, @InjectModel(Participant.name) private participantModel: Model<Participant>, private configService: ConfigService, private walletsService: WalletService, private activityService: ActivitiesService) {
+    constructor(@InjectModel(Competition.name) private competitionModel: Model<Competition>, @InjectModel(Participant.name) private participantModel: Model<Participant>, private configService: ConfigService, private walletsService: WalletService, private activityService: ActivitiesService, private queueService: QueueService) {
     }
 
     async create(user: UserDocument, createCompetitionDto: CreateCompetitionDto) {
-        const {capacity, type, starting_cash, entry, participant_email} = createCompetitionDto;
-        const {minStartingCash, maxStartingCash, participantFee} = this.getMinAndMaxStartingCash()
+        const {capacity, type, starting_cash, entry, participants} = createCompetitionDto;
+        const {minStartingCash, maxStartingCash, capacityFee} = this.getMinAndMaxStartingCash()
         // compare starting cash
         if (starting_cash < minStartingCash || starting_cash > maxStartingCash) returnErrorResponse(ERROR_MESSAGES.STARTING_CASH_ERROR)
         // check capacity
         if (type === COMPETITION_TYPE.GROUP) {
-            const capacityFeeToBeDebited = capacity * participantFee
+            const capacityFeeToBeDebited = capacity * capacityFee
             if (capacityFeeToBeDebited > user.trek_coin_balance) {
                 // show owner his trek coins balance capacity
-                const yourTrekCoinsCapacity = user.trek_coin_balance / participantFee;
+                const yourTrekCoinsCapacity = user.trek_coin_balance / capacityFee;
                 returnErrorResponse(`Sorry, your trek coins balance can only Solicit for ${yourTrekCoinsCapacity} capacity`)
             }
             // debit user trek coins
@@ -46,9 +50,11 @@ export class CompetitionsService {
         await this.findOrCreateParticipant(competition.id, user.email, user.id)
         await this.joinCompetition(user, competition.id)
         // invite participants
-        if (participant_email && type === COMPETITION_TYPE.GROUP) {
-            const participant = await this.findOrCreateParticipant(competition.id, participant_email)
-            this.inviteParticipant(participant, competition, user)
+        if (participants.length && type === COMPETITION_TYPE.GROUP) {
+            for (const email of participants) {
+                const participant = await this.findOrCreateParticipant(competition.id, email)
+                this.inviteParticipant(participant, competition, user)
+            }
             // generate receipt for competition
         }
         // create activity
@@ -103,17 +109,24 @@ export class CompetitionsService {
         return successResponse(SUCCESS_MESSAGES.COMPETITION_DELETED)
     }
 
-    getMinAndMaxStartingCash(): { minStartingCash: number, maxStartingCash: number, participantFee: number } {
+    getMinAndMaxStartingCash(): { minStartingCash: number, maxStartingCash: number, capacityFee: number } {
         return {
             minStartingCash: parseInt(this.configService.get('MIN_STARTING_CASH')),
             maxStartingCash: parseInt(this.configService.get('MAX_STARTING_CASH')),
-            participantFee: parseInt(this.configService.get('PARTICIPANT_FEE'))
+            capacityFee: parseInt(this.configService.get('CAPACITY_FEE'))
         }
     }
 
     async inviteParticipant(participant: ParticipantDocument, competition: CompetitionDocument, owner: UserDocument) {
         if (participant.participant) {
             // participant is a user on trades trek
+            await this.queueService.sendEmail({
+                to: participant.email,
+                template: '/CompetitionInvite',
+                context: {competition, owner},
+                subject: EMAIL_SUBJECTS.COMPETITION_INVITATION
+            })
+            await onesignalService.sendPushNotification(participant.participant, EMAIL_SUBJECTS.COMPETITION_INVITATION, `You have been invited to join ${competition.name}`, {})
         } else {
             // not a user on trades trek
         }
