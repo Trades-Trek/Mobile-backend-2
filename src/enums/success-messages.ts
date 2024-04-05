@@ -25,7 +25,9 @@ export enum SUCCESS_MESSAGES {
     STOCK_PRICE_ADDED_TO_WATCHLIST = 'Stock price added to your watchlist successfully',
     STOCK_PRICE_REMOVED_FROM_WATCHLIST = 'Stock price removed from your watchlist successfully',
     COMPETITION_CREATED = 'Competition created successfully',
-    COMPETITION_DELETED = 'Competition deleted successfully'
+    COMPETITION_DELETED = 'Competition deleted successfully',
+    CHAT_DELETED = 'Chat deleted successfully',
+    FORUM_DELETED = 'Forum deleted successfully'
 
 
 }

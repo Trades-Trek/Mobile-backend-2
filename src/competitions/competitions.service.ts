@@ -18,6 +18,7 @@ import {Participant, ParticipantDocument} from "./schemas/participant.schema";
 import {QueueService} from "../queues/queue.service";
 import {EMAIL_SUBJECTS} from "../enums/emails.enum";
 import {useOneSignalService} from "../services/onesignal";
+
 const onesignalService = useOneSignalService()
 
 @Injectable()
@@ -138,6 +139,10 @@ export class CompetitionsService {
             joined: false
         },).skip(pagination.page).limit(pagination.limit)
         return successResponse({competition_requests: competitionRequests})
+    }
+
+    async getParticipants(competitionId: Types.ObjectId, loadParticipants: boolean = false): Promise<Participant[]> {
+        return loadParticipants ? await this.participantModel.find({competition: competitionId}).populate('participant') : await this.participantModel.find({competition: competitionId})
     }
 
 }

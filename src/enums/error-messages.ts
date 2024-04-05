@@ -24,6 +24,9 @@ export enum ERROR_MESSAGES {
     WATCHLIST_NOT_FOUND = 'Watchlist does not exist',
 
     COMPETITION_NOT_FOUND = 'Competition does not exist',
-    STARTING_CASH_ERROR = `Competition starting cash should not be less than 5000 or greater than 7000`
+    STARTING_CASH_ERROR = `Competition starting cash should not be less than 5000 or greater than 7000`,
+    FORUM_NOT_FOUND = 'Forum does not exist',
+    CHAT_NOT_FOUND = 'Chat does not exist'
+
 
 }
