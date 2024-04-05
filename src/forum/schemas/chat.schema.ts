@@ -4,14 +4,17 @@ import {Types} from "mongoose";
 @Schema({timestamps:true})
 export class Chat {
     @Prop()
-    message:string
+    chat:string
+
+    @Prop({required:true, default:'text'})
+    type:string
 
     @Prop({required: true, type: Types.ObjectId,
         ref: 'User'})
-    user: Types.ObjectId
+    sender: Types.ObjectId
 
     @Prop({required: true, type: Types.ObjectId,
         ref: 'Forum'})
     forum: Types.ObjectId
 }
-export const ForumSchema = SchemaFactory.createForClass(Forum)
+export const ChatSchema = SchemaFactory.createForClass(Chat)

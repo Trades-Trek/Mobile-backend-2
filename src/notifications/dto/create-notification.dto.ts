@@ -8,4 +8,5 @@ export class CreateNotificationDto {
     description: string
 
     priority?: boolean
+    payload?: {}
 }

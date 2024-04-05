@@ -1,6 +1,7 @@
 import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
 import {Types} from "mongoose";
 
+export type ForumDocument = Forum &Document ;
 @Schema({timestamps:true})
 export class Forum {
     @Prop()
