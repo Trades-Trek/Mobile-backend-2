@@ -24,6 +24,7 @@ export class Referral {
     @Prop({default: 0})
     amount_earned: number
 
+
 }
 
 export const RefferalSchema = SchemaFactory.createForClass(Referral);

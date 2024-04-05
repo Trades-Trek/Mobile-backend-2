@@ -108,12 +108,12 @@ export class WalletService {
         return true
     }
 
-    async debitUserTrekCoins(user: UserDocument, trekCoins: number): Promise<boolean> {
+    async debitUserTrekCoins(user: UserDocument, trekCoins: number, description?: string): Promise<boolean> {
         await user.updateOne({$inc: {trek_coin_balance: -trekCoins}})
         await this.transactionService.create({
             amount: trekCoins,
             user_id: user.id,
-            description: `Trek Coins Debit`,
+            description: description ?? `Trek Coins Debit`,
             type: TRANSACTION_TYPE.DEBIT,
             entity: TRANSACTION_ENTITY.TREK_COINS,
             reference: usePaystackService.getReference(),

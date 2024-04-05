@@ -12,17 +12,18 @@ import {WalletService} from "../wallet/wallet.service";
 import {NotificationsService} from "../notifications/notifications.service";
 import useDayJs from '../services/dayjs'
 import {ERROR_MESSAGES} from "../enums/error-messages";
+import {ACTIVITY_ENTITY} from "../enums/activities.enum";
 
 @Injectable()
 export class ReferralsService {
     constructor(@InjectModel(Referral.name) private referralModel: Model<Referral>, private queueService: QueueService, private configService: ConfigService, @Inject(forwardRef(() => WalletService)) private walletService: WalletService, private notificationService: NotificationsService) {
     }
 
-    async findOrCreate(email: string, referrer: UserDocument) {
+    async findOrCreate(email: string, referrer: UserDocument, entity?:ACTIVITY_ENTITY) {
         return await this.referralModel.findOne({email}) ?? await this.referralModel.create({
             email,
             referrer,
-            referrer_id: referrer.id
+            referrer_id: referrer.id,
         })
 
     }
