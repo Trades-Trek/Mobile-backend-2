@@ -31,14 +31,14 @@ export class CreateCompetitionDto {
     entry: COMPETITION_ENTRY
 
     @IsNotEmpty()
-    @Max(0)
-    @Min(1)
+    @Max(1)
+    @Min(0)
     allow_late_entry: number
 
     @IsNotEmpty()
     @IsNumber()
-    @Max(0)
-    @Min(1)
+    @Max(1)
+    @Min(0)
     allow_portfolio_viewing: number
 
     @ApiProperty({
@@ -50,8 +50,8 @@ export class CreateCompetitionDto {
 
     @IsNotEmpty()
     @IsNumber()
-    @Max(0)
-    @Min(1)
+    @Max(1)
+    @Min(0)
     allow_portfolio_resetting: number
 
     @IsNotEmpty()
@@ -75,6 +75,6 @@ export class CreateCompetitionDto {
     starting_cash: number
 
     @IsArray()
-    participants?: string
+    participants?: Array<string>
 
 }

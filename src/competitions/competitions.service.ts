@@ -18,7 +18,6 @@ import {Participant, ParticipantDocument} from "./schemas/participant.schema";
 import {QueueService} from "../queues/queue.service";
 import {EMAIL_SUBJECTS} from "../enums/emails.enum";
 import {useOneSignalService} from "../services/onesignal";
-
 const onesignalService = useOneSignalService()
 
 @Injectable()
@@ -77,7 +76,10 @@ export class CompetitionsService {
     }
 
     async findOrCreateParticipant(competitionId: Types.ObjectId, participantEmail: string, ownerId: Types.ObjectId = null) {
-        return await this.participantModel.findOne({email: participantEmail}) ?? await this.participantModel.create({
+        return await this.participantModel.findOne({
+            email: participantEmail,
+            competition: competitionId
+        }) ?? await this.participantModel.create({
             participant: ownerId,
             competition: competitionId,
             email: participantEmail,
