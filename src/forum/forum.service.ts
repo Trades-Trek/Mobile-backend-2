@@ -33,7 +33,8 @@ export class ForumService {
         const data = {
             competition: competition_id,
             topic,
-            description
+            description,
+            creator:creator.id
         }
         const forum = await this.forumModel.create(data)
         // log activity
@@ -44,6 +45,7 @@ export class ForumService {
         })
         // dispatch to participants
         this.notifyParticipants(forum)
+        return successResponse({forum})
     }
 
     async notifyParticipants(forum: ForumDocument | Forum): Promise<void> {
