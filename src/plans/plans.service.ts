@@ -54,8 +54,8 @@ export class PlansService {
 
     }
 
-    async findOne(id: Types.ObjectId): Promise<PlanDocument | undefined> {
-        return this.planModel.findById(id);
+    async findOne(filter:{}): Promise<PlanDocument | undefined> {
+        return this.planModel.findOne(filter);
     }
 
     async createListing(createListingDto: CreateListingDto) {

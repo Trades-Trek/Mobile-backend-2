@@ -1,16 +1,23 @@
 import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
 import {COMPETITION_TYPE} from "../../enums/competition.enum";
 import {Document, Types} from "mongoose";
+import {User} from "../../users/schemas/user.schema";
 
 export type CompetitionDocument = Competition & Document;
+
 @Schema({timestamps: true})
 export class Competition {
-    @Prop({required: false, type: Types.ObjectId,
-        ref: 'User'})
-    owner: string
+    @Prop({
+        required: false, type: Types.ObjectId,
+        ref: 'User'
+    })
+    owner: Types.ObjectId
 
     @Prop({required: true})
     name: string
+
+    @Prop({required: false})
+    is_default: boolean
 
     @Prop({required: true})
     description: string
@@ -20,6 +27,10 @@ export class Competition {
 
     @Prop({required: false})
     capacity: number
+
+    @Prop({required: true})
+    starting_cash: number
+
     @Prop({required: false})
     start_date: Date
 

@@ -18,6 +18,7 @@ import {Participant, ParticipantDocument} from "./schemas/participant.schema";
 import {QueueService} from "../queues/queue.service";
 import {EMAIL_SUBJECTS} from "../enums/emails.enum";
 import {useOneSignalService} from "../services/onesignal";
+
 const onesignalService = useOneSignalService()
 
 @Injectable()
@@ -26,12 +27,12 @@ export class CompetitionsService {
     }
 
     async create(user: UserDocument, createCompetitionDto: CreateCompetitionDto) {
-        const {capacity, type, starting_cash, entry, participants} = createCompetitionDto;
+        const {capacity, type, starting_cash, entry, participants, is_default} = createCompetitionDto;
         const {minStartingCash, maxStartingCash, capacityFee} = this.getMinAndMaxStartingCash()
         // compare starting cash
         if (starting_cash < minStartingCash || starting_cash > maxStartingCash) returnErrorResponse(ERROR_MESSAGES.STARTING_CASH_ERROR)
         // check capacity
-        if (type === COMPETITION_TYPE.GROUP) {
+        if (type === COMPETITION_TYPE.GROUP && !is_default) {
             const capacityFeeToBeDebited = capacity * capacityFee
             if (capacityFeeToBeDebited > user.trek_coin_balance) {
                 // show owner his trek coins balance capacity
@@ -48,9 +49,9 @@ export class CompetitionsService {
         }
         const competition = await this.competitionModel.create(createCompetitionDto)
         await this.findOrCreateParticipant(competition.id, user.email, user.id)
-        await this.joinCompetition(user, competition.id)
+        await this.joinCompetition(user, competition)
         // invite participants
-        if (participants.length && type === COMPETITION_TYPE.GROUP) {
+        if (participants && participants.length && type === COMPETITION_TYPE.GROUP) {
             for (const email of participants) {
                 const participant = await this.findOrCreateParticipant(competition.id, email)
                 this.inviteParticipant(participant, competition, user)
@@ -71,8 +72,8 @@ export class CompetitionsService {
         return successResponse({my_competitions: myCompetitions})
     }
 
-    async findOne(competitionId: Types.ObjectId): Promise<Competition | undefined> {
-        return this.competitionModel.findById(competitionId)
+    async findOne(filter: {}): Promise<CompetitionDocument | undefined> {
+        return this.competitionModel.findOne(filter)
     }
 
     async findOrCreateParticipant(competitionId: Types.ObjectId, participantEmail: string, ownerId: Types.ObjectId = null) {
@@ -88,13 +89,15 @@ export class CompetitionsService {
     }
 
 
-    async joinCompetition(user: UserDocument, competitionId: Types.ObjectId): Promise<boolean> {
-        const competitionRequest = await this.participantModel.findOne({email: user.email, competition: competitionId})
-        if (!competitionRequest) returnErrorResponse(ERROR_MESSAGES.COMPETITION_REQUEST_NOT_FOUND)
-        await competitionRequest.updateOne({}, {
-            joined: true,
-            participant: user.id
-        })
+    async joinCompetition(user: UserDocument, competition: CompetitionDocument): Promise<boolean> {
+        const m = await this.participantModel.findOneAndUpdate({competition: competition.id, email: user.email}, {
+            $set: {
+                joined: true,
+                participant: user.id,
+                starting_cash: competition.starting_cash
+            }
+        },)
+        if (!m) returnErrorResponse(ERROR_MESSAGES.COMPETITION_REQUEST_NOT_FOUND)
         await this.activityService.create({
             activity: ACTIVITY_MESSAGES.JOINED_COMPETITION,
             entity: ACTIVITY_ENTITY.COMPETITION,

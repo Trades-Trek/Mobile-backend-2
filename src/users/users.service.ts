@@ -26,12 +26,14 @@ export class UsersService {
     async create(createUserDto: CreateUserDto) {
         const data = {
             referrer_code: createUserDto.referral_code,
-            first_name:createUserDto.first_name,
-            last_name:createUserDto.last_name,
-            email:createUserDto.email,
+            first_name: createUserDto.first_name,
+            last_name: createUserDto.last_name,
+            email: createUserDto.email,
             full_name: createUserDto.first_name + ' ' + createUserDto.last_name,
             username: createUserDto.first_name + '@0' + await this.userModel.countDocuments({}) + 1,
             password: createUserDto.password,
+            role: createUserDto.role ?? 'user',
+            verified:createUserDto.is_verified ?? false
         }
         return await this.userModel.create(data)
     }

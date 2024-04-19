@@ -1,8 +1,9 @@
 export enum USER {
     ID = '_id',
-    FIRSTNAME = 'firstName',
-    LASTNAME = 'lastName',
-    FULL_NAME = 'fullName',
+    FIRSTNAME = 'first_name',
+    Role = 'role',
+    LASTNAME = 'last_name',
+    FULL_NAME = 'full_name',
     EMAIL = 'email',
     USERNAME = 'username',
     VERIFIED = 'verified',
@@ -32,7 +33,7 @@ export enum USER {
     IS_FIRST_PURCHASE = 'is_first_trek_coins_purchase',
 
 
-    DEFAULT_FIELDS = `${REFERRAL_CODE} ${EMAIL}, ${USERNAME} ${EMAIL} ${USERNAME} ${FIRSTNAME} ${LASTNAME} ${FULL_NAME} ${SETTINGS} ${SUBSCRIPTION} ${HAS_PIN}, ${TOTAL_FOLLOWING}, ${TOTAL_FOLLOWERS} ${TREK_COIN_BALANCE} ${WALLET} ${VERIFIED} ${HAS_SUBSCRIBED} ${REFERRER} ${IS_FIRST_PURCHASE}`,
+    DEFAULT_FIELDS = `${REFERRAL_CODE} ${EMAIL}, ${USERNAME} ${EMAIL} ${USERNAME} ${FIRSTNAME} ${LASTNAME} ${FULL_NAME} ${SETTINGS} ${SUBSCRIPTION} ${HAS_PIN}, ${TOTAL_FOLLOWING}, ${TOTAL_FOLLOWERS} ${TREK_COIN_BALANCE} ${WALLET} ${VERIFIED} ${HAS_SUBSCRIBED} ${REFERRER} ${IS_FIRST_PURCHASE} ${Role}`,
 
     DEFAULT_SERVER_FIELDS = `${DEFAULT_FIELDS} ${PASSWORD} ${PIN}`
 

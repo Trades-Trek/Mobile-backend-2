@@ -38,6 +38,12 @@ export class AuthController {
         return this.authService.signup(createAuthDto);
     }
 
+    @Public()
+    @Post('/admin/signup')
+    adminSignup(@Body() createAuthDto: SignupDto) {
+        return this.authService.adminSignup(createAuthDto);
+    }
+
 
     @ApiOperation({summary: "Login", description: "Login with email and password"})
     @ApiResponse({

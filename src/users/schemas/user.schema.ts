@@ -3,6 +3,7 @@ import {DEVICE_TYPES} from "../../enums/device_types";
 import {Document, Types} from "mongoose";
 import {PLAN_TYPE} from "../../enums/plan_type";
 import {DEFAULT_CURRENCY} from "../../utils/constant";
+import {Role} from "../../enums/role.enum";
 
 export type UserDocument = User & Document;
 
@@ -19,7 +20,7 @@ export class User {
     @Prop({unique: true, trim: true})
     email: string;
 
-    @Prop({default: 'user'})
+    @Prop({default: Role.USER})
     role: string;
 
     @Prop({required: true, trim: true, unique: true, sparse: true})

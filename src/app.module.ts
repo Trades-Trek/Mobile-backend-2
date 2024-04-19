@@ -6,35 +6,39 @@ import {ConfigModule, ConfigService} from "@nestjs/config";
 import {AuthModule} from './auth/auth.module';
 import {UsersModule} from './users/users.module';
 import configuration from "./config/configuration";
-import {PassportModule} from "@nestjs/passport";
-import { OtpModule } from './otp/otp.module';
-import { ReferralsModule } from './referrals/referrals.module';
+import {OtpModule} from './otp/otp.module';
+import {ReferralsModule} from './referrals/referrals.module';
 import {QueueModule} from "./queues/queue.module";
-import { PlansModule } from './plans/plans.module';
-import { SocialsModule } from './socials/socials.module';
-import { SubscriptionsModule } from './subscriptions/subscriptions.module';
-import { TransactionsModule } from './transactions/transactions.module';
-import { NotificationsModule } from './notifications/notifications.module';
-import { BanksModule } from './banks/banks.module';
-import { WalletModule } from './wallet/wallet.module';
-import { RatingsModule } from './ratings/ratings.module';
-import { FeaturesModule } from './features/features.module';
+import {PlansModule} from './plans/plans.module';
+import {SocialsModule} from './socials/socials.module';
+import {SubscriptionsModule} from './subscriptions/subscriptions.module';
+import {TransactionsModule} from './transactions/transactions.module';
+import {NotificationsModule} from './notifications/notifications.module';
+import {BanksModule} from './banks/banks.module';
+import {WalletModule} from './wallet/wallet.module';
+import {RatingsModule} from './ratings/ratings.module';
+import {FeaturesModule} from './features/features.module';
 import {CacheModule} from "@nestjs/cache-manager";
-import { PromoCodesModule } from './promo-codes/promo-codes.module';
-import { ActivitiesModule } from './activities/activities.module';
+import {PromoCodesModule} from './promo-codes/promo-codes.module';
+import {ActivitiesModule} from './activities/activities.module';
 import {TypeOrmModule} from "@nestjs/typeorm";
-import { StockModule } from './stock/stock.module';
-import { WatchlistModule } from './watchlist/watchlist.module';
-import { CompetitionsModule } from './competitions/competitions.module';
-import { ForumModule } from './forum/forum.module';
+import {StockModule} from './stock/stock.module';
+import {WatchlistModule} from './watchlist/watchlist.module';
+import {CompetitionsModule} from './competitions/competitions.module';
+import {ForumModule} from './forum/forum.module';
+import {LoggerModule} from "nestjs-rollbar";
+import { OrdersModule } from './orders/orders.module';
+import {ScheduleModule} from "@nestjs/schedule";
+import {EventEmitterModule} from "@nestjs/event-emitter";
 
-// configService.get('POST_G_DB_URL')
 @Module({
     imports: [
-        CacheModule.register({isGlobal:true}),
+        EventEmitterModule.forRoot(),
+        ScheduleModule.forRoot(),
+        CacheModule.register({isGlobal: true}),
         TypeOrmModule.forRootAsync({
             imports: [ConfigModule],
-            useFactory:(configService:ConfigService) => ({
+            useFactory: (configService: ConfigService) => ({
                 type: 'mysql',
                 host: 'ttwebadmin.c3g8gce48972.us-east-1.rds.amazonaws.com',
                 port: 3306,
@@ -43,13 +47,21 @@ import { ForumModule } from './forum/forum.module';
                 database: 'ttwebadmin',
                 entities: ['dist/**/*.entity{ .ts,.js}'],
                 // synchronize: true,
-                logging:true
+                logging: true
             })
         }),
         ConfigModule.forRoot({
             isGlobal: true,
             load: [configuration],
         },),
+        LoggerModule.forRootAsync({
+            imports:[ConfigModule],
+            useFactory: (configService: ConfigService) => ({
+                accessToken: configService.get('ROLLBAR_TOKEN'),
+                environment: configService.get('NODE_ENV'),
+            }),
+            inject: [ConfigService],
+        }),
         AuthModule,
         MongooseModule.forRootAsync({
             imports: [ConfigModule],
@@ -78,12 +90,14 @@ import { ForumModule } from './forum/forum.module';
         WatchlistModule,
         CompetitionsModule,
         ForumModule,
+        OrdersModule,
     ],
     controllers: [AppController],
     providers: [AppService],
 })
 
-export class AppModule{
+export class AppModule {
 
 }
+
 

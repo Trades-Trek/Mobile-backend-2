@@ -9,7 +9,11 @@ const useDayJs = () => {
         return dayjs(date).add(days, 'day')
     }
 
-    return {getDate, addDays}
+    const addMinutes = (date: number, minutes: number) => {
+        return dayjs(date).add(minutes, 'm')
+    }
+
+    return {getDate, addDays, addMinutes}
 }
 
 export default useDayJs()

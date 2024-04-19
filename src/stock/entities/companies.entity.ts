@@ -6,7 +6,7 @@ export class Company {
     id:number
 
     @Column({nullable:false, type:'varchar'})
-    name:number
+    name:string
 
     @Column({nullable:false, type:'varchar'})
     ticker_symbol:number
