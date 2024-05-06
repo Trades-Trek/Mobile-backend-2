@@ -19,7 +19,7 @@ export class CompanyService {
 
     async findCompany(filter: any, columnsToLoad?: Array<string>): Promise<Company | undefined> {
         let columns_to_load;
-        columns_to_load = columns_to_load && columnsToLoad.length ? columnsToLoad : ['id', 'name', 'ticker_symbol']
+        columns_to_load = columns_to_load && columnsToLoad.length ? columnsToLoad : ['id', 'name', 'ticker_symbol', 'exchange']
         return await this.companyRepository.findOne({where: filter, select: columns_to_load});
     }
 

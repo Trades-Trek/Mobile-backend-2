@@ -1,5 +1,10 @@
 import {Prop, Schema, SchemaFactory} from "@nestjs/mongoose";
-import {COMPETITION_TYPE} from "../../enums/competition.enum";
+import {
+    COMPETITION_ENTRY,
+    COMPETITION_STATUS,
+    COMPETITION_TYPE,
+    COMPETITION_VISIBILITY
+} from "../../enums/competition.enum";
 import {Document, Types} from "mongoose";
 import {User} from "../../users/schemas/user.schema";
 
@@ -16,6 +21,12 @@ export class Competition {
     @Prop({required: true})
     name: string
 
+    @Prop({required: true, enum: COMPETITION_VISIBILITY})
+    visibility: COMPETITION_VISIBILITY
+
+    @Prop({required: true,enum: COMPETITION_ENTRY})
+    entry: COMPETITION_ENTRY
+
     @Prop({required: false})
     is_default: boolean
 
@@ -24,6 +35,9 @@ export class Competition {
 
     @Prop({required: true, enum: COMPETITION_TYPE})
     type: string
+
+    @Prop({required: true, enum: COMPETITION_STATUS, default:COMPETITION_STATUS.PENDING})
+    status: COMPETITION_STATUS
 
     @Prop({required: false})
     capacity: number

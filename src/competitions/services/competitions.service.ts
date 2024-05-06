@@ -1,23 +1,23 @@
 import {Injectable} from '@nestjs/common';
-import {CreateCompetitionDto} from './dto/create-competition.dto';
+import {CreateCompetitionDto, JoinCompetitionDto} from '.././dto/create-competition.dto';
 import {InjectModel} from "@nestjs/mongoose";
-import {Competition, CompetitionDocument} from "./schemas/competition.schema";
+import {Competition, CompetitionDocument} from ".././schemas/competition.schema";
 import {Model, Types} from "mongoose";
-import {Pagination} from "../enums/pagination.enum";
-import {UserDocument} from "../users/schemas/user.schema";
-import {returnErrorResponse, successResponse} from "../utils/response";
-import {SUCCESS_MESSAGES} from "../enums/success-messages";
-import {ERROR_MESSAGES} from "../enums/error-messages";
+import {Pagination} from "../../enums/pagination.enum";
+import {UserDocument} from "../../users/schemas/user.schema";
+import {returnErrorResponse, successResponse} from "../../utils/response";
+import {SUCCESS_MESSAGES} from "../../enums/success-messages";
+import {ERROR_MESSAGES} from "../../enums/error-messages";
 import {ConfigService} from "@nestjs/config";
-import {COMPETITION_ENTRY, COMPETITION_TYPE} from "../enums/competition.enum";
-import {WalletService} from "../wallet/wallet.service";
-import {generateCode} from "../utils/constant";
-import {ActivitiesService} from "../activities/activities.service";
-import {ACTIVITY_ENTITY, ACTIVITY_MESSAGES} from "../enums/activities.enum";
-import {Participant, ParticipantDocument} from "./schemas/participant.schema";
-import {QueueService} from "../queues/queue.service";
-import {EMAIL_SUBJECTS} from "../enums/emails.enum";
-import {useOneSignalService} from "../services/onesignal";
+import {COMPETITION_ENTRY, COMPETITION_STATUS, COMPETITION_TYPE} from "../../enums/competition.enum";
+import {WalletService} from "../../wallet/wallet.service";
+import {generateCode} from "../../utils/constant";
+import {ActivitiesService} from "../../activities/activities.service";
+import {ACTIVITY_ENTITY, ACTIVITY_MESSAGES} from "../../enums/activities.enum";
+import {Participant, ParticipantDocument} from ".././schemas/participant.schema";
+import {QueueService} from "../../queues/queue.service";
+import {EMAIL_SUBJECTS} from "../../enums/emails.enum";
+import {useOneSignalService} from "../../services/onesignal";
 
 const onesignalService = useOneSignalService()
 
@@ -149,5 +149,32 @@ export class CompetitionsService {
     async getParticipants(competitionId: Types.ObjectId, loadParticipants: boolean = false): Promise<Participant[]> {
         return loadParticipants ? await this.participantModel.find({competition: competitionId}).populate('participant') : await this.participantModel.find({competition: competitionId})
     }
+
+    async join(competitionId: Types.ObjectId, user: UserDocument, joinCompetitionDto: JoinCompetitionDto) {
+        const competition = await this.findOne({'_id': competitionId})
+        if (!competition) returnErrorResponse('Competition not found')
+        // check if late entry is allowed
+        if (!competition.allow_late_entry && competition.status === COMPETITION_STATUS.ONGOING) returnErrorResponse('You cannot join this competition after it has started')
+
+        if (competition.entry === COMPETITION_ENTRY.CLOSED) {
+            // compare password
+            if (competition.password !== joinCompetitionDto.password) returnErrorResponse('Invalid competition password')
+        }
+        await this.joinCompetition(user, competition);
+        return successResponse('joined successfully')
+    }
+
+    async resetPortfolio(competitionId:Types.ObjectId, user:UserDocument){
+
+    }
+
+    async getTotalStartingCash(userId:Types.ObjectId):Promise<number>{
+        const totalStartingCash = await this.participantModel.aggregate([
+            { $match: { participant: userId } },
+            { $group: { _id: null, starting_cash: { $sum: "$starting_cash" } } }
+        ]).exec()
+        return totalStartingCash[0].starting_cash;
+    }
+
 
 }

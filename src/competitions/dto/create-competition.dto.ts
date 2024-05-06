@@ -82,3 +82,7 @@ export class CreateCompetitionDto {
     participants?: Array<string>
 
 }
+
+export class JoinCompetitionDto {
+    password:string
+}

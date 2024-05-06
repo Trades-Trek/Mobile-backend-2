@@ -19,19 +19,19 @@ export class WatchlistService {
 
     }
 
-    async create(companyId: number, user: UserDocument) {
+    async create(stockPriceSymbol: string, user: UserDocument) {
         if (await this.findOne({
-            company_id: companyId,
+            symbol: stockPriceSymbol,
             user: user.id
         })) returnErrorResponse(ERROR_MESSAGES.ALREADY_EXIST_IN_WATCH_LIST)
         // check if stock price does exist
-        const company = await this.companyService.findCompany({id: companyId},);
-        if (!company) returnErrorResponse('Company does not exist')
+        const company = await this.companyService.findCompany({ticker_symbol: stockPriceSymbol},);
+        if (!company) returnErrorResponse('Stock does not exist')
         // get stock price
         const stockPrice = await this.stockPriceService.findStockPrice({symbol: company.ticker_symbol})
         // add to watch list
         const watchList = await this.watchlistModel.create({
-            company_id: companyId,
+            symbol: stockPriceSymbol,
             user: user.id,
             price: stockPrice.last
         })

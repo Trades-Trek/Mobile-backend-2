@@ -19,6 +19,9 @@ import {InjectModel} from "@nestjs/mongoose";
 import {EventEmitter2, OnEvent} from "@nestjs/event-emitter";
 import {ExecuteOrderEvent} from "../events/ExecuteOrderEvent.event";
 import Func = jest.Func;
+import {Exchange} from "../stock/entities/exchange.entity";
+import {Participant} from "../competitions/schemas/participant.schema";
+import {Pagination} from "../enums/pagination.enum";
 
 
 @Injectable()
@@ -26,13 +29,12 @@ export class OrdersService {
     constructor(private competitionService: CompetitionsService, private companyService: CompanyService, private stockPriceService: StockPriceService, private walletService: WalletService, private schedulerRegistry: SchedulerRegistry, @InjectModel(Order.name) private orderModel: Model<Order>, private notificationService: NotificationsService, private eventEmitter: EventEmitter2) {
     }
 
-    async create(companyId: Types.ObjectId, createOrderDto: CreateOrderDto, user: UserDocument) {
+    async create(stockPriceSymbol: string, createOrderDto: CreateOrderDto, user: UserDocument) {
         const {competition_id, order_type, price, quantity, duration, trade_action} = createOrderDto;
         console.log('inside ')
         // retrieve company
-        const company = await this.companyService.findCompany({'id': companyId})
-        console.log(companyId)
-        if (!company) returnErrorResponse('Company does not exist')
+        const company = await this.companyService.findCompany({ticker_symbol: stockPriceSymbol})
+        if (!company) returnErrorResponse('Stock does not exist')
         // retrieve competition
         const competition = await this.competitionService.findOne({'_id': competition_id})
         if (!competition) returnErrorResponse('Competition not found')
@@ -53,8 +55,6 @@ export class OrdersService {
         // check if commission should be added
         if (competition.commission) amountToBePaidInCash += competition.commission
         // ensure user has enough cash
-        console.log(amountToBePaidInCash)
-        console.log(participant.starting_cash)
         if (participant.starting_cash < amountToBePaidInCash) returnErrorResponse(ERROR_MESSAGES.INSUFFICIENT_WALLET_BALANCE)
         // create order
         const order = await this.orderModel.create({
@@ -62,8 +62,9 @@ export class OrdersService {
             price: order_type === ORDER_TYPE.LIMIT ? price : stockPrice.last,
             duration,
             quantity,
-            company_id: companyId,
+            company_id: company.id,
             stock_symbol: stockPrice.symbol,
+            exchange: company.exchange,
             trade_action,
             user_id: user.id,
             commission: competition.commission,
@@ -109,15 +110,25 @@ export class OrdersService {
         const {orderId, user} = payload;
         const userData: any = user;
         const order = await this.orderModel.findById(orderId)
-        const stockPrice = await this.stockPriceService.findStockPrice({symbol: order.stock_symbol})
-        const participant = await this.competitionService.findOrCreateParticipant(order.competition, userData.email)
-        const amountToBePaidInCash = stockPrice.last + order.commission
-        if (participant.starting_cash < amountToBePaidInCash) {
-            this.updateOrderStatus(order, ORDER_STATUS.FAILED, 'insufficient starting cash')
-        } else {
-            await participant.updateOne({$inc: {starting_cash: -stockPrice.last}})
-            this.updateOrderStatus(order, ORDER_STATUS.COMPLETED, 'Order executed successfully')
+        if (!order) return
 
+        const orderExchange = await Exchange.findOne({
+            where: {symbol: order.exchange},
+            select: {id: true, symbol: true, open_time: true, close_time: true}
+        })
+
+        if (orderExchange && orderExchange.close_time > Date.now().toString()) {
+            const stockPrice = await this.stockPriceService.findStockPrice({symbol: order.stock_symbol})
+            // retrieve participant
+            const participant = await this.competitionService.findOrCreateParticipant(order.competition, userData.email)
+            const amountToBePaidInCash = stockPrice.last + order.commission
+            if (participant.starting_cash < amountToBePaidInCash) {
+                this.updateOrderStatus(order, ORDER_STATUS.FAILED, 'insufficient starting cash')
+            } else {
+                await participant.updateOne({$inc: {starting_cash: -stockPrice.last}})
+                this.updateOrderStatus(order, ORDER_STATUS.COMPLETED, 'Order executed successfully')
+
+            }
         }
     }
 
@@ -144,7 +155,8 @@ export class OrdersService {
         if (orders && orders.length) {
             for (const order of orders) {
                 const stockPrice = await this.stockPriceService.findStockPrice({symbol: order.stock_symbol})
-                const last = stockPrice.last
+                // retrieve stock exchange
+                const last = stockPrice.last;
                 console.log(`stock current price - ${last}`)
                 const conditionsMet = order.trade_action === TRADE_ACTION.BUY && last <= order.price ? true : order.trade_action === TRADE_ACTION.SELL && last >= order.price;
                 const delay = order.trade_action === TRADE_ACTION.BUY ? order.market_delay ?? null : order.quick_sell ?? null;
@@ -169,4 +181,13 @@ export class OrdersService {
             }
         }
     }
+
+    async getUserStocks(user: UserDocument, tradeAction: TRADE_ACTION = TRADE_ACTION.BUY, pagination?: Pagination) {
+        return await this.orderModel.find({
+            user_id: user.id,
+            trade_action: TRADE_ACTION.BUY,
+            status: ORDER_STATUS.COMPLETED
+        }).exec()
+    }
+
 }

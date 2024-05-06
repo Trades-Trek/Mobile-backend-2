@@ -39,6 +39,9 @@ export class Order {
     stock_symbol: string
 
     @Prop({required: true})
+    exchange: string
+
+    @Prop({required: true})
     market_delay: number
 
     @Prop({required: true})

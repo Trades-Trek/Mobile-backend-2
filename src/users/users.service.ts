@@ -14,13 +14,15 @@ import {CreatePinDto, UpdatePinDto} from "./dto/pin.dto";
 import {USER} from "./enums/user.enum";
 import {TransactionsService} from "../transactions/transactions.service";
 import {NotificationsService} from "../notifications/notifications.service";
+import {OrdersService} from "../orders/orders.service";
+import {AccountValueService} from "../competitions/services/account-value.service";
 
 const bcrypt = require("bcrypt");
 const crypto = require("crypto")
 
 @Injectable()
 export class UsersService {
-    constructor(@InjectModel(User.name) private userModel: Model<User>, @InjectModel(ResetPasswordToken.name) private resetPasswordTokenModel: Model<ResetPasswordToken>, private transactionService: TransactionsService, private notificationService: NotificationsService) {
+    constructor(@InjectModel(User.name) private userModel: Model<User>, @InjectModel(ResetPasswordToken.name) private resetPasswordTokenModel: Model<ResetPasswordToken>, private transactionService: TransactionsService, private notificationService: NotificationsService, private orderService: OrdersService, private accountValueService: AccountValueService) {
     }
 
     async create(createUserDto: CreateUserDto) {
@@ -33,7 +35,7 @@ export class UsersService {
             username: createUserDto.first_name + '@0' + await this.userModel.countDocuments({}) + 1,
             password: createUserDto.password,
             role: createUserDto.role ?? 'user',
-            verified:createUserDto.is_verified ?? false
+            verified: createUserDto.is_verified ?? false
         }
         return await this.userModel.create(data)
     }
@@ -53,13 +55,13 @@ export class UsersService {
 
     async createUserPin(user: UserDocument, createPinDto: CreatePinDto) {
         if (user.pin) returnErrorResponse('cannot create more than one pin')
-        await user.updateOne({pin: createPinDto.pin, has_pin: true})
+        await user.updateOne({pin: await bcrypt.hash(createPinDto.pin, 10), has_pin: true})
         return successResponse('Your pin has been created successfully')
     }
 
     async updateUserPin(user: UserDocument, updatePinDto: UpdatePinDto) {
-        if (user.pin !== updatePinDto.current_pin) returnErrorResponse('Incorrect pin')
-        await user.updateOne({pin: updatePinDto.current_pin})
+        if (!await bcrypt.compare(updatePinDto.current_pin, user.pin)) returnErrorResponse('Incorrect pin')
+        await user.updateOne({pin: await bcrypt.hash(updatePinDto.current_pin, 10)})
         return successResponse('Your pin has been updated successfully')
     }
 
@@ -114,8 +116,15 @@ export class UsersService {
         return successResponse({message: 'profile updated successfully'})
     }
 
+    async dashboard(user: UserDocument) {
+        const todayPercentageChange = await this.accountValueService.getTodayPercentageChange(user)
+        const {cashValue, accountValue} = await this.accountValueService.getAccountAndCashValue(user)
+        return successResponse({
+            today_percentage_change: todayPercentageChange,
+            cash_value: cashValue,
+            account_value: accountValue
+        })
 
-    remove(id: number) {
-        return `This action removes a #${id} user`;
+
     }
 }

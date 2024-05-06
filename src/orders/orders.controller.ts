@@ -12,9 +12,9 @@ export class OrdersController {
     constructor(private readonly ordersService: OrdersService) {
     }
 
-    @Post(':company_id')
-    create(@Param('company_id') companyId: Types.ObjectId, @Body() createOrderDto: CreateOrderDto, @AuthUser() user:UserDocument) {
-        return this.ordersService.create(companyId,createOrderDto, user);
+    @Post(':stock_symbol')
+    create(@Param('stock_symbol') stockSymbol: string, @Body() createOrderDto: CreateOrderDto, @AuthUser() user:UserDocument) {
+        return this.ordersService.create(stockSymbol,createOrderDto, user);
     }
 
     @Get()
@@ -26,5 +26,11 @@ export class OrdersController {
     test(){
         console.log('test')
         // return this.ordersService.addCronJob('test', '2')
+    }
+
+
+    @Get('/account-value')
+    getAccountValue(@AuthUser() user:UserDocument){
+        return this.ordersService.getAccountValue(user)
     }
 }

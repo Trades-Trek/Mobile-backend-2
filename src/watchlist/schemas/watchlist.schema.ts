@@ -5,7 +5,7 @@ import {User} from "../../users/schemas/user.schema";
 @Schema({timestamps: true})
 export class Watchlist {
     @Prop({required:true})
-    company_id: string
+    symbol: string
 
     @Prop({type: Types.ObjectId, ref: 'User'})
     user: Types.ObjectId
