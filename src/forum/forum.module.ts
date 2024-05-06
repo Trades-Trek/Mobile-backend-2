@@ -5,7 +5,7 @@ import {Forum, ForumSchema} from "./schemas/forum.schema";
 import {Chat, ChatSchema} from "./schemas/chat.schema";
 import {MongooseModule} from "@nestjs/mongoose";
 import {CompetitionsModule} from "../competitions/competitions.module";
-import {CompetitionsService} from "../competitions/competitions.service";
+import {CompetitionsService} from "../competitions/services/competitions.service";
 
 @Module({
     imports: [CompetitionsModule, MongooseModule.forFeature([{name: Forum.name, schema: ForumSchema}, {

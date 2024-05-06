@@ -23,7 +23,7 @@ import {Role} from "../enums/role.enum";
 import {SubscriptionsService} from "../subscriptions/subscriptions.service";
 import {PlansService} from "../plans/plans.service";
 import {SUBSCRIPTION_DURATION} from "../enums/subscription_duration";
-import {CompetitionsService} from "../competitions/competitions.service";
+import {CompetitionsService} from "../competitions/services/competitions.service";
 
 const bcrypt = require("bcrypt");
 const crypto = require("crypto")

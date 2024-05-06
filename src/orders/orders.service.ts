@@ -2,7 +2,7 @@ import {Injectable} from '@nestjs/common';
 import {CreateOrderDto} from './dto/create-order.dto';
 import {Model, Types} from "mongoose";
 import {UserDocument} from "../users/schemas/user.schema";
-import {CompetitionsService} from "../competitions/competitions.service";
+import {CompetitionsService} from "../competitions/services/competitions.service";
 import {returnErrorResponse, successResponse} from "../utils/response";
 import {CompanyService} from "../stock/services/company.service";
 import {ORDER_STATUS, ORDER_TYPE, TRADE_ACTION} from "../enums/orders.enum";
@@ -26,7 +26,7 @@ import {Pagination} from "../enums/pagination.enum";
 
 @Injectable()
 export class OrdersService {
-    constructor(private competitionService: CompetitionsService, private companyService: CompanyService, private stockPriceService: StockPriceService, private walletService: WalletService, private schedulerRegistry: SchedulerRegistry, @InjectModel(Order.name) private orderModel: Model<Order>, private notificationService: NotificationsService, private eventEmitter: EventEmitter2) {
+    constructor( private competitionService: CompetitionsService, private companyService: CompanyService, private stockPriceService: StockPriceService, private walletService: WalletService, private schedulerRegistry: SchedulerRegistry, @InjectModel(Order.name) private orderModel: Model<Order>, private notificationService: NotificationsService, private eventEmitter: EventEmitter2) {
     }
 
     async create(stockPriceSymbol: string, createOrderDto: CreateOrderDto, user: UserDocument) {
