@@ -1,6 +1,7 @@
 import {IsArray, IsEnum, IsNotEmpty, IsNumber, IsString, Max, Min, ValidateIf} from "class-validator";
 import {COMPETITION_ENTRY, COMPETITION_TYPE, COMPETITION_VISIBILITY} from "../../enums/competition.enum";
 import {ApiProperty} from "@nestjs/swagger";
+import {Optional} from "@nestjs/common";
 
 export class CreateCompetitionDto {
     @IsNotEmpty()
@@ -74,7 +75,14 @@ export class CreateCompetitionDto {
     @IsNotEmpty()
     starting_cash: number
 
-    @IsArray()
+    is_default: number
+
+    // @Optional()
+    // @IsArray()
     participants?: Array<string>
 
+}
+
+export class JoinCompetitionDto {
+    password:string
 }

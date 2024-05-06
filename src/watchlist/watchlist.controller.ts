@@ -12,9 +12,9 @@ export class WatchlistController {
     constructor(private readonly watchlistService: WatchlistService) {
     }
 
-    @Post(':company_id')
-    create(@Param('company_id') companyId: number, @AuthUser() user: UserDocument) {
-        return this.watchlistService.create(companyId, user);
+    @Post(':stock_symbol')
+    create(@Param('stock_symbol') stockSymbol: string, @AuthUser() user: UserDocument) {
+        return this.watchlistService.create(stockSymbol, user);
     }
 
     @Patch('/price-alert/:watchlist_id')

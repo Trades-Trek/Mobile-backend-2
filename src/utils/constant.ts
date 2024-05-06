@@ -969,3 +969,14 @@ export const useSlugify = (string, replacement = '-') => {
             trim: true         // trim leading and trailing replacement chars, defaults to `true`
         })
     }
+
+export const useDateToCron = (date) => {
+    const seconds = date.getSeconds();
+    const minutes = date.getMinutes();
+    const hours = date.getHours();
+    const days = date.getDate();
+    const months = date.getMonth() + 1;
+    const dayOfWeek = date.getDay();
+
+    return `${seconds} ${minutes} ${hours} ${days} ${months} ${dayOfWeek}`;
+};

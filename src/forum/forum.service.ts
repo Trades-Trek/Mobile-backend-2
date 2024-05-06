@@ -17,6 +17,7 @@ import {Chat} from "./schemas/chat.schema";
 import {ERROR_MESSAGES} from "../enums/error-messages";
 import {SUCCESS_MESSAGES} from "../enums/success-messages";
 import pusherService from '../services/pusher'
+
 const Filter = require('bad-words'),
     filter = new Filter();
 
@@ -27,14 +28,14 @@ export class ForumService {
 
     async create(createForumDto: CreateForumDto, creator: UserDocument) {
         const {competition_id, topic, description} = createForumDto;
-        const competition = await this.competitionService.findOne(createForumDto.competition_id)
+        const competition = await this.competitionService.findOne({'_id': createForumDto.competition_id})
         if (!competition) returnErrorResponse('Competition does not exist');
         // create forum
         const data = {
             competition: competition_id,
             topic,
             description,
-            creator:creator.id
+            creator: creator.id
         }
         const forum = await this.forumModel.create(data)
         // log activity
@@ -69,8 +70,8 @@ export class ForumService {
 
     async createChat(sender: UserDocument, createChatDto: CreateChatDto) {
         const {chat, forum_id, type} = createChatDto;
-        if(filter.isProfane(chat)) returnErrorResponse('Chat looks offensive')
-        const newChat = await this.chatModel.create({chat, forum: forum_id, type, sender})
+        if (filter.isProfane(chat)) returnErrorResponse('Chat looks offensive')
+        const newChat = await this.chatModel.create({chat, forum: forum_id, type, sender:sender.id})
         await pusherService.dispatchEvent(`private-forum-${forum_id}-chats`, 'on-new-chat', {chat})
         return successResponse({new_chat: newChat})
     }

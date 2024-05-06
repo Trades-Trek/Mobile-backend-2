@@ -74,13 +74,13 @@ export class ReferralsService {
     }
 
     async joined(referrer: UserDocument, referral: ReferralDocument): Promise<void> {
-        await referral.updateOne({joined: true, joined_date: useDayJs.getDate()})
+        await referral.updateOne({joined: true, joined_date: useDayJs.getDate()}, {new:true})
         // inform referrer via push
     }
 
     async reward(referrer: UserDocument, referral: ReferralDocument): Promise<void> {
         const trekCoinsEarned = parseInt(this.configService.get('REFERRAL_REWARD'))
-        await referral.updateOne({amount_earned: trekCoinsEarned})
+        await referral.updateOne({amount_earned: trekCoinsEarned}, {new:true})
         // credit referrer's trek coins with amount earned
         this.walletService.creditUserTrekCoins(referrer, trekCoinsEarned)
         // notify user

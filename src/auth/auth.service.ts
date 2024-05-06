@@ -19,13 +19,18 @@ import {SUCCESS_MESSAGES} from "../enums/success-messages";
 import {ERROR_MESSAGES} from "../enums/error-messages";
 import {generateCode} from "../utils/constant";
 import {ReferralsService} from "../referrals/referrals.service";
+import {Role} from "../enums/role.enum";
+import {SubscriptionsService} from "../subscriptions/subscriptions.service";
+import {PlansService} from "../plans/plans.service";
+import {SUBSCRIPTION_DURATION} from "../enums/subscription_duration";
+import {CompetitionsService} from "../competitions/competitions.service";
 
 const bcrypt = require("bcrypt");
 const crypto = require("crypto")
 
 @Injectable()
 export class AuthService {
-    constructor(private userService: UsersService, private otpService: OtpService, private jwtService: JwtService, private referralService: ReferralsService) {
+    constructor(private userService: UsersService, private otpService: OtpService, private jwtService: JwtService, private referralService: ReferralsService, private subscriptionService: SubscriptionsService, private planService: PlansService, private competitionService: CompetitionsService) {
     }
 
     async signup(createAuthDto: SignupDto) {
@@ -52,6 +57,20 @@ export class AuthService {
 
         await this.otpService.sendOtpViaEmail(user.email)
         return successResponse({is_verified: false, message: 'A one time passcode has been sent to your email'})
+    }
+
+    async adminSignup(createAuthDto: SignupDto) {
+        const {email, first_name, last_name, password} = createAuthDto;
+        const admin = await this.userService.create({
+            first_name,
+            last_name,
+            email,
+            role: Role.ADMIN,
+            password: await bcrypt.hash(password, 10),
+            is_verified: true
+        })
+        return successResponse({admin})
+
     }
 
     async login(loginDto: LoginDto) {
@@ -99,10 +118,23 @@ export class AuthService {
                 is_server_request: true
             })
             const referral = await this.referralService.findOrCreate(user.email, referrer)
-            if(referral) {
+            if (referral) {
                 this.referralService.joined(referrer, referral)
             }
         }
+
+        // subscribe user to a free trial
+        const freeTrialPlan = await this.planService.findOne({duration: SUBSCRIPTION_DURATION.TRIAL})
+        if (freeTrialPlan) {
+            await this.subscriptionService.createOrRenewSubscription(user, freeTrialPlan, false, false)
+        }
+        // join default competition
+        const tradesTrekCompetition = await this.competitionService.findOne({is_default: true})
+        if (tradesTrekCompetition) {
+            await this.competitionService.findOrCreateParticipant(tradesTrekCompetition.id, user.email, tradesTrekCompetition.owner)
+            await this.competitionService.joinCompetition(user, tradesTrekCompetition)
+        }
+
         // generate access token
         const accessToken = await this.generateAccessToken(user._id, user.username);
         return successResponse({is_verified: user.verified, access_token: accessToken, user})

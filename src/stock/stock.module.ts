@@ -5,10 +5,11 @@ import {TypeOrmModule} from "@nestjs/typeorm";
 import {StockPrice} from "./entities/stock_prices.entity";
 import {Company} from "./entities/companies.entity";
 import {CompanyService} from "./services/company.service";
+import {Exchange} from "./entities/exchange.entity";
 
 @Global()
 @Module({
-  imports:[TypeOrmModule.forFeature([Company, StockPrice])],
+  imports:[TypeOrmModule.forFeature([Company, StockPrice, Exchange])],
   controllers: [StockController],
   providers: [StockPriceService, CompanyService],
   exports:[StockPriceService,CompanyService]

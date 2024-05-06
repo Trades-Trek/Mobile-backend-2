@@ -3,6 +3,12 @@ export enum COMPETITION_TYPE {
     PERSONAL = 'personal'
 }
 
+export enum COMPETITION_STATUS {
+    PENDING = 'pending',
+    ONGOING = 'ongoing',
+    ENDED = 'ended'
+}
+
 export enum COMPETITION_ENTRY {
     OPEN = 'open',
     CLOSED = 'closed'
