@@ -29,8 +29,4 @@ export class OrdersController {
     }
 
 
-    @Get('/account-value')
-    getAccountValue(@AuthUser() user:UserDocument){
-        return this.ordersService.getAccountValue(user)
-    }
 }

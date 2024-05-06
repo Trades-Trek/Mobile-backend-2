@@ -1,5 +1,5 @@
 import {Body, Controller, Delete, Get, Param, Post} from '@nestjs/common';
-import {CompetitionsService} from './competitions.service';
+import {CompetitionsService} from './services/competitions.service';
 import {CreateCompetitionDto, JoinCompetitionDto} from './dto/create-competition.dto';
 import {AuthUser} from "../decorators/user.decorator";
 import {UserDocument} from "../users/schemas/user.schema";
@@ -16,11 +16,11 @@ import {Public} from "../decorators/public-endpoint.decorator";
 export class CompetitionsController {
     constructor(private readonly competitionsService: CompetitionsService) {
     }
-    @Public()
-    @Get("2")
-    async sum() {
-        return successResponse(await this.competitionsService.getTotalStartingCash());
-    }
+    // @Public()
+    // @Get("2")
+    // async sum() {
+    //     return successResponse(await this.competitionsService.getTotalStartingCash());
+    // }
     @Post()
     create(@Body() createCompetitionDto: CreateCompetitionDto, @AuthUser() user: UserDocument) {
         return this.competitionsService.create(user, createCompetitionDto);

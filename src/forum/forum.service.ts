@@ -2,7 +2,7 @@ import {Injectable} from '@nestjs/common';
 import {CreateForumDto} from './dto/create-forum.dto';
 import {UpdateForumDto} from './dto/update-forum.dto';
 import {UserDocument} from "../users/schemas/user.schema";
-import {CompetitionsService} from "../competitions/competitions.service";
+import {CompetitionsService} from "../competitions/services/competitions.service";
 import {returnErrorResponse, successResponse} from "../utils/response";
 import {InjectModel} from "@nestjs/mongoose";
 import {Model, Types} from "mongoose";

@@ -9,7 +9,7 @@ import {AccountValue} from "../schemas/account-value.schema";
 
 @Injectable()
 export class AccountValueService {
-    constructor(private competitionService: CompetitionsService, private orderService: OrdersService, private stockPriceService: StockPriceService, @InjectModel(AccountValue.name) private accountValueModel: Model<AccountValue>) {
+    constructor(private competitionService: CompetitionsService,  private orderService: OrdersService, private stockPriceService: StockPriceService, @InjectModel(AccountValue.name) private accountValueModel: Model<AccountValue>) {
     }
 
     async getAccountAndCashValue(user: UserDocument): Promise<{ accountValue: number, cashValue: number }> {
