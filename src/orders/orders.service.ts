@@ -18,15 +18,14 @@ import {NotificationsService} from "../notifications/notifications.service";
 import {InjectModel} from "@nestjs/mongoose";
 import {EventEmitter2, OnEvent} from "@nestjs/event-emitter";
 import {ExecuteOrderEvent} from "../events/ExecuteOrderEvent.event";
-import Func = jest.Func;
 import {Exchange} from "../stock/entities/exchange.entity";
-import {Participant} from "../competitions/schemas/participant.schema";
 import {Pagination} from "../enums/pagination.enum";
+import Func = jest.Func;
 
 
 @Injectable()
 export class OrdersService {
-    constructor( private competitionService: CompetitionsService, private companyService: CompanyService, private stockPriceService: StockPriceService, private walletService: WalletService, private schedulerRegistry: SchedulerRegistry, @InjectModel(Order.name) private orderModel: Model<Order>, private notificationService: NotificationsService, private eventEmitter: EventEmitter2) {
+    constructor(  private competitionService: CompetitionsService, private companyService: CompanyService, private stockPriceService: StockPriceService, private walletService: WalletService, private schedulerRegistry: SchedulerRegistry, @InjectModel(Order.name) private orderModel: Model<Order>, private notificationService: NotificationsService, private eventEmitter: EventEmitter2) {
     }
 
     async create(stockPriceSymbol: string, createOrderDto: CreateOrderDto, user: UserDocument) {
@@ -182,12 +181,15 @@ export class OrdersService {
         }
     }
 
-    async getUserStocks(user: UserDocument, tradeAction: TRADE_ACTION = TRADE_ACTION.BUY, pagination?: Pagination) {
+    async getUserStocks(user: UserDocument, competitionId:Types.ObjectId, status:ORDER_STATUS = ORDER_STATUS.COMPLETED, tradeAction: TRADE_ACTION = TRADE_ACTION.BUY, pagination?: Pagination) {
         return await this.orderModel.find({
             user_id: user.id,
-            trade_action: TRADE_ACTION.BUY,
-            status: ORDER_STATUS.COMPLETED
+            competition:competitionId,
+            trade_action: tradeAction,
+            status
         }).exec()
     }
+
+
 
 }

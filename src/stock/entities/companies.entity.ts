@@ -1,4 +1,5 @@
-import {Column, Entity, PrimaryGeneratedColumn} from "typeorm";
+import {Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn} from "typeorm";
+import {StockPrice} from "./stock_prices.entity";
 
 @Entity('companies')
 export class Company {
@@ -9,19 +10,25 @@ export class Company {
     name:string
 
     @Column({nullable:false, type:'varchar'})
-    ticker_symbol:number
+    ticker_symbol:string
 
     @Column({type:'varchar', nullable:false})
     exchange:string
 
-    @Column({type:'varchar', nullable:false})
-    industry:string
+    // @Column({type:'varchar', nullable:false})
+    // industry:string
 
     @Column({type:'varchar', nullable:false})
     sector:string
 
     @Column({type:'varchar', nullable:true})
-    head_quarters:string
+    business_nature:string
+
+    @Column({type:'varchar', nullable:true})
+    sub_sector:string
+
+    @Column({type:'varchar', nullable:true})
+    headquarters:string
 
     @Column({type:'date', nullable:true})
     founded_date:Date
@@ -81,5 +88,8 @@ export class Company {
 
     @Column({type:'timestamp', nullable:true})
     updated_at:Date
+
+    @OneToOne(() => StockPrice, (stock_price) => stock_price.company)
+    stock_price:StockPrice
 
 }

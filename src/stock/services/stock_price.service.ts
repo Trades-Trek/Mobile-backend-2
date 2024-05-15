@@ -3,7 +3,9 @@ import {Injectable} from '@nestjs/common';
 import {StockPrice} from "../entities/stock_prices.entity";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
-import {successResponse} from "../../utils/response";
+import {returnErrorResponse, successResponse} from "../../utils/response";
+import {Pagination} from "../../enums/pagination.enum";
+import {ERROR_MESSAGES} from "../../enums/error-messages";
 
 @Injectable()
 export class StockPriceService {
@@ -14,13 +16,22 @@ export class StockPriceService {
 
     async findAll() {
         const stockPrices = await this.stockPriceRepository.find();
-        return successResponse({stock_prices:stockPrices})
+        return successResponse({stock_prices: stockPrices})
     }
+
+
+
+
 
     async findStockPrice(filter: any, columnsToLoad?: Array<string>): Promise<StockPrice> {
         let columns_to_load;
         columns_to_load = columnsToLoad && columnsToLoad.length ? columnsToLoad : ['company_id', 'id', 'symbol', 'last']
-            return await this.stockPriceRepository.findOne({where: filter, select: columns_to_load});
+        return await this.stockPriceRepository.findOne({where: filter, select: columns_to_load});
+    }
+
+    async getTopGainers(pagination: Pagination) {
+        const topGainers = await this.stockPriceRepository.createQueryBuilder("stocks").groupBy("stocks.symbol").orderBy("stocks.last", "DESC").getMany()
+        return successResponse({topGainers})
     }
 
 }

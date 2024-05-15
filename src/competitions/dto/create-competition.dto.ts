@@ -2,6 +2,7 @@ import {IsArray, IsEnum, IsNotEmpty, IsNumber, IsString, Max, Min, ValidateIf} f
 import {COMPETITION_ENTRY, COMPETITION_TYPE, COMPETITION_VISIBILITY} from "../../enums/competition.enum";
 import {ApiProperty} from "@nestjs/swagger";
 import {Optional} from "@nestjs/common";
+import {Types} from "mongoose";
 
 export class CreateCompetitionDto {
     @IsNotEmpty()
@@ -85,4 +86,8 @@ export class CreateCompetitionDto {
 
 export class JoinCompetitionDto {
     password:string
+}
+
+export class PortfolioDto {
+    competition_id:Types.ObjectId
 }

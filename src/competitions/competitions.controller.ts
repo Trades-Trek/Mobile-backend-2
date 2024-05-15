@@ -1,6 +1,6 @@
-import {Body, Controller, Delete, Get, Param, Post} from '@nestjs/common';
+import {Body, Controller, Delete, Get, Param, Post, Query} from '@nestjs/common';
 import {CompetitionsService} from './services/competitions.service';
-import {CreateCompetitionDto, JoinCompetitionDto} from './dto/create-competition.dto';
+import {CreateCompetitionDto, JoinCompetitionDto, PortfolioDto} from './dto/create-competition.dto';
 import {AuthUser} from "../decorators/user.decorator";
 import {UserDocument} from "../users/schemas/user.schema";
 import {GetPagination} from "../decorators/pagination.decorator";
@@ -16,11 +16,12 @@ import {Public} from "../decorators/public-endpoint.decorator";
 export class CompetitionsController {
     constructor(private readonly competitionsService: CompetitionsService) {
     }
-    // @Public()
-    // @Get("2")
-    // async sum() {
-    //     return successResponse(await this.competitionsService.getTotalStartingCash());
-    // }
+
+    @Get('/portfolio')
+    async portfolio(@Query() query: PortfolioDto, @AuthUser() user:UserDocument) {
+        return this.competitionsService.portfolio(query, user)
+    }
+
     @Post()
     create(@Body() createCompetitionDto: CreateCompetitionDto, @AuthUser() user: UserDocument) {
         return this.competitionsService.create(user, createCompetitionDto);
@@ -50,6 +51,13 @@ export class CompetitionsController {
     async findOne(@Param('competition_id') competitionId: Types.ObjectId) {
         return successResponse(await this.competitionsService.findOne({'_id': competitionId}));
     }
+
+    @Get('leader-board/:competition_id')
+    async leaderBoard(@Param('competition_id') competitionId: Types.ObjectId, @GetPagination() pagination:Pagination) {
+        return this.competitionsService.leaderBoard(competitionId, pagination)
+    }
+
+
 
     // @Patch(':id')
     // update(@Param('id') id: string, @Body() updateCompetitionDto: UpdateCompetitionDto) {

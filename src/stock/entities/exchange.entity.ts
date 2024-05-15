@@ -45,4 +45,6 @@ export class Exchange extends BaseEntity{
     @Column({type:'timestamp', nullable:true})
     updated_at:Date
 
+
+
 }
