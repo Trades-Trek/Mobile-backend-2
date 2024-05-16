@@ -1,5 +1,5 @@
-import {Injectable} from '@nestjs/common';
-import {CreateCompetitionDto, JoinCompetitionDto} from '.././dto/create-competition.dto';
+import {forwardRef, Inject, Injectable} from '@nestjs/common';
+import {CreateCompetitionDto, JoinCompetitionDto, PortfolioDto} from '.././dto/create-competition.dto';
 import {InjectModel} from "@nestjs/mongoose";
 import {Competition, CompetitionDocument} from ".././schemas/competition.schema";
 import {Model, Types} from "mongoose";
@@ -18,12 +18,15 @@ import {Participant, ParticipantDocument} from ".././schemas/participant.schema"
 import {QueueService} from "../../queues/queue.service";
 import {EMAIL_SUBJECTS} from "../../enums/emails.enum";
 import {useOneSignalService} from "../../services/onesignal";
+import {AccountValueService} from "./account-value.service";
+import {OrdersService} from "../../orders/orders.service";
+import {ORDER_STATUS} from "../../enums/orders.enum";
 
 const onesignalService = useOneSignalService()
 
 @Injectable()
 export class CompetitionsService {
-    constructor(@InjectModel(Competition.name) private competitionModel: Model<Competition>, @InjectModel(Participant.name) private participantModel: Model<Participant>, private configService: ConfigService, private walletsService: WalletService, private activityService: ActivitiesService, private queueService: QueueService) {
+    constructor(@InjectModel(Competition.name) private competitionModel: Model<Competition>, @InjectModel(Participant.name) private participantModel: Model<Participant>, private configService: ConfigService, private walletsService: WalletService, private activityService: ActivitiesService, private queueService: QueueService, private accountValueService: AccountValueService, @Inject(forwardRef(() => OrdersService)) private orderService: OrdersService) {
     }
 
     async create(user: UserDocument, createCompetitionDto: CreateCompetitionDto) {
@@ -164,17 +167,59 @@ export class CompetitionsService {
         return successResponse('joined successfully')
     }
 
-    async resetPortfolio(competitionId:Types.ObjectId, user:UserDocument){
+    async resetPortfolio(competitionId: Types.ObjectId, user: UserDocument) {
 
     }
 
-    async getTotalStartingCash(userId:Types.ObjectId):Promise<number>{
+    async getTotalStartingCash(userId: Types.ObjectId, competitionId: Types.ObjectId): Promise<number> {
         const totalStartingCash = await this.participantModel.aggregate([
-            { $match: { participant: userId } },
-            { $group: { _id: null, starting_cash: { $sum: "$starting_cash" } } }
+            {$match: {participant: userId, competition: competitionId}},
+            {$group: {_id: null, starting_cash: {$sum: "$starting_cash"}}}
         ]).exec()
         return totalStartingCash[0].starting_cash;
     }
 
+    async portfolio(portfolioDto: PortfolioDto, user: UserDocument, useService: boolean = false): Promise<{
+        today_percentage_change: number,
+        cash_value: number,
+        account_value: number
+    } | any> {
+        // retrieve competition
+        const competition = portfolioDto.competition_id ? await this.findOne({'_id': portfolioDto.competition_id}) : await this.findOne({is_default: true})
+        if (!competition) returnErrorResponse('Competition does not exist')
 
+        const todayPercentageChange = await this.accountValueService.getTodayPercentageChange(user, competition.id)
+        const {cashValue, accountValue} = await this.accountValueService.getAccountAndCashValue(user, competition.id)
+
+        return useService ? {
+            today_percentage_change: todayPercentageChange,
+            cash_value: cashValue,
+            account_value: accountValue
+        } : successResponse({
+            today_percentage_change: todayPercentageChange,
+            cash_value: cashValue,
+            account_value: accountValue
+        })
+    }
+
+    async portfolioDetails(portfolioDto: PortfolioDto, user: UserDocument) {
+        const {today_percentage_change, cash_value, account_value} = await this.portfolio(portfolioDto, user, true)
+        const pendingTrades = await this.orderService.getUserStocks(user, portfolioDto.competition_id, ORDER_STATUS.PENDING)
+        const performanceHistory = await this.accountValueService.getAccountValueList(user, portfolioDto.competition_id);
+        return successResponse({
+            today_percentage_change,
+            cash_value,
+            account_value,
+            pending_trades: pendingTrades,
+            performance_history: performanceHistory
+        })
+    }
+
+    async leaderBoard(competitionId: Types.ObjectId, pagination: Pagination) {
+        const leaderBoardList = await this.participantModel.find({
+            competition: competitionId,
+            participant: {$ne: null}
+        }).sort({points: -1}).populate('participant', 'full_name').limit(pagination.limit).skip(pagination.page).exec()
+        return successResponse({leader_board_list: leaderBoardList})
+    }
 }

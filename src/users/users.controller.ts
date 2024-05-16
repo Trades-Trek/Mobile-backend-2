@@ -13,15 +13,6 @@ export class UsersController {
     constructor(private readonly usersService: UsersService, private socialService: SocialsService,) {
     }
 
-    @Get('/dashboard')
-    dashboard(@AuthUser() user:UserDocument){
-        return this.usersService.dashboard(user)
-    }
-
-    @Get('/portfolio')
-    portfolio(@AuthUser() user:UserDocument){
-        return this.usersService.dashboard(user)
-    }
     // update user info
     @Patch()
     updateProfile(@Body() updateUserDto: UpdateUserDto, @AuthUser() user: UserDocument) {

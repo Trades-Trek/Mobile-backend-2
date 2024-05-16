@@ -12,8 +12,16 @@ export class AccountValue {
     })
     user: Types.ObjectId
 
+    @Prop({
+        required: false, type: Types.ObjectId,
+        ref: 'Competition'
+    })
+    competition: Types.ObjectId
+
     @Prop({nullable: false})
     value:number
+
+
 
 }
 

@@ -18,6 +18,9 @@ export class Participant {
     @Prop({required: false, default: false})
     is_owner: boolean
 
+    @Prop({required: false, default: 0})
+    points: number
+
     @Prop({required: false, default:0})
     starting_cash: number
 

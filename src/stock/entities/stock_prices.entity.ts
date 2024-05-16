@@ -1,5 +1,6 @@
-import {Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn} from "typeorm";
+import {Column, Entity, ManyToOne, PrimaryGeneratedColumn, JoinColumn, OneToOne} from "typeorm";
 import {Company} from "./companies.entity";
+import {Exchange} from "./exchange.entity";
 
 @Entity('stock_prices')
 export class StockPrice {
@@ -38,6 +39,7 @@ export class StockPrice {
 
     @Column({type:'decimal', nullable:true})
     prev_close:number
+
 
     @Column({type:'date', nullable:true})
     prev_close_date:Date
@@ -89,8 +91,11 @@ export class StockPrice {
     @Column({type:'timestamp', nullable:true})
     updated_at:Date
 
-    @ManyToOne(() => Company, (company) => company)
+    @OneToOne(() => Company, (company) => company)
     @JoinColumn({name:'company_id'})
     company:Company
+
+    // @ManyToOne(() => Exchange, (exchange) => exchange)
+    // exchange:Exchange
 
 }

@@ -1,4 +1,4 @@
-import {Module} from '@nestjs/common';
+import {forwardRef, Module} from '@nestjs/common';
 import {CompetitionsService} from './services/competitions.service';
 import {CompetitionsController} from './competitions.controller';
 import {MongooseModule} from "@nestjs/mongoose";

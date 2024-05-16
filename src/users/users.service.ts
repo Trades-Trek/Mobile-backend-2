@@ -116,15 +116,4 @@ export class UsersService {
         return successResponse({message: 'profile updated successfully'})
     }
 
-    async dashboard(user: UserDocument) {
-        const todayPercentageChange = await this.accountValueService.getTodayPercentageChange(user)
-        const {cashValue, accountValue} = await this.accountValueService.getAccountAndCashValue(user)
-        return successResponse({
-            today_percentage_change: todayPercentageChange,
-            cash_value: cashValue,
-            account_value: accountValue
-        })
-
-
-    }
 }
