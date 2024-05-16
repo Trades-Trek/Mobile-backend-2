@@ -1,8 +1,8 @@
-import {Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn} from "typeorm";
+import {BaseEntity, Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn} from "typeorm";
 import {StockPrice} from "./stock_prices.entity";
 
 @Entity('companies')
-export class Company {
+export class Company extends BaseEntity{
     @PrimaryGeneratedColumn()
     id:number
 
@@ -82,6 +82,12 @@ export class Company {
 
     @Column({type:'varchar', nullable:true})
     logo_url:string
+
+    @Column({type:'bigint', nullable:false})
+    watchlist_points:number
+
+    @Column({type:'bigint', nullable:false})
+    trade_points:number
 
     @Column({type:'timestamp', nullable:true})
     created_at:Date

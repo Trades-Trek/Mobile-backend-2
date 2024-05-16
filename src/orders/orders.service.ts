@@ -21,30 +21,30 @@ import {ExecuteOrderEvent} from "../events/ExecuteOrderEvent.event";
 import {Exchange} from "../stock/entities/exchange.entity";
 import {Pagination} from "../enums/pagination.enum";
 import Func = jest.Func;
+import {Company} from "../stock/entities/companies.entity";
 
 
 @Injectable()
 export class OrdersService {
-    constructor(  private competitionService: CompetitionsService, private companyService: CompanyService, private stockPriceService: StockPriceService, private walletService: WalletService, private schedulerRegistry: SchedulerRegistry, @InjectModel(Order.name) private orderModel: Model<Order>, private notificationService: NotificationsService, private eventEmitter: EventEmitter2) {
+    constructor(private competitionService: CompetitionsService, private companyService: CompanyService, private stockPriceService: StockPriceService, private walletService: WalletService, private schedulerRegistry: SchedulerRegistry, @InjectModel(Order.name) private orderModel: Model<Order>, private notificationService: NotificationsService, private eventEmitter: EventEmitter2) {
     }
 
     async create(stockPriceSymbol: string, createOrderDto: CreateOrderDto, user: UserDocument) {
         const {competition_id, order_type, price, quantity, duration, trade_action} = createOrderDto;
-        console.log('inside ')
+        console.log('inside')
         // retrieve company
         const company = await this.companyService.findCompany({ticker_symbol: stockPriceSymbol})
-        if (!company) returnErrorResponse('Stock does not exist')
+        if (!company) returnErrorResponse(ERROR_MESSAGES.STOCk_NOT_FOUND)
         // retrieve competition
         const competition = await this.competitionService.findOne({'_id': competition_id})
         if (!competition) returnErrorResponse('Competition not found')
-        console.log('passed competition')
         // retrieve participant
         const participant = await this.competitionService.findOrCreateParticipant(competition.id, user.email)
         if (!participant) returnErrorResponse('Not a participant of this competition')
         console.log('passed competition')
         // retrieve stock price
         const stockPrice = await this.stockPriceService.findStockPrice({symbol: company.ticker_symbol})
-        if (!stockPrice) returnErrorResponse('Could not retrieve stock')
+        if (!stockPrice) returnErrorResponse(ERROR_MESSAGES.STOCk_NOT_FOUND)
         console.log('passed stock price')
         // validate trade action(buy/sell)
         if (trade_action === TRADE_ACTION.BUY && order_type === ORDER_TYPE.LIMIT && price >= stockPrice.last) returnErrorResponse('Limit price should be less than stock price when buying stock')
@@ -124,7 +124,7 @@ export class OrdersService {
             if (participant.starting_cash < amountToBePaidInCash) {
                 this.updateOrderStatus(order, ORDER_STATUS.FAILED, 'insufficient starting cash')
             } else {
-                await participant.updateOne({$inc: {starting_cash: -stockPrice.last}})
+                await participant.updateOne({$inc: {starting_cash: order.trade_action === TRADE_ACTION.SELL ? stockPrice.last : -stockPrice.last}})
                 this.updateOrderStatus(order, ORDER_STATUS.COMPLETED, 'Order executed successfully')
 
             }
@@ -133,8 +133,10 @@ export class OrdersService {
 
     async updateOrderStatus(order: OrderDocument, status: ORDER_STATUS, message: string = null) {
         console.log('order completed')
-        console.log(status)
         await order.updateOne({status}, {new: true})
+        const company = await this.companyService.findCompany({id: order.company_id}, ['id', 'trade_points'])
+        if (company) company.trade_points++
+        await company.save();
         switch (status) {
             case ORDER_STATUS.FAILED:
                 break;
@@ -181,15 +183,14 @@ export class OrdersService {
         }
     }
 
-    async getUserStocks(user: UserDocument, competitionId:Types.ObjectId, status:ORDER_STATUS = ORDER_STATUS.COMPLETED, tradeAction: TRADE_ACTION = TRADE_ACTION.BUY, pagination?: Pagination) {
+    async getUserStocks(user: UserDocument, competitionId: Types.ObjectId, status: ORDER_STATUS = ORDER_STATUS.COMPLETED, tradeAction: TRADE_ACTION = TRADE_ACTION.BUY, pagination?: Pagination) {
         return await this.orderModel.find({
             user_id: user.id,
-            competition:competitionId,
+            competition: competitionId,
             trade_action: tradeAction,
             status
         }).exec()
     }
-
 
 
 }
