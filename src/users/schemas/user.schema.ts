@@ -29,7 +29,7 @@ export class User {
     @Prop({required: true, trim: true, select: false})
     password: string;
 
-    @Prop()
+    @Prop({required:false})
     referral_code: string;
 
     @Prop({default:'english'})
