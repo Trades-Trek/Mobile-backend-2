@@ -25,7 +25,7 @@ export enum USER {
 
     WALLET = 'wallet',
 
-    REFERRER = 'referer_code',
+    REFERRER = 'referrer_code',
 
     TREK_COIN_BALANCE = 'trek_coin_balance',
 
