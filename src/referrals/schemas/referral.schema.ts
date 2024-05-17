@@ -19,7 +19,7 @@ export class Referral {
     joined: boolean
 
     @Prop({default: false})
-    joined_date: boolean
+    joined_date: string
 
     @Prop({default: 0})
     amount_earned: number

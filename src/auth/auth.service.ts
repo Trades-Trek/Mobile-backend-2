@@ -99,44 +99,49 @@ export class AuthService {
     }
 
     async verifyUser(verifyUserDto: VerifyUserDto) {
-        const {email, otp} = verifyUserDto;
-        if (!await this.otpService.verifyOtpViaMail(email, otp)) returnErrorResponse('Invalid Otp')
-        let user: UserDocument | undefined = await this.userService.findOne({field: USER.EMAIL, data: email})
-        if (!user) returnErrorResponse('User does not exist')
+        try {
+            const {email, otp} = verifyUserDto;
+            if (!await this.otpService.verifyOtpViaMail(email, otp)) returnErrorResponse('Invalid Otp')
+            let user: UserDocument | undefined = await this.userService.findOne({field: USER.EMAIL, data: email})
+            if (!user) returnErrorResponse('User does not exist')
 
-        if (user.verified) returnErrorResponse('Your account has already been verified')
+            if (user.verified) returnErrorResponse('Your account has already been verified')
 
-        await user.updateOne({verified: true, referral_code: generateCode(6)})
+            await user.updateOne({verified: true, referral_code: generateCode(6)})
 
-        user = await this.userService.findOne({field: USER.EMAIL, data: email})
-        // check if user was referred
-        if (user.referrer_code) {
-            const referrer = await this.userService.findOne({
-                data: user.referrer_code,
-                field: USER.REFERRAL_CODE,
-                is_server_request: true
-            })
-            const referral = await this.referralService.findOrCreate(user.email, referrer)
-            if (referral) {
-                this.referralService.joined(referrer, referral)
+            user = await this.userService.findOne({field: USER.EMAIL, data: email})
+            // check if user was referred
+            if (user.referrer_code) {
+                const referrer = await this.userService.findOne({
+                    data: user.referrer_code,
+                    field: USER.REFERRAL_CODE,
+                    is_server_request: true
+                })
+                const referral = await this.referralService.findOrCreate(user.email, referrer)
+                if (referral) {
+                    this.referralService.joined(referrer, referral)
+                }
             }
-        }
 
-        // subscribe user to a free trial
-        const freeTrialPlan = await this.planService.findOne({duration: SUBSCRIPTION_DURATION.TRIAL})
-        if (freeTrialPlan) {
-            await this.subscriptionService.createOrRenewSubscription(user, freeTrialPlan, false, false)
-        }
-        // join default competition
-        const tradesTrekCompetition = await this.competitionService.findOne({is_default: true})
-        if (tradesTrekCompetition) {
-            await this.competitionService.findOrCreateParticipant(tradesTrekCompetition.id, user.email, tradesTrekCompetition.owner)
-            await this.competitionService.joinCompetition(user, tradesTrekCompetition)
-        }
+            // subscribe user to a free trial
+            const freeTrialPlan = await this.planService.findOne({duration: SUBSCRIPTION_DURATION.TRIAL})
+            if (freeTrialPlan) {
+                await this.subscriptionService.createOrRenewSubscription(user, freeTrialPlan, false, false)
+            }
+            // join default competition
+            const tradesTrekCompetition = await this.competitionService.findOne({is_default: true})
+            if (tradesTrekCompetition) {
+                await this.competitionService.findOrCreateParticipant(tradesTrekCompetition.id, user.email, tradesTrekCompetition.owner)
+                await this.competitionService.joinCompetition(user, tradesTrekCompetition)
+            }
 
-        // generate access token
-        const accessToken = await this.generateAccessToken(user._id, user.username);
-        return successResponse({is_verified: user.verified, access_token: accessToken, user})
+            // generate access token
+            const accessToken = await this.generateAccessToken(user._id, user.username);
+            return successResponse({is_verified: user.verified, access_token: accessToken, user})
+        } catch (e) {
+            console.log(e)
+            returnErrorResponse('Something went wrong')
+        }
 
     }
 
