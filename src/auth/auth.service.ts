@@ -26,9 +26,7 @@ import {SUBSCRIPTION_DURATION} from "../enums/subscription_duration";
 import {CompetitionsService} from "../competitions/services/competitions.service";
 import {useEncryptionService} from "../services/aes-encrypt";
 import {ConfigService} from "@nestjs/config";
-
 const bcrypt = require("bcrypt");
-const crypto = require("crypto")
 
 @Injectable()
 export class AuthService {
@@ -44,7 +42,7 @@ export class AuthService {
                 fields_to_load: USER.REFERRAL_CODE
             })) returnErrorResponse('Invalid referral code')
         }
-        const decryptedPassword = useEncryptionService().encryptData(password, this.configService.get('ENCRYPTION_SECRET_KEY'))
+        const decryptedPassword = useEncryptionService().encryptData(password, this.configService.get('DATA_ENCRYPTION_KEY'))
         const user = await this.userService.findOne({
             field: USER.EMAIL,
             data: email,
@@ -85,7 +83,7 @@ export class AuthService {
         })
         if (!user) returnErrorResponse('User does not exist')
 
-        const decryptedPassword = useEncryptionService().encryptData(password, this.configService.get('ENCRYPTION_SECRET_KEY'))
+        const decryptedPassword = useEncryptionService().encryptData(password, this.configService.get('DATA_ENCRYPTION_KEY'))
 
         if (!await this.comparePassword(decryptedPassword ?? password, user.password)) returnErrorResponse('Invalid credentials')
 
