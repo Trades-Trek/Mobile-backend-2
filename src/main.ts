@@ -9,6 +9,7 @@ import {
 import {NestExpressApplication} from "@nestjs/platform-express";
 import {join} from "path";
 import {AllExceptionFilter} from "./exceptions/errors.filter";
+const crypto = require("crypto")
 
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -33,6 +34,17 @@ async function bootstrap() {
     const document = SwaggerModule.createDocument(app, config, options);
     SwaggerModule.setup("v2/docs", app, document);
     await app.listen(process.env.PORT ?? 3000);
+
+    const generateSecretKey = (): string => {
+        const keyLength = 32; // 32 bytes = 256 bits (AES-256)
+        const buffer = new Uint8Array(keyLength);
+        crypto.getRandomValues(buffer);
+        return Array.from(buffer, (byte) =>
+            byte.toString(16).padStart(2, '0')
+        ).join('');
+    };
+
+    console.log(generateSecretKey())
 }
 
 bootstrap();

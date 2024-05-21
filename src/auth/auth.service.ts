@@ -24,13 +24,15 @@ import {SubscriptionsService} from "../subscriptions/subscriptions.service";
 import {PlansService} from "../plans/plans.service";
 import {SUBSCRIPTION_DURATION} from "../enums/subscription_duration";
 import {CompetitionsService} from "../competitions/services/competitions.service";
+import {useEncryptionService} from "../services/aes-encrypt";
+import {ConfigService} from "@nestjs/config";
 
 const bcrypt = require("bcrypt");
 const crypto = require("crypto")
 
 @Injectable()
 export class AuthService {
-    constructor(private userService: UsersService, private otpService: OtpService, private jwtService: JwtService, private referralService: ReferralsService, private subscriptionService: SubscriptionsService, private planService: PlansService, private competitionService: CompetitionsService) {
+    constructor(private userService: UsersService, private otpService: OtpService, private jwtService: JwtService, private referralService: ReferralsService, private subscriptionService: SubscriptionsService, private planService: PlansService, private competitionService: CompetitionsService, private configService: ConfigService) {
     }
 
     async signup(createAuthDto: SignupDto) {
@@ -42,6 +44,7 @@ export class AuthService {
                 fields_to_load: USER.REFERRAL_CODE
             })) returnErrorResponse('Invalid referral code')
         }
+        const decryptedPassword = useEncryptionService().encryptData(password, this.configService.get('ENCRYPTION_SECRET_KEY'))
         const user = await this.userService.findOne({
             field: USER.EMAIL,
             data: email,
@@ -50,7 +53,7 @@ export class AuthService {
             first_name,
             last_name,
             email,
-            password: await bcrypt.hash(password, 10),
+            password: decryptedPassword ? await bcrypt.hash(decryptedPassword, 10) : await bcrypt.hash(password, 10),
             referral_code
         })
         if (user.verified) returnErrorResponse('Already a user')
@@ -82,7 +85,9 @@ export class AuthService {
         })
         if (!user) returnErrorResponse('User does not exist')
 
-        if (!await this.comparePassword(password, user.password)) returnErrorResponse('Invalid credentials')
+        const decryptedPassword = useEncryptionService().encryptData(password, this.configService.get('ENCRYPTION_SECRET_KEY'))
+
+        if (!await this.comparePassword(decryptedPassword ?? password, user.password)) returnErrorResponse('Invalid credentials')
 
         const accessToken = user.verified ? await this.generateAccessToken(user._id, user.username) : await this.otpService.sendOtpViaEmail(user.email, true, user.full_name);
         // load client user data
