@@ -11,7 +11,7 @@ export const useEncryptionService = () => {
     };
 
     const decryptData = (encryptedData: string, secretKey: string) => {
-        const decryptedData = CryptoJS.AES.decrypt(encryptedData, secretKey).toString(CryptoJS.enc.Utf8);
+        const decryptedData = CryptoJS.AES.decrypt(encryptedData, secretKey, {iv:process.env.ENCRYPTION_IV}).toString(CryptoJS.enc.Utf8);
         return JSON.parse(decryptedData);
     };
 
