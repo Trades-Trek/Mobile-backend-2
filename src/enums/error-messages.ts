@@ -2,6 +2,7 @@ const minStartingCash: number = parseInt(process.env.MIN_STARTING_CASH)
 
 export enum ERROR_MESSAGES {
     COMPETITION_REQUEST_NOT_FOUND = 'Could not find competition request',
+    CATEGORY_NOT_FOUND = 'Could not find category',
     INSUFFICIENT_WALLET_BALANCE = 'Insufficient funds in your wallet',
     INSUFFICIENT_TREK_COINS_BALANCE = 'Insufficient trek coins',
     SUBSCRIPTION_EXPIRED = 'Your subscription has not expired',

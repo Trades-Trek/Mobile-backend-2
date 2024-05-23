@@ -4,6 +4,7 @@ import {ConfigService} from "@nestjs/config";
 import {successResponse} from "./utils/response";
 import configuration from "./config/configuration";
 import client from "./config/client";
+import {Public} from "./decorators/public-endpoint.decorator";
 
 @Controller()
 export class AppController {
@@ -13,6 +14,7 @@ export class AppController {
   getHello(): string {
     return this.appService.getHello();
   }
+  @Public()
   @Get('/config')
   getConfig(){
     return successResponse(client())
