@@ -30,6 +30,7 @@ import {LoggerModule} from "nestjs-rollbar";
 import { OrdersModule } from './orders/orders.module';
 import {ScheduleModule} from "@nestjs/schedule";
 import {EventEmitterModule} from "@nestjs/event-emitter";
+import { LearnModule } from './learn/learn.module';
 
 @Module({
     imports: [
@@ -91,6 +92,7 @@ import {EventEmitterModule} from "@nestjs/event-emitter";
         CompetitionsModule,
         ForumModule,
         OrdersModule,
+        LearnModule,
     ],
     controllers: [AppController],
     providers: [AppService],
