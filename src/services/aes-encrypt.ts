@@ -1,13 +1,17 @@
-import CryptoJS, {AES} from 'crypto-js';
-import crypto from "crypto";
-
+const CryptoJS = require("crypto-js");
+const crypto = require("crypto");
 export const useEncryptionService = () => {
-    const encryptData = (data: any, secretKey: string): string => {
-        return AES.encrypt(JSON.stringify(data), secretKey).toString();
+    let iv = 'c8df32e53d16c468f509b12f40be6ddb5a845b6551d0f763c23ca9c44f1ffd6f';
+
+    const encryptData = (data: any, secretKey: string, iv?:any): string => {
+        // console.log(iv)
+        // iv = CryptoJS.enc.Base64.parse(iv);
+        // console.log(iv.toString())
+        return CryptoJS.AES.encrypt(JSON.stringify(data), secretKey).toString();
     };
 
     const decryptData = (encryptedData: string, secretKey: string) => {
-        const decryptedData = AES.decrypt(encryptedData, secretKey).toString(CryptoJS.enc.Utf8);
+        const decryptedData = CryptoJS.AES.decrypt(encryptedData, secretKey).toString(CryptoJS.enc.Utf8);
         return JSON.parse(decryptedData);
     };
 
