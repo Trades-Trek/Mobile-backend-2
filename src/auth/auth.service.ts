@@ -43,6 +43,7 @@ export class AuthService {
             })) returnErrorResponse('Invalid referral code')
         }
         const decryptedPassword = useEncryptionService().decryptData(password, this.configService.get('DATA_ENCRYPTION_KEY'))
+        console.log(`decrypted password - ${decryptedPassword}`)
         const user = await this.userService.findOne({
             field: USER.EMAIL,
             data: email,
@@ -84,6 +85,7 @@ export class AuthService {
         if (!user) returnErrorResponse('User does not exist')
 
         const decryptedPassword = useEncryptionService().decryptData(password, this.configService.get('DATA_ENCRYPTION_KEY'))
+        console.log(`decrypted password - ${decryptedPassword}`)
 
         if (!await this.comparePassword(decryptedPassword ?? password, user.password)) returnErrorResponse('Invalid credentials')
 
