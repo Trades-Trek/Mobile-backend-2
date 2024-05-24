@@ -7,9 +7,6 @@ const logger = require('../utils/logger');
 
 @Catch()
 export class AllExceptionFilter extends BaseExceptionFilter {
-    constructor(private rollbarLogger: RollbarLogger) {
-        super();
-    }
 
     catch(exception: any, host: ArgumentsHost) {
         const ctx = host.switchToHttp();
@@ -40,7 +37,7 @@ export class AllExceptionFilter extends BaseExceptionFilter {
                 break;
         }
         logger.error(`status - ${status || 500} message - ${message} `);
-        this.rollbarLogger.error({message})
+        // this.rollbarLogger.error({message})
         if (process.env.NODE_ENV === 'development') path = request.url;
         response
             .status(status)
