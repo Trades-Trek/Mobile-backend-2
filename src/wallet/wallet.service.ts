@@ -48,11 +48,11 @@ export class WalletService {
     }
 
     async fundTrekCoinsViaWallet(user: UserDocument, fundTrekCoinsDto: FundTrekCoinsDto) {
-        const {trek_coins} = fundTrekCoinsDto;
-        const amountInCash = this.convertTrekCoinsToCash(trek_coins)
-        if (user.wallet.balance < amountInCash) returnErrorResponse(ERROR_MESSAGES.INSUFFICIENT_WALLET_BALANCE)
-        await this.debitUserWallet(user, amountInCash)
-        await this.creditUserTrekCoins(user, trek_coins)
+        const {cash} = fundTrekCoinsDto;
+        const trekCoins = this.convertToTrekCoins(cash)
+        if (user.wallet.balance < cash) returnErrorResponse(ERROR_MESSAGES.INSUFFICIENT_WALLET_BALANCE)
+        await this.debitUserWallet(user, cash)
+        await this.creditUserTrekCoins(user, trekCoins)
         if (user.referrer_code && user.is_first_trek_coins_purchase) {
             // get referrer for reward
             const referrer = await this.userService.findOne({
@@ -69,21 +69,21 @@ export class WalletService {
         return successResponse({
             message: SUCCESS_MESSAGES.TREK_COINS_FUNDED,
             conversion_rate: conversionRate,
-            cash_converted: amountInCash
+            cash_converted: cash
         })
     }
 
     async withdrawTrekCoins(user: UserDocument, fundTrekCoinsDto: FundTrekCoinsDto) {
-        const {trek_coins} = fundTrekCoinsDto;
-        if (user.trek_coin_balance < trek_coins) returnErrorResponse(ERROR_MESSAGES.INSUFFICIENT_TREK_COINS_BALANCE)
-        const amountInCash = this.convertTrekCoinsToCash(trek_coins)
-        await this.debitUserTrekCoins(user, trek_coins)
-        await this.creditUserWallet(user, amountInCash)
+        const {cash} = fundTrekCoinsDto;
+        const trekCoins = this.convertToTrekCoins(cash)
+        if (user.trek_coin_balance < trekCoins) returnErrorResponse(ERROR_MESSAGES.INSUFFICIENT_TREK_COINS_BALANCE)
+        await this.debitUserTrekCoins(user, trekCoins)
+        await this.creditUserWallet(user, cash)
         const conversionRate = this.configService.get('TREK_COINS_CONVERSION_RATE_IN_NAIRA')
         return successResponse({
             message: SUCCESS_MESSAGES.TREK_COINS_FUNDED,
             conversion_rate: conversionRate,
-            cash_converted: amountInCash
+            trek_coins_converted: trekCoins,
         })
     }
 
