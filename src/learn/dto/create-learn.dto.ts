@@ -1,4 +1,4 @@
-import {IsArray, IsNotEmpty, } from "class-validator";
+import {ArrayMinSize, IsArray, IsNotEmpty,} from "class-validator";
 import {Types} from "mongoose";
 
 export class CreateLearnDto {
@@ -26,14 +26,14 @@ export class CreateLearnDto {
     @IsNotEmpty()
     category_id:string
 
-    @IsNotEmpty()
+    @ArrayMinSize(2)
     @IsArray()
     tags:Array<string>
 
-    @IsNotEmpty()
+    @ArrayMinSize(2)
     @IsArray()
     symbols:Array<string>
 
-    @IsArray()
-    quizzes:Array<Types.ObjectId>
+    // @IsArray()
+    // quizzes:Array<Types.ObjectId>
 }

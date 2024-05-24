@@ -43,6 +43,7 @@ export class AuthService {
             })) returnErrorResponse('Invalid referral code')
         }
         const decryptedPassword = useEncryptionService().decryptData(password, this.configService.get('ENCRYPTION_KEY'))
+
         console.log(`decrypted password - ${decryptedPassword}`)
         const user = await this.userService.findOne({
             field: USER.EMAIL,
