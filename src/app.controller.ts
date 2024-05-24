@@ -27,10 +27,10 @@ export class AppController {
     @Post('/test')
     test() {
         try {
-            let password = 'password'
-            password = useEncryptionService().encryptData(password, this.configService.get('DATA_ENCRYPTION_KEY'))
-            console.log(password)
-            const decryptedPassword = useEncryptionService().decryptData(password, this.configService.get('DATA_ENCRYPTION_KEY'))
+            let password = 'ROH/2wzXb4zD2InGdwTzNA=='
+            // password = useEncryptionService().encryptData(password, this.configService.get('DATA_ENCRYPTION_KEY'))
+            // console.log(password)
+            const decryptedPassword = useEncryptionService().decryptData(password, this.configService.get('ENCRYPTION_KEY'))
             console.log(decryptedPassword)
         return successResponse('done')
         } catch (e) {

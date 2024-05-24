@@ -8,7 +8,7 @@ export class Quiz {
     title: string
 
     @Prop({required: true, type: Types.ObjectId})
-    resource_id: Types.ObjectId
+    learn_resource_id: Types.ObjectId
 
     @Prop({required: true})
     description: string

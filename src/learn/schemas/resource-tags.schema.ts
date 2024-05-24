@@ -5,7 +5,6 @@ import {Types} from "mongoose";
 export class ResourceTag {
     @Prop({required: true})
     tag:string
-
 }
 
 export const ResourceTagSchema = SchemaFactory.createForClass(ResourceTag);

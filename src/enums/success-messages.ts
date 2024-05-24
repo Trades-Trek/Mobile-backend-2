@@ -2,9 +2,11 @@ export enum SUCCESS_MESSAGES {
     BVN_VERIFIED = 'Bvn verified successfully',
     VERIFIED_TRANSACTION = 'Transaction verified successfully',
     LEARN_RESOURCE_CREATED = 'Learn resource created successfully',
+    LEARN_RESOURCE_DELETED = 'Learn resource deleted successfully',
     CATEGORY_CREATED = 'Category created successfully',
     CATEGORY_DELETED = 'Category deleted successfully',
-
+    QUIZ_CREATED = 'Quiz created successfully',
+    QUIZ_DELETED = 'Quiz deleted successfully',
     TREK_COINS_CREDIT_TITLE = 'n',
     TREK_COINS_CREDIT_DESCRIPTION = '',
     WALLET_CREDIT_TITLE = '',

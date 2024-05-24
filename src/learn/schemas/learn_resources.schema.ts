@@ -1,7 +1,7 @@
 import {Prop, raw, Schema, SchemaFactory} from "@nestjs/mongoose";
-import {Types} from "mongoose";
+import {Document, Types} from "mongoose";
 import {Quiz} from "./quiz.schema";
-
+export type LearnResourceDocument = Document & LearnResources;
 @Schema({timestamps: true})
 export class LearnResources {
     @Prop({required: true})
