@@ -1,7 +1,6 @@
 const CryptoJS = require("crypto-js");
 const crypto = require("crypto");
 export const useEncryptionService = () => {
-    let iv = 'c8df32e53d16c468f509b12f40be6ddb5a845b6551d0f763c23ca9c44f1ffd6f';
 
     const encryptData = (data: any, secretKey: string, iv?: any): string => {
         // console.log(iv)
