@@ -1,10 +1,16 @@
 import {ArgumentsHost, Catch, HttpStatus} from "@nestjs/common";
 import {Request, Response} from 'express';
 import {BaseExceptionFilter} from "@nestjs/core";
+import {RollbarLogger} from "nestjs-rollbar";
+
 const logger = require('../utils/logger');
 
 @Catch()
 export class AllExceptionFilter extends BaseExceptionFilter {
+    constructor(private rollbarLogger: RollbarLogger) {
+        super();
+    }
+
     catch(exception: any, host: ArgumentsHost) {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse<Response>();
@@ -34,6 +40,7 @@ export class AllExceptionFilter extends BaseExceptionFilter {
                 break;
         }
         logger.error(`status - ${status || 500} message - ${message} `);
+        this.rollbarLogger.error({message})
         if (process.env.NODE_ENV === 'development') path = request.url;
         response
             .status(status)
