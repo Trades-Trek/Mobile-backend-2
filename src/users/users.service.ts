@@ -16,13 +16,15 @@ import {TransactionsService} from "../transactions/transactions.service";
 import {NotificationsService} from "../notifications/notifications.service";
 import {OrdersService} from "../orders/orders.service";
 import {AccountValueService} from "../competitions/services/account-value.service";
+import {useEncryptionService} from "../services/aes-encrypt";
+import {ConfigService} from "@nestjs/config";
 
 const bcrypt = require("bcrypt");
 const crypto = require("crypto")
 
 @Injectable()
 export class UsersService {
-    constructor(@InjectModel(User.name) private userModel: Model<User>, @InjectModel(ResetPasswordToken.name) private resetPasswordTokenModel: Model<ResetPasswordToken>, private transactionService: TransactionsService, private notificationService: NotificationsService, private orderService: OrdersService, private accountValueService: AccountValueService) {
+    constructor(@InjectModel(User.name) private userModel: Model<User>, @InjectModel(ResetPasswordToken.name) private resetPasswordTokenModel: Model<ResetPasswordToken>, private transactionService: TransactionsService, private notificationService: NotificationsService, private orderService: OrdersService, private accountValueService: AccountValueService, private configService: ConfigService) {
     }
 
     async create(createUserDto: CreateUserDto) {
@@ -75,14 +77,16 @@ export class UsersService {
 
     async resetPassword(resetPasswordDto: ResetPasswordDto) {
         const {new_password, reset_password_token, confirm_password} = resetPasswordDto;
-
-        let passwordResetToken = await this.resetPasswordTokenModel.findOne({reset_token:reset_password_token});
+        const decryptedNewPassword = await useEncryptionService().decryptData(new_password, this.configService.get('ENCRYPTION_KEY'))
+        const decryptedConfirmPassword = await useEncryptionService().decryptData(confirm_password, this.configService.get('ENCRYPTION_KEY'))
+        if (decryptedNewPassword !== decryptedConfirmPassword) returnErrorResponse('Passwords do not match')
+        let passwordResetToken = await this.resetPasswordTokenModel.findOne({reset_token: reset_password_token});
         if (!passwordResetToken) returnErrorResponse("Invalid or expired password reset token");
         const isValid = await bcrypt.compare(reset_password_token, passwordResetToken.token);
         if (!isValid) {
             returnErrorResponse("Invalid or expired password reset token");
         }
-        const hash = await bcrypt.hash(new_password, 10);
+        const hash = await bcrypt.hash(decryptedNewPassword, 10);
         await this.userModel.updateOne(
             {_id: passwordResetToken.user_id},
             {$set: {password: hash}},
@@ -100,7 +104,7 @@ export class UsersService {
         await this.resetPasswordTokenModel.create({
             user_id,
             token: hash,
-            reset_token:resetToken
+            reset_token: resetToken
         })
         return resetToken;
     }
