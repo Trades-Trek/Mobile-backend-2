@@ -9,9 +9,6 @@ export class ResetPasswordDto {
 
     @IsNotEmpty()
     confirm_password: string
-
-    @IsNotEmpty()
-    user_id: string
 }
 
 

@@ -167,7 +167,6 @@ export class AuthService {
         const returnData = request_password_reset ? {
             message: 'Otp verified successfully',
             password_reset_token: passwordResetToken,
-            user_id: user._id
         } : {message: 'Otp verified successfully'};
         return successResponse(returnData)
     }

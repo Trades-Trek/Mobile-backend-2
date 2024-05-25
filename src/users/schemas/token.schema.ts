@@ -12,6 +12,9 @@ export class ResetPasswordToken {
     @Prop({required: true})
     token: string
 
+    @Prop({required: true})
+    reset_token: string
+
 }
 
 export const ResetPasswordTokenSchema = SchemaFactory.createForClass(ResetPasswordToken);
