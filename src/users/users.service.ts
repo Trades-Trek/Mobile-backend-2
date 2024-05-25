@@ -74,8 +74,9 @@ export class UsersService {
 
 
     async resetPassword(resetPasswordDto: ResetPasswordDto) {
-        const {new_password, reset_password_token, confirm_password, user_id} = resetPasswordDto;
-        let passwordResetToken = await this.resetPasswordTokenModel.findOne({user_id});
+        const {new_password, reset_password_token, confirm_password} = resetPasswordDto;
+
+        let passwordResetToken = await this.resetPasswordTokenModel.findOne({reset_token:reset_password_token});
         if (!passwordResetToken) returnErrorResponse("Invalid or expired password reset token");
         const isValid = await bcrypt.compare(reset_password_token, passwordResetToken.token);
         if (!isValid) {
@@ -99,6 +100,7 @@ export class UsersService {
         await this.resetPasswordTokenModel.create({
             user_id,
             token: hash,
+            reset_token:resetToken
         })
         return resetToken;
     }
