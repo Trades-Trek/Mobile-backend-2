@@ -12,6 +12,9 @@ import {QuizzesService} from "./services/quizzes.service";
 import {ApiConsumes} from "@nestjs/swagger";
 import {Public} from "../decorators/public-endpoint.decorator";
 import {CreateResourceTagDto} from "./dto/resource-tag.dto";
+import {QuizzesTakenDto} from "./dto/quizzes_taken.dto";
+import {AuthUser} from "../decorators/user.decorator";
+import {User, UserDocument} from "../users/schemas/user.schema";
 
 @Public()
 @Controller('learn')
@@ -84,6 +87,11 @@ export class LearnController {
     @Get('/resource-tags')
     getAllResourceTags() {
         return this.learnService.getAllResourceTags()
+    }
+
+    @Post('quizzes-taken/:quiz_id')
+    storeQuizzesTaken(@Param('quiz_id') quizId:Types.ObjectId, @Body() quizzesTakenDto: QuizzesTakenDto, @AuthUser() user:UserDocument) {
+        return this.learnService.storeQuizzesTaken(quizId, quizzesTakenDto, user)
     }
 
 }

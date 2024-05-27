@@ -10,10 +10,13 @@ import {Pagination} from "../../enums/pagination.enum";
 import {ERROR_MESSAGES} from "../../enums/error-messages";
 import {CreateResourceTagDto} from "../dto/resource-tag.dto";
 import {ResourceTag} from "../schemas/resource-tags.schema";
+import {QuizzesTakenDto} from "../dto/quizzes_taken.dto";
+import {User, UserDocument} from "../../users/schemas/user.schema";
+import {QuizzesTaken} from "../schemas/quizzes_taken.schema";
 
 @Injectable()
 export class LearnService {
-    constructor(@InjectModel(LearnResources.name) private learnModel: Model<LearnResources>, @InjectModel(ResourceTag.name) private resourceTagModel: Model<ResourceTag>) {
+    constructor(@InjectModel(LearnResources.name) private learnModel: Model<LearnResources>, @InjectModel(ResourceTag.name) private resourceTagModel: Model<ResourceTag>, @InjectModel(QuizzesTaken.name) private quizTakenModel: Model<QuizzesTaken>) {
     }
 
     async create(createLearnDto: CreateLearnDto) {
@@ -59,6 +62,20 @@ export class LearnService {
 
     async getAllResourceTags() {
         return successResponse(await this.resourceTagModel.find())
+    }
+
+    async storeQuizzesTaken(quizId: Types.ObjectId, quizzesTakenDto: QuizzesTakenDto, user: UserDocument) {
+       if(!await this.quizTakenModel.findOne({user:user.id, quiz_id:quizId})){
+           const data = {
+               quiz_id: quizId,
+               answers: quizzesTakenDto.answers,
+               user: user.id,
+               score: 0,
+               taken_at: Date.now()
+           }
+           await this.quizTakenModel.create(data)
+       }
+        return successResponse('recorded successfully')
     }
 }
 
