@@ -16,12 +16,6 @@ import {Public} from "../decorators/public-endpoint.decorator";
 export class CompetitionsController {
     constructor(private readonly competitionsService: CompetitionsService) {
     }
-
-    @Get('/portfolio')
-    async portfolio(@Query() query: PortfolioDto, @AuthUser() user:UserDocument) {
-        return this.competitionsService.portfolio(query, user)
-    }
-
     @Post()
     create(@Body() createCompetitionDto: CreateCompetitionDto, @AuthUser() user: UserDocument) {
         return this.competitionsService.create(user, createCompetitionDto);

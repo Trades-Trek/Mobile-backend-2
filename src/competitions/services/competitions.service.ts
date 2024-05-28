@@ -71,9 +71,27 @@ export class CompetitionsService {
     }
 
     async findAll(user: UserDocument, pagination: Pagination) {
-        const myCompetitions = await this.competitionModel.find({owner: user.id}).limit(pagination.limit).skip(pagination.page);
-        return successResponse({my_competitions: myCompetitions})
+        // retrieve competition
+        let competitionsJoined = await this.participantModel.find({participant: user.id}).lean().populate('competition', 'name id description owner').select('participant id competition').exec();
+        let competitions = []
+        if (competitionsJoined && competitionsJoined.length) {
+            for (const c of competitionsJoined) {
+                const {
+                    cash_value,
+                    account_value,
+                    today_percentage_change,
+                } = await this.portfolio({competition_id: c.competition._id}, user, true)
+                c.competition['cash_value'] = cash_value;
+                c.competition['account_value'] = account_value;
+                c.competition['today_percentage_change'] = today_percentage_change
+                console.log(c.competition)
+                competitions.push(c.competition)
+            }
+        }
+
+        return successResponse({competitions})
     }
+
 
     async findOne(filter: {}): Promise<CompetitionDocument | undefined> {
         return this.competitionModel.findOne(filter)
@@ -179,13 +197,15 @@ export class CompetitionsService {
         return totalStartingCash[0].starting_cash;
     }
 
+
     async portfolio(portfolioDto: PortfolioDto, user: UserDocument, useService: boolean = false): Promise<{
         today_percentage_change: number,
         cash_value: number,
         account_value: number
     } | any> {
         // retrieve competition
-        const competition = portfolioDto.competition_id ? await this.findOne({'_id': portfolioDto.competition_id}) : await this.findOne({is_default: true})
+
+        let competition = await this.competitionModel.findOne({'_id': portfolioDto.competition_id})
         if (!competition) returnErrorResponse('Competition does not exist')
 
         const todayPercentageChange = await this.accountValueService.getTodayPercentageChange(user, competition.id)

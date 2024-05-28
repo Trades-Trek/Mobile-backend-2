@@ -7,14 +7,14 @@ export const GetPagination = createParamDecorator((data, ctx: ExecutionContext):
 
     const paginationParams: Pagination = {
         page: 0,
-        limit: 10,
+        limit: 0,
         sort: [],
         search: [],
         filter: null
     };
 
     paginationParams.page = req.query.page ? parseInt(req.query.page.toString()) - 1 : 0;
-    paginationParams.limit = req.query.limit ? parseInt(req.query.limit.toString()) : 10;
+    paginationParams.limit = req.query.limit ? parseInt(req.query.limit.toString()) : 20;
     paginationParams.filter = req.query.filter ? req.query.filter.toString() : null;
 
     // create array of sort

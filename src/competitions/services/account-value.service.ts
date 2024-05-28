@@ -10,7 +10,7 @@ import {Pagination} from "../../enums/pagination.enum";
 
 @Injectable()
 export class AccountValueService {
-    constructor( @Inject(forwardRef(() => CompetitionsService)) private competitionService: CompetitionsService,  @Inject(forwardRef(() => OrdersService)) private orderService: OrdersService, private stockPriceService: StockPriceService, @InjectModel(AccountValue.name) private accountValueModel: Model<AccountValue>) {
+    constructor(@Inject(forwardRef(() => CompetitionsService)) private competitionService: CompetitionsService, @Inject(forwardRef(() => OrdersService)) private orderService: OrdersService, private stockPriceService: StockPriceService, @InjectModel(AccountValue.name) private accountValueModel: Model<AccountValue>) {
     }
 
     async getAccountAndCashValue(user: UserDocument, competitionId: Types.ObjectId): Promise<{ accountValue: number, cashValue: number }> {
@@ -34,10 +34,12 @@ export class AccountValueService {
     }
 
     async getTodayPercentageChange(user: UserDocument, competitionId: Types.ObjectId): Promise<number> {
-        const previousAccountValue = await this.getPreviousAccountValue(user, competitionId) ?? 0
+        const prevAccountVal = await this.getPreviousAccountValue(user, competitionId)
+        const previousAccountValue = prevAccountVal ? prevAccountVal : 0
         const {accountValue: latestAccountValue} = await this.getAccountAndCashValue(user, competitionId)
-        const increaseOrDecrease = previousAccountValue - latestAccountValue
-        return (increaseOrDecrease / previousAccountValue) * 100
+        const increaseOrDecrease = latestAccountValue - previousAccountValue
+        console.log((previousAccountValue < latestAccountValue ? increaseOrDecrease / previousAccountValue : increaseOrDecrease / latestAccountValue) * 100)
+        return (previousAccountValue < latestAccountValue ? increaseOrDecrease / previousAccountValue : increaseOrDecrease / latestAccountValue) * 100
     }
 
     async createNewAccountValue(userId: Types.ObjectId, value, competitionId: Types.ObjectId) {
