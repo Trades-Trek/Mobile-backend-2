@@ -1,4 +1,4 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete} from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, Query} from '@nestjs/common';
 import {StockPriceService} from './services/stock_price.service';
 import {CreateStockDto} from './dto/create-stock.dto';
 import {UpdateStockDto} from './dto/update-stock.dto';
@@ -15,8 +15,8 @@ export class StockController {
 
 
     @Get()
-    findAll() {
-        return this.stockPriceService.findAll();
+    findAll(@Query() query:Pagination,  @GetPagination() pagination: Pagination) {
+        return this.companyService.findAll(pagination);
     }
 
     @Public()
@@ -40,7 +40,13 @@ export class StockController {
     @Public()
     @Get('/top-gainers')
     topGainers(@GetPagination() pagination: Pagination) {
-        return this.stockPriceService.getTopGainers(pagination);
+        return this.companyService.getTopGainers(pagination);
+    }
+
+    @Public()
+    @Get('/top-losers')
+    topLosers(@GetPagination() pagination: Pagination) {
+        return this.companyService.getTopLosers(pagination);
     }
 
 }

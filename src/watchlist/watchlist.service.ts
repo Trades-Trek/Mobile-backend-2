@@ -54,10 +54,16 @@ export class WatchlistService {
 
 
     async findAll(user: UserDocument, paginationParams: Pagination) {
-        const watchLists = await this.watchlistModel.find({user}, {}, {
+        const watchLists = await this.watchlistModel.find({user:user.id}, {}, {
             limit: paginationParams.limit,
             skip: paginationParams.page
-        })
+        }).lean().select('id symbol').exec();
+
+        if(watchLists && watchLists.length) {
+            for (const w of watchLists){
+                w['company'] = await this.companyService.findCompany({'ticker_symbol': w.symbol}, ['ticker_symbol', 'name', 'logo_url'])
+            }
+        }
         return successResponse({my_watch_lists: watchLists})
     }
 

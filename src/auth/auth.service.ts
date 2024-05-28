@@ -89,7 +89,7 @@ export class AuthService {
         const decryptedPassword = useEncryptionService().decryptData(password, this.configService.get('ENCRYPTION_KEY'))
         console.log(`decrypted password - ${decryptedPassword}`)
 
-        if (!await this.comparePassword(decryptedPassword ?? password, user.password)) returnErrorResponse('Invalid credentials')
+        if (!await this.comparePassword(decryptedPassword ? decryptedPassword : password, user.password)) returnErrorResponse('Invalid credentials')
 
         const accessToken = user.verified ? await this.generateAccessToken(user._id, user.username) : await this.otpService.sendOtpViaEmail(user.email, true, user.full_name);
         // load client user data
@@ -190,6 +190,7 @@ export class AuthService {
     }
 
     async comparePassword(password, hashedPassword) {
+        console.log(password)
         return await bcrypt.compare(password, hashedPassword)
     }
 

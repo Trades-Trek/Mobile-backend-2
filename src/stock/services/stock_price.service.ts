@@ -29,10 +29,6 @@ export class StockPriceService {
         return await this.stockPriceRepository.findOne({where: filter, select: columns_to_load});
     }
 
-    async getTopGainers(pagination: Pagination) {
-        const topGainers = await this.stockPriceRepository.createQueryBuilder("stocks").groupBy("stocks.symbol").orderBy("stocks.last", "DESC").getMany()
-        return successResponse({topGainers})
-    }
 
 
 

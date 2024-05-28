@@ -7,6 +7,7 @@ import {Company} from "../entities/companies.entity";
 import {ERROR_MESSAGES} from "../../enums/error-messages";
 import {Exchange} from "../entities/exchange.entity";
 import {StockNews} from "../entities/stock_news.entity";
+import {Pagination} from "../../enums/pagination.enum";
 
 @Injectable()
 export class CompanyService {
@@ -15,8 +16,25 @@ export class CompanyService {
     }
 
 
-    async findAll() {
-        const companies = await this.companyRepository.find();
+    async findAll(pagination: Pagination) {
+        const companies = await this.companyRepository.find({
+            relations:{stock_price:true},
+            select: {
+                id:true,
+                name: true,
+                logo_url: true,
+                watchlist_points:true,
+                trade_points:true,
+                stock_price: {
+                    per_change: true,
+                    last: true,
+                    open: true
+                }
+            },
+            order: {watchlist_points: 'DESC'},
+            take: pagination.limit,
+            skip: pagination.page
+        });
         return successResponse({companies})
     }
 
@@ -91,6 +109,17 @@ export class CompanyService {
             stockSymbolTwo: stockTwo
         }
         return successResponse(responseData)
+    }
+
+    async getTopGainers(pagination: Pagination) {
+        const topGainers = await this.companyRepository.createQueryBuilder("companies").select(['companies.name', 'companies.ticker_symbol', 'companies.logo_url', 'companies.id', 'stock_price.per_change', 'stock_price.last', 'stock_price.symbol']).leftJoin("companies.stock_price", 'stock_price').groupBy("stock_price.symbol").orderBy("stock_price.per_change", "DESC").skip(pagination.page).take(pagination.limit).getMany();
+        return successResponse({top_gainers: topGainers})
+    }
+
+    async getTopLosers(pagination: Pagination) {
+        const topLosers = await this.companyRepository.createQueryBuilder("companies").select(['companies.name', 'companies.ticker_symbol', 'companies.logo_url', 'companies.id', 'stock_price.per_change', 'stock_price.last', 'stock_price.symbol']).leftJoin("companies.stock_price", 'stock_price').groupBy("stock_price.symbol").orderBy("stock_price.per_change", "ASC").skip(pagination.page).take(pagination.limit).getMany();
+
+        return successResponse({top_losers: topLosers})
     }
 
 
