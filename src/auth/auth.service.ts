@@ -97,10 +97,12 @@ export class AuthService {
             field: USER.EMAIL,
             data: email,
         })
+        const message = user.verified ?'Login successful' : 'A one time passcode has been sent to your email';
         return successResponse({
             is_verified: user.verified,
             access_token: accessToken,
-            user: user.verified ? user : null
+            user: user.verified ? user : null,
+            message
         })
 
     }
@@ -154,6 +156,7 @@ export class AuthService {
     }
 
     async verifyOtp(sendOtpDto: VerifyOtpDto) {
+        console.log(sendOtpDto)
         const {email, otp, request_password_reset} = sendOtpDto;
         const user = await this.userService.findOne({
             field: USER.EMAIL,
