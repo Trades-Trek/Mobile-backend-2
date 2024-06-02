@@ -7,7 +7,7 @@ import {AuthUser} from "../decorators/user.decorator";
 import {User, UserDocument} from "../users/schemas/user.schema";
 
 @Controller('notifications')
-export class ForumController {
+export class NotificationsController {
     constructor(private readonly notificationService: NotificationsService) {
     }
 
