@@ -1,6 +1,9 @@
 const minStartingCash: number = parseInt(process.env.MIN_STARTING_CASH)
 
 export enum ERROR_MESSAGES {
+    UNAUTHORISED = 'Unauthorised',
+    INVALID_CREDENTIALS = 'Invalid credentials',
+    INVALID_USER = 'User does not exist',
     COMPETITION_REQUEST_NOT_FOUND = 'Could not find competition request',
     LEARN_RESOURCE_NOT_FOUND = 'could not find learn resource',
     CATEGORY_NOT_FOUND = 'Could not find category',

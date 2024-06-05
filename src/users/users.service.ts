@@ -38,6 +38,7 @@ export class UsersService {
             password: createUserDto.password,
             role: createUserDto.role ?? 'user',
             verified: createUserDto.is_verified ?? false
+
         }
         return await this.userModel.create(data)
     }

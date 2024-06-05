@@ -26,12 +26,13 @@ import {SUBSCRIPTION_DURATION} from "../enums/subscription_duration";
 import {CompetitionsService} from "../competitions/services/competitions.service";
 import {useEncryptionService} from "../services/aes-encrypt";
 import {ConfigService} from "@nestjs/config";
+import {NotificationsService} from "../notifications/notifications.service";
 
 const bcrypt = require("bcrypt");
 
 @Injectable()
 export class AuthService {
-    constructor(private userService: UsersService, private otpService: OtpService, private jwtService: JwtService, private referralService: ReferralsService, private subscriptionService: SubscriptionsService, private planService: PlansService, private competitionService: CompetitionsService, private configService: ConfigService) {
+    constructor(private userService: UsersService, private otpService: OtpService, private jwtService: JwtService, private referralService: ReferralsService, private subscriptionService: SubscriptionsService, private planService: PlansService, private competitionService: CompetitionsService, private configService: ConfigService, private notificationService: NotificationsService) {
     }
 
     async signup(createAuthDto: SignupDto) {
@@ -87,17 +88,24 @@ export class AuthService {
         if (!user) returnErrorResponse('User does not exist')
 
         const decryptedPassword = useEncryptionService().decryptData(password, this.configService.get('ENCRYPTION_KEY'))
-        console.log(`decrypted password - ${decryptedPassword}`)
 
         if (!await this.comparePassword(decryptedPassword ? decryptedPassword : password, user.password)) returnErrorResponse('Invalid credentials')
 
         const accessToken = user.verified ? await this.generateAccessToken(user._id, user.username) : await this.otpService.sendOtpViaEmail(user.email, true, user.full_name);
         // load client user data
-        if (user.verified) user = await this.userService.findOne({
-            field: USER.EMAIL,
-            data: email,
-        })
-        const message = user.verified ?'Login successful' : 'A one time passcode has been sent to your email';
+        if (user.verified) {
+            user = await this.userService.findOne({
+                field: USER.EMAIL,
+                data: email,
+            })
+            this.notificationService.create({
+                user_id: user.id,
+                title: 'Login successful',
+                description: SUCCESS_MESSAGES.LOGGED_IN_SUCCESS
+            })
+        }
+
+        const message = user.verified ? 'Login successful' : 'A one time passcode has been sent to your email';
         return successResponse({
             is_verified: user.verified,
             access_token: accessToken,
@@ -182,7 +190,7 @@ export class AuthService {
         return successResponse({verified: true, message: SUCCESS_MESSAGES.BVN_VERIFIED})
     }
 
-    async authUser(userId: ObjectId) {
+    async authUser(userId: Types.ObjectId) {
         return successResponse({user: await this.userService.findOne({field: USER.ID, data: userId})})
     }
 
@@ -193,7 +201,6 @@ export class AuthService {
     }
 
     async comparePassword(password, hashedPassword) {
-        console.log(password)
         return await bcrypt.compare(password, hashedPassword)
     }
 

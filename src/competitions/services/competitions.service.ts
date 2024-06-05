@@ -72,7 +72,6 @@ export class CompetitionsService {
 
     async findAll(user: UserDocument, pagination: Pagination) {
         // retrieve competition
-        console.log(user.id)
         let competitionsJoined = await this.participantModel.find({participant: user.id}).lean().populate('competition', 'name id description owner is_default').select('participant id competition').exec();
         console.log(`comp joined ${competitionsJoined}`)
         let competitions = []

@@ -31,6 +31,7 @@ import { OrdersModule } from './orders/orders.module';
 import {ScheduleModule} from "@nestjs/schedule";
 import {EventEmitterModule} from "@nestjs/event-emitter";
 import { LearnModule } from './learn/learn.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
     imports: [
@@ -93,6 +94,7 @@ import { LearnModule } from './learn/learn.module';
         ForumModule,
         OrdersModule,
         LearnModule,
+        AdminModule,
     ],
     controllers: [AppController],
     providers: [AppService],

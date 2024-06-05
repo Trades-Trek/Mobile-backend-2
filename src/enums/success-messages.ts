@@ -1,4 +1,5 @@
 export enum SUCCESS_MESSAGES {
+    LOGGED_IN_SUCCESS= 'You just logged in successfully',
     BVN_VERIFIED = 'Bvn verified successfully',
     VERIFIED_TRANSACTION = 'Transaction verified successfully',
     LEARN_RESOURCE_CREATED = 'Learn resource created successfully',

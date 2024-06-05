@@ -14,8 +14,7 @@ import {AuthUser} from "../decorators/user.decorator";
 import {User, UserDocument} from "../users/schemas/user.schema";
 import {successResponse} from "../utils/response";
 import {AuthId} from "../decorators/user_id.decorator";
-import {ObjectId} from "mongoose";
-
+import {ObjectId, Types} from "mongoose";
 import {VerifyBvnAndPhoneDto} from "./dto/verify-bvn.dto";
 
 @Controller('auth')
@@ -97,7 +96,7 @@ export class AuthController {
         status: HttpStatus.OK,
     })
     @Get('user')
-    authUser(@AuthId() userId: ObjectId) {
+    authUser(@AuthId() userId: Types.ObjectId) {
         return this.authService.authUser(userId)
     }
 

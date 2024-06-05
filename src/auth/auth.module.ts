@@ -32,6 +32,7 @@ import {SubscriptionsModule} from "../subscriptions/subscriptions.module";
         provide: APP_GUARD,
         useClass: AuthGuard
     }, AuthService, GoogleStrategy],
+    exports:[AuthService, JwtModule]
 })
 export class AuthModule {
 }
