@@ -35,7 +35,7 @@ export class SubscriptionsService {
         // ensure recipient is not subscribed to a paid plan
         if (recipient.has_subscribed && !recipient.subscription.has_expired) returnErrorResponse(ERROR_MESSAGES.RECIPIENT_ON_PAID_PLAN)
         // convert plan price to trek coins
-        const planAmountInTrekCoins = this.walletService.convertToTrekCoins(plan.amount)
+        const planAmountInTrekCoins = await this.walletService.convertToTrekCoins(plan.amount)
         // ensure giver has enough trek coins
         if (giver.trek_coin_balance < planAmountInTrekCoins) returnErrorResponse(ERROR_MESSAGES.INSUFFICIENT_TREK_COINS_BALANCE)
 
@@ -65,7 +65,7 @@ export class SubscriptionsService {
             if (userSub.plan_type === PLAN_TYPE.PAID && !userSub.has_expired) returnErrorResponse(ERROR_MESSAGES.PAID_PLAN_ACTIVE)
         }
         // check if user has enough funds in his/her trek coin balance
-        const planAmountInTrekCoins = this.walletService.convertToTrekCoins(plan.amount)
+        const planAmountInTrekCoins = await this.walletService.convertToTrekCoins(plan.amount)
         if (user.trek_coin_balance < planAmountInTrekCoins && plan.type === PLAN_TYPE.PAID) returnErrorResponse(ERROR_MESSAGES.INSUFFICIENT_TREK_COINS_BALANCE)
         // subscribe user to this plan
         await this.createOrRenewSubscription(user, plan)
@@ -78,7 +78,7 @@ export class SubscriptionsService {
         const userSub = user.subscription;
         if (!userSub.has_expired) returnErrorResponse(ERROR_MESSAGES.SUBSCRIPTION_EXPIRED)
         const plan: PlanDocument | undefined = await this.planService.findOne(userSub.plan_id)
-        const planAmountInTrekCoins = this.walletService.convertToTrekCoins(plan.amount)
+        const planAmountInTrekCoins = await this.walletService.convertToTrekCoins(plan.amount)
         if (user.trek_coin_balance < planAmountInTrekCoins) returnErrorResponse(ERROR_MESSAGES.INSUFFICIENT_TREK_COINS_BALANCE)
         // renew plan
         await this.createOrRenewSubscription(user, plan, true)
@@ -90,7 +90,7 @@ export class SubscriptionsService {
     async createOrRenewSubscription(user: UserDocument, plan: PlanDocument, isRenew: boolean = false, debitTrekCoins: boolean = true, sendNotification: boolean = true): Promise<boolean> {
         const today = useDayJs.getDate();
         const renewalDate = useDayJs.addDays(today, plan.no_of_days)
-        const trekCoins = this.walletService.convertToTrekCoins(plan.amount)
+        const trekCoins = await this.walletService.convertToTrekCoins(plan.amount)
         if (debitTrekCoins) await this.walletService.debitUserTrekCoins(user, trekCoins)
         await user.updateOne({
             has_subscribed: true,

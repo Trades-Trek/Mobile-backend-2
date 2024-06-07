@@ -1,0 +1,22 @@
+import {Injectable} from '@nestjs/common';
+import {CreateAppSettingDto} from './dto/create-app-setting.dto';
+import {UpdateAppSettingDto} from './dto/update-app-setting.dto';
+import {InjectModel} from "@nestjs/mongoose";
+import {AppSetting} from "./schemas/app-setting.schema";
+import {Model} from "mongoose";
+
+@Injectable()
+export class AppSettingsService {
+    constructor(@InjectModel(AppSetting.name) private appSettingModel: Model<AppSetting>) {
+    }
+
+    create(createAppSettingDto: CreateAppSettingDto) {
+        return 'This action adds a new appSetting';
+    }
+
+
+    async getSettings(): Promise<AppSetting> {
+        return await this.appSettingModel.findOne({where: {is_global: true}}).exec();
+    }
+
+}
