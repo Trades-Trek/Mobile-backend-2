@@ -1,8 +1,8 @@
 import {Controller, Get, Post, Body, Patch, Param, Delete} from '@nestjs/common';
 import {AppSettingsService} from './app-settings.service';
-import {CreateAppSettingDto} from './dto/create-app-setting.dto';
 import {UpdateAppSettingDto} from './dto/update-app-setting.dto';
 import {successResponse} from "../utils/response";
+import {Types} from "mongoose";
 
 @Controller('app-settings')
 export class AppSettingsController {
@@ -16,8 +16,8 @@ export class AppSettingsController {
     }
 
     @Patch(':id')
-    update(@Param('id') id: string, @Body() updateAppSettingDto: UpdateAppSettingDto) {
-        // return this.appSettingsService.update(+id, updateAppSettingDto);
+    update(@Param('id') id: Types.ObjectId, @Body() updateAppSettingDto: UpdateAppSettingDto) {
+        return this.appSettingsService.update(id, updateAppSettingDto);
     }
 
 }
