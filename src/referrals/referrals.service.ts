@@ -1,5 +1,5 @@
 import {forwardRef, Inject, Injectable} from '@nestjs/common';
-import {ReferralDto} from './dto/referral.dto';
+import {ReferralDto, ReferralQueryDto} from './dto/referral.dto';
 import {InjectModel} from "@nestjs/mongoose";
 import {Referral, ReferralDocument} from "./schemas/referral.schema";
 import {Model} from "mongoose";
@@ -13,13 +13,14 @@ import {NotificationsService} from "../notifications/notifications.service";
 import useDayJs from '../services/dayjs'
 import {ERROR_MESSAGES} from "../enums/error-messages";
 import {ACTIVITY_ENTITY} from "../enums/activities.enum";
+import {Pagination} from "../enums/pagination.enum";
 
 @Injectable()
 export class ReferralsService {
     constructor(@InjectModel(Referral.name) private referralModel: Model<Referral>, private queueService: QueueService, private configService: ConfigService, @Inject(forwardRef(() => WalletService)) private walletService: WalletService, private notificationService: NotificationsService) {
     }
 
-    async findOrCreate(email: string, referrer: UserDocument, entity?:ACTIVITY_ENTITY) {
+    async findOrCreate(email: string, referrer: UserDocument, entity?: ACTIVITY_ENTITY) {
         return await this.referralModel.findOne({email}) ?? await this.referralModel.create({
             email,
             referrer,
@@ -74,13 +75,13 @@ export class ReferralsService {
     }
 
     async joined(referrer: UserDocument, referral: ReferralDocument): Promise<void> {
-        await referral.updateOne({joined: true, joined_date: useDayJs.getDate()}, {new:true})
+        await referral.updateOne({joined: true, joined_date: useDayJs.getDate()}, {new: true})
         // inform referrer via push
     }
 
     async reward(referrer: UserDocument, referral: ReferralDocument): Promise<void> {
         const trekCoinsEarned = parseInt(this.configService.get('REFERRAL_REWARD'))
-        await referral.updateOne({amount_earned: trekCoinsEarned}, {new:true})
+        await referral.updateOne({amount_earned: trekCoinsEarned}, {new: true})
         // credit referrer's trek coins with amount earned
         this.walletService.creditUserTrekCoins(referrer, trekCoinsEarned)
         // notify user
@@ -90,6 +91,17 @@ export class ReferralsService {
             user_id: referrer.id
         })
 
+    }
+
+    // admin resource
+    async getAllReferrals(referralQueryDto: ReferralQueryDto, pagination: Pagination) {
+        let filter = {};
+        if (referralQueryDto.joined) {
+            filter['joined'] = true;
+        }
+        const count = await this.referralModel.countDocuments(filter);
+        const referrals = await this.referralModel.find(filter).populate('referrer', 'full_name _id').sort({created_at: -1}).skip(pagination.page).limit(pagination.limit)
+        return successResponse({referrals, total_rows: count})
     }
 
 
