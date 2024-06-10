@@ -14,8 +14,10 @@ import {UserDocument} from "../../users/schemas/user.schema";
 import {WatchlistPriceAlertDto} from "../../watchlist/dto/watchlist.dto";
 import {AdminGuard} from "../../guards/admin.guard";
 import {TransactionsService} from "../../transactions/transactions.service";
+import {ApiTags} from "@nestjs/swagger";
 
 @UseGuards(AdminGuard)
+@ApiTags('Admin')
 @Controller('admin/users')
 export class AdminUserController {
     constructor(private usersService: UsersService, private adminService: AdminService, private watchlistService: WatchlistService, private transactionsService: TransactionsService) {
