@@ -16,10 +16,11 @@ import usePaystackService from '../services/paystack'
 import {UsersService} from "../users/users.service";
 import {USER} from "../users/enums/user.enum";
 import {ReferralsService} from "../referrals/referrals.service";
+import {AppSettingsService} from "../app-settings/app-settings.service";
 
 @Injectable()
 export class WalletService {
-    constructor(@Inject(forwardRef(() => TransactionsService)) private transactionService: TransactionsService, private notificationService: NotificationsService, private configService: ConfigService, private bankService: BanksService, @Inject(forwardRef(() => UsersService)) private userService: UsersService, private referralService: ReferralsService) {
+    constructor(@Inject(forwardRef(() => TransactionsService)) private transactionService: TransactionsService, private notificationService: NotificationsService, private appSettingsService: AppSettingsService, private bankService: BanksService, @Inject(forwardRef(() => UsersService)) private userService: UsersService, private referralService: ReferralsService) {
     }
 
     async transferToBankAccount(user: UserDocument, bankTransferDto: BankTransferDto): Promise<any> {
@@ -49,7 +50,7 @@ export class WalletService {
 
     async fundTrekCoinsViaWallet(user: UserDocument, fundTrekCoinsDto: FundTrekCoinsDto) {
         const {cash} = fundTrekCoinsDto;
-        const trekCoins = this.convertToTrekCoins(cash)
+        const trekCoins = await this.convertToTrekCoins(cash)
         if (user.wallet.balance < cash) returnErrorResponse(ERROR_MESSAGES.INSUFFICIENT_WALLET_BALANCE)
         await this.debitUserWallet(user, cash)
         await this.creditUserTrekCoins(user, trekCoins)
@@ -65,7 +66,9 @@ export class WalletService {
             if (referrer && referral) this.referralService.reward(referrer, referral)
         }
         if (user.is_first_trek_coins_purchase) await user.updateOne({is_first_trek_coins_purchase: false})
-        const conversionRate = this.configService.get('TREK_COINS_CONVERSION_RATE_IN_NAIRA')
+
+        const {TREK_COINS_CONVERSION_RATE_IN_NAIRA: conversionRate} = await this.appSettingsService.getSettings()
+
         return successResponse({
             message: SUCCESS_MESSAGES.TREK_COINS_FUNDED,
             conversion_rate: conversionRate,
@@ -75,11 +78,12 @@ export class WalletService {
 
     async withdrawTrekCoins(user: UserDocument, fundTrekCoinsDto: FundTrekCoinsDto) {
         const {cash} = fundTrekCoinsDto;
-        const trekCoins = this.convertToTrekCoins(cash)
+        const trekCoins = await this.convertToTrekCoins(cash)
         if (user.trek_coin_balance < trekCoins) returnErrorResponse(ERROR_MESSAGES.INSUFFICIENT_TREK_COINS_BALANCE)
         await this.debitUserTrekCoins(user, trekCoins)
         await this.creditUserWallet(user, cash)
-        const conversionRate = this.configService.get('TREK_COINS_CONVERSION_RATE_IN_NAIRA')
+
+        const {TREK_COINS_CONVERSION_RATE_IN_NAIRA: conversionRate} = await this.appSettingsService.getSettings()
         return successResponse({
             message: SUCCESS_MESSAGES.TREK_COINS_FUNDED,
             conversion_rate: conversionRate,
@@ -172,13 +176,14 @@ export class WalletService {
         return true
     }
 
-    convertToTrekCoins(amount: number, currency = DEFAULT_CURRENCY.code): number {
-        console.log(amount)
-        return amount / parseInt(this.configService.get('TREK_COINS_CONVERSION_RATE_IN_NAIRA'))
+    async convertToTrekCoins(amount: number, currency = DEFAULT_CURRENCY.code): Promise<number> {
+        const {TREK_COINS_CONVERSION_RATE_IN_NAIRA} = await this.appSettingsService.getSettings()
+        return amount / TREK_COINS_CONVERSION_RATE_IN_NAIRA
     }
 
-    convertTrekCoinsToCash(trekCoins: number, currency = DEFAULT_CURRENCY.code): number {
-        return trekCoins * parseInt(this.configService.get('TREK_COINS_CONVERSION_RATE_IN_NAIRA'))
+    async convertTrekCoinsToCash(trekCoins: number, currency = DEFAULT_CURRENCY.code): Promise<number> {
+        const {TREK_COINS_CONVERSION_RATE_IN_NAIRA} = await this.appSettingsService.getSettings()
+        return trekCoins * TREK_COINS_CONVERSION_RATE_IN_NAIRA
     }
 
 

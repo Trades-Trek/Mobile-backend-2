@@ -8,3 +8,9 @@ export interface Pagination {
 
 
 }
+
+export class PaginationDto {
+  page?:number;
+  limit?:number;
+  filter?:string
+}

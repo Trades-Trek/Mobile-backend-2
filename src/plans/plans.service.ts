@@ -1,15 +1,15 @@
 import {Injectable} from '@nestjs/common';
 import {CreatePlanDto} from './dto/create-plan.dto';
-import {UpdatePlanDto} from './dto/update-plan.dto';
 import {InjectModel} from "@nestjs/mongoose";
-import {Plan, PlanDocument, PlanSchema} from "./schemas/plan.schema";
+import {Plan, PlanDocument} from "./schemas/plan.schema";
 import {Model, Types} from "mongoose";
-import {returnErrorResponse, successResponse} from "../utils/response";
+import {successResponse} from "../utils/response";
 import {FeaturesService} from "../features/features.service";
 import {PlanFeature} from "./schemas/plan_features.schema";
 import {CreateListingDto} from "./dto/create-listing.dto";
 import {Listing} from "./schemas/listing.schema";
 import {PlanListing} from "./schemas/plan_listings.schema";
+import {SUCCESS_MESSAGES} from "../enums/success-messages";
 
 @Injectable()
 export class PlansService {
@@ -30,14 +30,16 @@ export class PlansService {
                 await this.planListingModel.create({plan: plan.id, listing})
             }
         }
-        return successResponse({plan, message: 'plan created successfully'})
+        return successResponse({plan, message: planId ? SUCCESS_MESSAGES.PLAN_CREATED : SUCCESS_MESSAGES.PLAN_UPDATED})
     }
 
 
-    async findAll(populateFeatures:boolean = false) {
-        const plans = await this.planModel.aggregate().lookup({from: 'planlistings',
+    async findAll(populateFeatures: boolean = false) {
+        const plans = await this.planModel.aggregate().lookup({
+            from: 'planlistings',
             localField: '_id', foreignField: 'plan',
-            as: 'listings'})
+            as: 'listings'
+        })
         return successResponse({plans})
     }
 
@@ -54,7 +56,7 @@ export class PlansService {
 
     }
 
-    async findOne(filter:{}): Promise<PlanDocument | undefined> {
+    async findOne(filter: {}): Promise<PlanDocument | undefined> {
         return this.planModel.findOne(filter);
     }
 

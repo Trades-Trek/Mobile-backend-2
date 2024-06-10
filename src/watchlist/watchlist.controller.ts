@@ -34,8 +34,8 @@ export class WatchlistController {
     }
 
 
-    @Delete(':watchlist_id')
-    remove(@Param('watchlist_id') id: Types.ObjectId) {
-        return this.watchlistService.remove(id);
+    @Delete(':symbol')
+    remove(@Param('symbol') symbol: string, @AuthUser() user:UserDocument) {
+        return this.watchlistService.remove(user,symbol);
     }
 }

@@ -18,10 +18,11 @@ import {SUCCESS_MESSAGES} from "../enums/success-messages";
 import {ERROR_MESSAGES} from "../enums/error-messages";
 import {WalletService} from "../wallet/wallet.service";
 import {ConfigService} from "@nestjs/config";
+import {Pagination} from "../enums/pagination.enum";
 
 @Injectable()
 export class TransactionsService {
-    constructor(@InjectModel(Transaction.name) private transactionModel: Model<Transaction>, @Inject(forwardRef(() => UsersService)) private userService: UsersService, private walletService: WalletService, private configService:ConfigService) {
+    constructor(@InjectModel(Transaction.name) private transactionModel: Model<Transaction>, @Inject(forwardRef(() => UsersService)) private userService: UsersService, private walletService: WalletService, private configService: ConfigService) {
     }
 
     async create(createTransactionDto: CreateTransactionDto): Promise<void> {
@@ -29,9 +30,10 @@ export class TransactionsService {
         await this.transactionModel.create(createTransactionDto)
     }
 
-    async getUserTransactions(user:UserDocument){
-        const transactions = await this.transactionModel.find({user_id:user.id});
-        return successResponse({transactions})
+    async getUserTransactions(user: UserDocument, pagination: Pagination) {
+        const count = await this.transactionModel.countDocuments({user_id: user.id})
+        const transactions = await this.transactionModel.find({user_id: user.id}).sort({created_at: -1}).skip(pagination.page).limit(pagination.limit);
+        return successResponse({transactions, total_rows: count})
     }
 
     async paystackWebhookHandler(payload: any) {

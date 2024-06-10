@@ -72,7 +72,6 @@ export class CompetitionsService {
 
     async findAll(user: UserDocument, pagination: Pagination) {
         // retrieve competition
-        console.log(user.id)
         let competitionsJoined = await this.participantModel.find({participant: user.id}).lean().populate('competition', 'name id description owner is_default').select('participant id competition').exec();
         console.log(`comp joined ${competitionsJoined}`)
         let competitions = []
@@ -140,9 +139,9 @@ export class CompetitionsService {
 
     getMinAndMaxStartingCash(): { minStartingCash: number, maxStartingCash: number, capacityFee: number } {
         return {
-            minStartingCash: parseInt(this.configService.get('MIN_STARTING_CASH')),
-            maxStartingCash: parseInt(this.configService.get('MAX_STARTING_CASH')),
-            capacityFee: parseInt(this.configService.get('CAPACITY_FEE'))
+            minStartingCash: this.configService.get('MIN_STARTING_CASH'),
+            maxStartingCash: this.configService.get('MAX_STARTING_CASH'),
+            capacityFee: this.configService.get('CAPACITY_FEE')
         }
     }
 

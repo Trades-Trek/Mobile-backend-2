@@ -1,4 +1,9 @@
 export enum SUCCESS_MESSAGES {
+    PLAN_CREATED = 'Plan created successfully',
+    PLAN_UPDATED = 'Plan updated successfully',
+    LOGGED_IN_SUCCESS= 'You just logged in successfully',
+
+    USER_STATUS_UPDATED= 'status updated successfully',
     BVN_VERIFIED = 'Bvn verified successfully',
     VERIFIED_TRANSACTION = 'Transaction verified successfully',
     LEARN_RESOURCE_CREATED = 'Learn resource created successfully',

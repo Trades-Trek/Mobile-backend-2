@@ -3,7 +3,7 @@ import {StockPrice} from "./stock_prices.entity";
 
 @Entity('companies')
 export class Company extends BaseEntity{
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn({type:'bigint', unsigned:true})
     id:number
 
     @Column({nullable:false, type:'varchar'})

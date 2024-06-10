@@ -25,7 +25,7 @@ export class WatchlistService {
             user: user.id
         })) returnErrorResponse(ERROR_MESSAGES.ALREADY_EXIST_IN_WATCH_LIST)
         // check if stock price does exist
-        const company = await this.companyService.findCompany({ticker_symbol: stockPriceSymbol},['id', 'ticker_symbol', 'watchlist_points']);
+        const company = await this.companyService.findCompany({ticker_symbol: stockPriceSymbol}, ['id', 'ticker_symbol', 'watchlist_points']);
         if (!company) returnErrorResponse(ERROR_MESSAGES.STOCk_NOT_FOUND)
         // get stock price
         const stockPrice = await this.stockPriceService.findStockPrice({symbol: company.ticker_symbol})
@@ -46,21 +46,24 @@ export class WatchlistService {
 
         if (watchlist.user !== user.id) returnErrorResponse('Unauthorised')
         // set price alert
-        const updateFields = {price_alert:priceAlertDto.value, order: priceAlertDto.order, order_price: priceAlertDto.order_price}
+        const updateFields = {
+            price_alert: priceAlertDto.value,
+            order: priceAlertDto.order,
+            order_price: priceAlertDto.order_price
+        }
         watchlist = await this.watchlistModel.findByIdAndUpdate(watchlistId, updateFields, {new: true})
         return successResponse({watchlist, message: 'successful'})
     }
 
 
-
     async findAll(user: UserDocument, paginationParams: Pagination) {
-        const watchLists = await this.watchlistModel.find({user:user.id}, {}, {
+        const watchLists = await this.watchlistModel.find({user: user.id}, {}, {
             limit: paginationParams.limit,
             skip: paginationParams.page
         }).lean().select('id symbol').exec();
 
-        if(watchLists && watchLists.length) {
-            for (const w of watchLists){
+        if (watchLists && watchLists.length) {
+            for (const w of watchLists) {
                 w['company'] = await this.companyService.findCompany({'ticker_symbol': w.symbol}, ['ticker_symbol', 'name', 'logo_url'])
             }
         }
@@ -71,8 +74,19 @@ export class WatchlistService {
         return this.watchlistModel.findOne(filter);
     }
 
-    async remove(watchlistId: Types.ObjectId) {
-        await this.watchlistModel.findByIdAndDelete(watchlistId)
+    async remove(user: UserDocument, symbol: string) {
+        if (!await this.watchlistModel.findOneAndDelete({
+            symbol,
+            user: user.id
+        })) returnErrorResponse('Could not remove stock from watchlist')
         return successResponse(SUCCESS_MESSAGES.STOCK_PRICE_REMOVED_FROM_WATCHLIST)
     }
+
+    // admin resource
+
+    async deleteUserWatchlist(watchlistId: Types.ObjectId) {
+        if (!await this.watchlistModel.findByIdAndDelete(watchlistId)) returnErrorResponse('Could not remove stock from watchlist')
+        return successResponse(SUCCESS_MESSAGES.STOCK_PRICE_REMOVED_FROM_WATCHLIST)
+    }
+
 }

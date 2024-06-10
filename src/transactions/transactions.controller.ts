@@ -7,6 +7,8 @@ import {InitializeTransactionDto} from "./dto/intialise.dto";
 import {VerifyTransactionDto} from "./dto/verify.dto";
 import {AuthUser} from "../decorators/user.decorator";
 import {UserDocument} from "../users/schemas/user.schema";
+import {GetPagination} from "../decorators/pagination.decorator";
+import {Pagination} from "../enums/pagination.enum";
 
 const logger = require('../utils/logger');
 
@@ -31,8 +33,8 @@ export class TransactionsController {
     }
 
     @Get('transactions')
-    getUserTransactions(@AuthUser() user:UserDocument){
-        return this.transactionService.getUserTransactions(user)
+    getUserTransactions(@AuthUser() user:UserDocument, @GetPagination() pagination:Pagination){
+        return this.transactionService.getUserTransactions(user, pagination)
     }
 
     @ApiOperation({summary: "Initialize transaction/payment"})
