@@ -1,4 +1,6 @@
-import {IsNotEmpty} from "class-validator";
+import {IsEnum, IsNotEmpty} from "class-validator";
+import {Role} from "../../enums/role.enum";
+import {ApiProperty} from "@nestjs/swagger";
 
 export class CreateAdminDto {
     @IsNotEmpty()
@@ -10,8 +12,12 @@ export class CreateAdminDto {
     @IsNotEmpty()
     email:string
 
-    // @IsNotEmpty()
     phone_number:string
+
+    @ApiProperty({enum:Role})
+    @IsNotEmpty()
+    @IsEnum(Role)
+    role:Role
 
     @IsNotEmpty()
     password:string

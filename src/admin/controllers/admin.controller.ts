@@ -9,15 +9,13 @@ import {User} from "../../users/schemas/user.schema";
 import {AuthService} from "../../auth/auth.service";
 import {AuthId} from "../../decorators/user_id.decorator";
 import {Types} from "mongoose";
+import {ApiTags} from "@nestjs/swagger";
 
+@ApiTags('Admin')
 @Controller('admin')
 export class AdminController {
   constructor(private readonly adminService: AdminService, private authService:AuthService) {}
 
-  @Post('create')
-  create(@Body() createAdminDto: CreateAdminDto) {
-    return this.adminService.create(createAdminDto);
-  }
 
   @Public()
   @Post('login')
@@ -32,23 +30,4 @@ export class AdminController {
   }
 
 
-  // @Get()
-  // findAll() {
-  //   return this.adminService.findAll();
-  // }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.adminService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAdminDto: UpdateAdminDto) {
-    return this.adminService.update(+id, updateAdminDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.adminService.remove(+id);
-  }
 }

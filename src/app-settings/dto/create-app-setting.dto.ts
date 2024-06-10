@@ -1,1 +1,3 @@
-export class CreateAppSettingDto {}
+export class UpdateAppSettingsDto {
+
+}

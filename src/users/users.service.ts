@@ -18,6 +18,10 @@ import {OrdersService} from "../orders/orders.service";
 import {AccountValueService} from "../competitions/services/account-value.service";
 import {useEncryptionService} from "../services/aes-encrypt";
 import {ConfigService} from "@nestjs/config";
+import {Pagination} from "../enums/pagination.enum";
+import {ERROR_MESSAGES} from "../enums/error-messages";
+import {ChangePasswordDto} from "../admin/dto/change-password.dto";
+import {SUCCESS_MESSAGES} from "../enums/success-messages";
 
 const bcrypt = require("bcrypt");
 const crypto = require("crypto")
@@ -121,6 +125,39 @@ export class UsersService {
         updatedFields['full_name'] = updateUserDto.first_name + ' ' + updateUserDto.last_name;
         await user.updateOne(updatedFields)
         return successResponse({message: 'profile updated successfully'})
+    }
+
+    // end of client resource
+
+    // admin resources
+    async getAllUsers(pagination: Pagination) {
+        const count = await this.userModel.countDocuments({});
+        const users = await this.userModel.find().skip(pagination.page).limit(pagination.limit)
+        return successResponse({users, total_rows: count})
+    }
+
+    async updateUser(user:UserDocument, updateUserDto: UpdateUserDto) {
+        return await this.update(user, updateUserDto)
+    }
+
+    async updateUserStatus(user:UserDocument) {
+        user.is_active = !user.is_active;
+        await user.save();
+        return successResponse(SUCCESS_MESSAGES.USER_STATUS_UPDATED)
+    }
+
+    async changePassword(user: UserDocument, changePasswordDto: ChangePasswordDto) {
+        if (changePasswordDto.new_password.trim() != changePasswordDto.confirm_new_password.trim()) returnErrorResponse(ERROR_MESSAGES.INVALID_CREDENTIALS)
+
+        if (!await this.userModel.findByIdAndUpdate(user.id, {password: await bcrypt.hash(changePasswordDto.new_password, Number(10))})) returnErrorResponse(ERROR_MESSAGES.INVALID_USER)
+
+        return successResponse('password changed successfully')
+
+    }
+
+    async deleteUser(user: UserDocument) {
+        await user.deleteOne()
+        return successResponse('deleted successfully');
     }
 
 }

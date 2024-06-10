@@ -48,10 +48,4 @@ export class AuthGuard implements CanActivate {
         return type === 'Bearer' ? token : undefined;
     }
 
-    private isUserResource(request: Request, user: UserDocument): boolean {
-        if (request.params.user_id && user.role !== 'admin') {
-            return request.params.user_id === user.id;
-        }
-        return true;
-    }
 }

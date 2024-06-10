@@ -20,8 +20,8 @@ export class AdminService {
 
     async create(createAdminDto: CreateAdminDto) {
         createAdminDto.password = await bcrypt.hash(createAdminDto.password)
-        await this.userService.create({...createAdminDto, is_verified: true, role:Role.ADMIN})
-        return successResponse('Admin created successfully')
+        await this.userService.create({...createAdminDto, is_verified: true})
+        return successResponse('user created successfully')
     }
 
     async login(loginDto: LoginDto) {
@@ -49,15 +49,4 @@ export class AdminService {
     }
 
 
-    findOne(id: number) {
-        return `This action returns a #${id} admin`;
-    }
-
-    update(id: number, updateAdminDto: UpdateAdminDto) {
-        return `This action updates a #${id} admin`;
-    }
-
-    remove(id: number) {
-        return `This action removes a #${id} admin`;
-    }
 }
