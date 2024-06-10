@@ -1,5 +1,5 @@
 import {HttpStatus, Injectable, Post, Body, forwardRef, Inject} from '@nestjs/common';
-import {CreateTransactionDto} from './dto/create-transaction.dto';
+import {CreateTransactionDto, TransactionQueryDto} from './dto/create-transaction.dto';
 import {UpdateTransactionDto} from './dto/update-transaction.dto';
 import {InjectModel} from "@nestjs/mongoose";
 import {Transaction} from "./schemas/transaction.schema";
@@ -103,6 +103,17 @@ export class TransactionsService {
         const verified = await usePaystackService.verifyTransaction(verifyTransactionDto.payment_reference)
         const message = verified ? SUCCESS_MESSAGES.VERIFIED_TRANSACTION : ERROR_MESSAGES.UNVERIFIED_TRANSACTION;
         return successResponse({verified, message})
+    }
+
+    // admin resource
+    async getAllTransactions(query: TransactionQueryDto, pagination: Pagination) {
+        let filter = {}
+        if (query.entity) {
+            filter['entity'] = query.entity
+        }
+        const count = await this.transactionModel.countDocuments(filter)
+        const transactions = await this.transactionModel.find(filter).sort({created_at: -1}).skip(pagination.page).limit(pagination.limit);
+        return successResponse({transactions, total_rows: count})
     }
 
 }
