@@ -1,4 +1,4 @@
-import {Body, Controller, Delete, Get, Param, Post, Query} from '@nestjs/common';
+import {Body, Controller, Delete, forwardRef, Get, Inject, Param, Post, Query} from '@nestjs/common';
 import {CompetitionsService} from './services/competitions.service';
 import {CreateCompetitionDto, JoinCompetitionDto, PortfolioDto} from './dto/create-competition.dto';
 import {AuthUser} from "../decorators/user.decorator";
@@ -10,11 +10,13 @@ import {ApiTags} from "@nestjs/swagger";
 import {returnErrorResponse, successResponse} from "../utils/response";
 import {COMPETITION_ENTRY} from "../enums/competition.enum";
 import {Public} from "../decorators/public-endpoint.decorator";
+import {OrderQueryDto} from "../orders/dto/create-order.dto";
+import {OrdersService} from "../orders/orders.service";
 
 @ApiTags('Competitions')
 @Controller('competitions')
 export class CompetitionsController {
-    constructor(private readonly competitionsService: CompetitionsService) {
+    constructor(private readonly competitionsService: CompetitionsService, @Inject(forwardRef(() => OrdersService)) private orderService: OrdersService) {
     }
     @Post()
     create(@Body() createCompetitionDto: CreateCompetitionDto, @AuthUser() user: UserDocument) {
@@ -34,6 +36,16 @@ export class CompetitionsController {
     @Get()
     findAll(@AuthUser() user: UserDocument, @GetPagination() pagination: Pagination) {
         return this.competitionsService.findAll(user, pagination);
+    }
+
+    @Get('/orders/:competition_id')
+    async getCompOrders(@Query() query: OrderQueryDto, @Param('competition_id') competitionId: Types.ObjectId, @GetPagination() pagination: Pagination) {
+        return successResponse(await this.orderService.getOrders({competition_id: competitionId, ...query}, pagination))
+    }
+
+    @Delete('orders/:order_id')
+    async deleteOrder(@Param('order_id') orderId: Types.ObjectId, @AuthUser() user: UserDocument) {
+        return this.orderService.deleteOrder(orderId, user)
     }
 
     @Get('/requests')

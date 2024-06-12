@@ -43,4 +43,9 @@ export class AdminController {
     referrals(@Query() query: ReferralQueryDto, @GetPagination() pagination) {
         return this.referralService.getAllReferrals(query, pagination)
     }
+
+    @Get('/stock-prices')
+    getStockPrices(){
+
+    }
 }
