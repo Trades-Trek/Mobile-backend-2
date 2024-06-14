@@ -26,7 +26,7 @@ export class ForumService {
     constructor(@InjectModel(Forum.name) private forumModel: Model<Forum>, private competitionService: CompetitionsService, private activityService: ActivitiesService, private notificationService: NotificationsService, @InjectModel(Chat.name) private chatModel: Model<Chat>) {
     }
 
-    async create(createForumDto: CreateForumDto, creator: UserDocument) {
+    async create(createForumDto: CreateForumDto, creator?: UserDocument, isAdmin: boolean = false) {
         const {competition_id, topic, description} = createForumDto;
         const competition = await this.competitionService.findOne({'_id': createForumDto.competition_id})
         if (!competition) returnErrorResponse('Competition does not exist');
@@ -35,7 +35,7 @@ export class ForumService {
             competition: competition_id,
             topic,
             description,
-            creator: creator.id
+            creator: isAdmin ? competition.owner : creator.id
         }
         const forum = await this.forumModel.create(data)
         // log activity
@@ -64,14 +64,15 @@ export class ForumService {
     }
 
     async findAll(competitionId: Types.ObjectId, pagination: Pagination) {
-        const forums = await this.forumModel.find({competition: competitionId}, {}, {}).skip(pagination.page).limit(pagination.limit).sort({created_at: -1})
-        return successResponse({forums})
+        const count = await this.forumModel.countDocuments({competition: competitionId});
+        const forums = await this.forumModel.find({competition: competitionId}).skip(pagination.page).limit(pagination.limit).sort({created_at: -1})
+        return successResponse({forums, total_rows:count})
     }
 
     async createChat(sender: UserDocument, createChatDto: CreateChatDto) {
         const {chat, forum_id, type} = createChatDto;
         if (filter.isProfane(chat)) returnErrorResponse('Chat looks offensive')
-        const newChat = await this.chatModel.create({chat, forum: forum_id, type, sender:sender.id})
+        const newChat = await this.chatModel.create({chat, forum: forum_id, type, sender: sender.id})
         await pusherService.dispatchEvent(`private-forum-${forum_id}-chats`, 'on-new-chat', {chat})
         return successResponse({new_chat: newChat})
     }
@@ -82,10 +83,10 @@ export class ForumService {
         return successResponse({chats, total_rows: count})
     }
 
-    async removeForum(forumId: Types.ObjectId, user: UserDocument) {
+    async removeForum(forumId: Types.ObjectId, user: UserDocument, isAdmin:boolean = false) {
         const forum = await this.forumModel.findById(forumId)
         if (!forum) returnErrorResponse(ERROR_MESSAGES.FORUM_NOT_FOUND)
-        if (forum.creator !== user.id) returnErrorResponse('Unauthorized')
+        if (!isAdmin && forum.creator !== user.id) returnErrorResponse('Unauthorized')
         await forum.deleteOne()
         return successResponse(SUCCESS_MESSAGES.FORUM_DELETED)
     }

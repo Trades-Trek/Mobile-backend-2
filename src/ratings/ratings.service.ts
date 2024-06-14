@@ -65,4 +65,10 @@ export class RatingsService {
         })
     }
 
+    async getAllRatings(pagination: Pagination) {
+        const count = await this.ratingModel.countDocuments();
+        const ratings = await this.ratingModel.find().populate('user', 'full_name _id').skip(pagination.page).limit(pagination.limit).sort({created_at: -1}).exec();
+        return successResponse({rating: ratings, total_rows: count})
+    }
+
 }

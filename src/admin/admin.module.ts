@@ -6,9 +6,11 @@ import {WatchlistModule} from "../watchlist/watchlist.module";
 import {AdminUserController} from "./controllers/admin-user.controller";
 import {AdminPlanController} from "./controllers/admin-plan.controller";
 import {CompetitionsModule} from "../competitions/competitions.module";
+import {RatingsModule} from "../ratings/ratings.module";
+import {ForumModule} from "../forum/forum.module";
 
 @Module({
-  imports:[AuthModule, WatchlistModule, CompetitionsModule],
+  imports:[RatingsModule, ForumModule, AuthModule, WatchlistModule, CompetitionsModule],
   controllers: [AdminController, AdminUserController, AdminPlanController],
   providers: [AdminService],
 })
