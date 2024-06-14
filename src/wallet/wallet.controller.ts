@@ -11,25 +11,29 @@ import {FeatureGuard} from "../guards/feature.guard";
 import {hasFeatures} from "../decorators/features.decorator";
 import {FEATURES} from "../enums/features";
 import {ConfigService} from "@nestjs/config";
+import {AppSettingsService} from "../app-settings/app-settings.service";
 
 @Controller('wallet')
 export class WalletController {
-    constructor(private readonly walletService: WalletService, private configService: ConfigService) {
+    constructor(private readonly walletService: WalletService, private configService: ConfigService, private appSettingsService: AppSettingsService) {
     }
 
     @Get('trek-coins/convert')
-    convertToTrekCoins(@Query('amount') amount: number) {
+    async convertToTrekCoins(@Query('amount') amount: number) {
+        const {TREK_COINS_CONVERSION_RATE_IN_NAIRA} = await this.appSettingsService.getSettings()
         return successResponse({
-            trek_coins: this.walletService.convertToTrekCoins(amount),
-            conversion_rate: this.configService.get('TREK_COINS_CONVERSION_RATE_IN_NAIRA')
+            trek_coins: await this.walletService.convertToTrekCoins(amount),
+            conversion_rate: TREK_COINS_CONVERSION_RATE_IN_NAIRA
         })
     }
 
     @Get('trek-coins/convert/cash')
-    convertTrekCoinsToCash(@Query('trek_coins') trekCoins: number) {
+    async convertTrekCoinsToCash(@Query('trek_coins') trekCoins: number) {
+        const {TREK_COINS_CONVERSION_RATE_IN_NAIRA} = await this.appSettingsService.getSettings()
+
         return successResponse({
-            cash: this.walletService.convertTrekCoinsToCash(trekCoins),
-            conversion_rate: this.configService.get('TREK_COINS_CONVERSION_RATE_IN_NAIRA')
+            cash: await this.walletService.convertTrekCoinsToCash(trekCoins),
+            conversion_rate: TREK_COINS_CONVERSION_RATE_IN_NAIRA
         })
     }
 

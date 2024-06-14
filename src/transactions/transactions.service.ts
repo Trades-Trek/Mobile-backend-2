@@ -19,14 +19,16 @@ import {ERROR_MESSAGES} from "../enums/error-messages";
 import {WalletService} from "../wallet/wallet.service";
 import {ConfigService} from "@nestjs/config";
 import {Pagination} from "../enums/pagination.enum";
+import {AppSettingsService} from "../app-settings/app-settings.service";
 
 @Injectable()
 export class TransactionsService {
-    constructor(@InjectModel(Transaction.name) private transactionModel: Model<Transaction>, @Inject(forwardRef(() => UsersService)) private userService: UsersService, private walletService: WalletService, private configService: ConfigService) {
+    constructor(@InjectModel(Transaction.name) private transactionModel: Model<Transaction>, @Inject(forwardRef(() => UsersService)) private userService: UsersService, private walletService: WalletService, private configService: ConfigService, private appSettingsService: AppSettingsService) {
     }
 
     async create(createTransactionDto: CreateTransactionDto): Promise<void> {
-        createTransactionDto['conversion_rate'] = this.configService.get('TREK_COINS_CONVERSION_RATE_IN_NAIRA')
+        const {TREK_COINS_CONVERSION_RATE_IN_NAIRA} = await this.appSettingsService.getSettings()
+        createTransactionDto['conversion_rate'] = TREK_COINS_CONVERSION_RATE_IN_NAIRA
         await this.transactionModel.create(createTransactionDto)
     }
 
