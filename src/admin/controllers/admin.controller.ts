@@ -19,6 +19,7 @@ import {CompanyService} from "../../stock/services/company.service";
 import {RatingsService} from "../../ratings/ratings.service";
 import {CreateForumDto} from "../../forum/dto/create-forum.dto";
 import {ForumService} from "../../forum/forum.service";
+import {SendPushNotificationDto} from "../../notifications/dto/create-notification.dto";
 
 @ApiTags('Admin')
 @Controller('admin')
@@ -80,6 +81,16 @@ export class AdminController {
     @Get('forums/chats/:forum_id')
     getChats(@Param('forum_id') forumId: Types.ObjectId, @GetPagination() pagination: Pagination) {
         return this.forumService.findAllChat(forumId, pagination);
+    }
+
+    @Post('/push-notifications')
+    sendNotification(@Body() sendPushDto:SendPushNotificationDto){
+        return this.adminService.sendPushNotification(sendPushDto)
+    }
+
+    @Get('/push-notifications')
+    getPushNotifications(){
+
     }
 
 
