@@ -10,6 +10,8 @@ import {returnErrorResponse, successResponse} from "../../utils/response";
 import {Role} from "../../enums/role.enum";
 import {ERROR_MESSAGES} from "../../enums/error-messages";
 import {CompetitionsService} from "../../competitions/services/competitions.service";
+import {SendPushNotificationDto} from "../../notifications/dto/create-notification.dto";
+import {useOneSignalService} from "../../services/onesignal";
 
 const bcrypt = require("bcrypt");
 
@@ -46,6 +48,12 @@ export class AdminService {
             access_token: await this.authService.generateAccessToken(user.id, user.username),
             user
         })
+    }
+
+    async sendPushNotification(sendPushNotificationDto:SendPushNotificationDto){
+        const {user_ids, description, title} = sendPushNotificationDto;
+        await useOneSignalService().sendPushNotification(user_ids, title, description, {})
+        return successResponse('push notification sent successfully')
     }
 
 

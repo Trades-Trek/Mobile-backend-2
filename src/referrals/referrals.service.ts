@@ -14,10 +14,12 @@ import useDayJs from '../services/dayjs'
 import {ERROR_MESSAGES} from "../enums/error-messages";
 import {ACTIVITY_ENTITY} from "../enums/activities.enum";
 import {Pagination} from "../enums/pagination.enum";
+import {AppSetting} from "../app-settings/schemas/app-setting.schema";
+import {AppSettingsService} from "../app-settings/app-settings.service";
 
 @Injectable()
 export class ReferralsService {
-    constructor(@InjectModel(Referral.name) private referralModel: Model<Referral>, private queueService: QueueService, private configService: ConfigService, @Inject(forwardRef(() => WalletService)) private walletService: WalletService, private notificationService: NotificationsService) {
+    constructor(@InjectModel(Referral.name) private referralModel: Model<Referral>, private queueService: QueueService, private configService: ConfigService, @Inject(forwardRef(() => WalletService)) private walletService: WalletService, private notificationService: NotificationsService, private appSettingsService:AppSettingsService) {
     }
 
     async findOrCreate(email: string, referrer: UserDocument, entity?: ACTIVITY_ENTITY) {
@@ -80,10 +82,10 @@ export class ReferralsService {
     }
 
     async reward(referrer: UserDocument, referral: ReferralDocument): Promise<void> {
-        const trekCoinsEarned = parseInt(this.configService.get('REFERRAL_REWARD'))
-        await referral.updateOne({amount_earned: trekCoinsEarned}, {new: true})
+        const {REFERRAL_REWARD} = await this.appSettingsService.getSettings();
+        await referral.updateOne({amount_earned: REFERRAL_REWARD}, {new: true})
         // credit referrer's trek coins with amount earned
-        this.walletService.creditUserTrekCoins(referrer, trekCoinsEarned)
+        await this.walletService.creditUserTrekCoins(referrer, REFERRAL_REWARD)
         // notify user
         await this.notificationService.create({
             title: SUCCESS_MESSAGES.REFERRAL_REWARD_TITLE,

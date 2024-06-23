@@ -1,5 +1,5 @@
 import {Injectable} from '@nestjs/common';
-import {CreateOrderDto} from './dto/create-order.dto';
+import {CreateOrderDto, OrderQueryDto} from './dto/create-order.dto';
 import {Model, Types} from "mongoose";
 import {UserDocument} from "../users/schemas/user.schema";
 import {CompetitionsService} from "../competitions/services/competitions.service";
@@ -22,6 +22,9 @@ import {Exchange} from "../stock/entities/exchange.entity";
 import {Pagination} from "../enums/pagination.enum";
 import Func = jest.Func;
 import {Company} from "../stock/entities/companies.entity";
+import {isEmpty} from "class-validator";
+import {Role} from "../enums/role.enum";
+import {SUCCESS_MESSAGES} from "../enums/success-messages";
 
 
 @Injectable()
@@ -192,5 +195,26 @@ export class OrdersService {
         }).exec()
     }
 
+    async getOrders(query: OrderQueryDto, pagination: Pagination) {
+        const filter = {};
+        Object.keys(query).forEach(key => {
+            if (!isEmpty(query[key]) && key !== 'page' && key !== 'limit') {
+                filter[key] = query[key];
+            }
+        });
+        const count = await this.orderModel.countDocuments(filter);
+        const orders = await this.orderModel.find(filter).skip(pagination.page).limit(pagination.limit).exec()
+        return {orders, total_rows: count}
+    }
+
+    async deleteOrder(orderId: Types.ObjectId, user: UserDocument) {
+        const order = user.role === Role.ADMIN ? await this.orderModel.findById(orderId) : await this.orderModel.findOne({
+            '_id': orderId,
+            user_id: user.id
+        })
+        if (!order) returnErrorResponse(ERROR_MESSAGES.ORDER_NOT_FOUND)
+        await order.deleteOne();
+        return successResponse('order deleted successfully');
+    }
 
 }

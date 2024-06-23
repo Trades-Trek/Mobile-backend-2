@@ -10,3 +10,13 @@ export class CreateNotificationDto {
     priority?: boolean
     payload?: {}
 }
+
+
+export class SendPushNotificationDto {
+    user_ids: Types.ObjectId | Array<Types.ObjectId>
+
+    title: string
+
+    description: string
+
+}

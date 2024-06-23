@@ -64,7 +64,6 @@ const usePaystackService = () => {
             const response = await axios.get("https://api.paystack.co/transaction/verify/" + reference, options);
             console.log("verified");
             return !!response.data.status;
-
         } catch (e) {
             console.log(e);
             return false;

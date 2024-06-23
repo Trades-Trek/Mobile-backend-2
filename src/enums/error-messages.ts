@@ -1,6 +1,7 @@
 const minStartingCash: number = parseInt(process.env.MIN_STARTING_CASH)
 
 export enum ERROR_MESSAGES {
+    ORDER_NOT_FOUND = 'Could not find order',
     UNAUTHORISED = 'Unauthorised',
     INVALID_CREDENTIALS = 'Invalid credentials',
     INVALID_USER = 'User does not exist',

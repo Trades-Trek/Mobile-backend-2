@@ -21,17 +21,20 @@ import {useOneSignalService} from "../../services/onesignal";
 import {AccountValueService} from "./account-value.service";
 import {OrdersService} from "../../orders/orders.service";
 import {ORDER_STATUS} from "../../enums/orders.enum";
+import {UpdateCompetitionDto} from "../dto/update-competition.dto";
+import {AppSettingsService} from "../../app-settings/app-settings.service";
+import {OrderQueryDto} from "../../orders/dto/create-order.dto";
 
 const onesignalService = useOneSignalService()
 
 @Injectable()
 export class CompetitionsService {
-    constructor(@InjectModel(Competition.name) private competitionModel: Model<Competition>, @InjectModel(Participant.name) private participantModel: Model<Participant>, private configService: ConfigService, private walletsService: WalletService, private activityService: ActivitiesService, private queueService: QueueService, private accountValueService: AccountValueService, @Inject(forwardRef(() => OrdersService)) private orderService: OrdersService) {
+    constructor(@InjectModel(Competition.name) private competitionModel: Model<Competition>, @InjectModel(Participant.name) private participantModel: Model<Participant>, private configService: ConfigService, private walletsService: WalletService, private activityService: ActivitiesService, private queueService: QueueService, private accountValueService: AccountValueService, @Inject(forwardRef(() => OrdersService)) private orderService: OrdersService, private appSettings: AppSettingsService) {
     }
 
     async create(user: UserDocument, createCompetitionDto: CreateCompetitionDto) {
         const {capacity, type, starting_cash, entry, participants, is_default} = createCompetitionDto;
-        const {minStartingCash, maxStartingCash, capacityFee} = this.getMinAndMaxStartingCash()
+        const {minStartingCash, maxStartingCash, capacityFee} = await this.getMinAndMaxStartingCash()
         // compare starting cash
         if (starting_cash < minStartingCash || starting_cash > maxStartingCash) returnErrorResponse(ERROR_MESSAGES.STARTING_CASH_ERROR)
         // check capacity
@@ -73,7 +76,6 @@ export class CompetitionsService {
     async findAll(user: UserDocument, pagination: Pagination) {
         // retrieve competition
         let competitionsJoined = await this.participantModel.find({participant: user.id}).lean().populate('competition', 'name id description owner is_default').select('participant id competition').exec();
-        console.log(`comp joined ${competitionsJoined}`)
         let competitions = []
         if (competitionsJoined && competitionsJoined.length) {
             for (const c of competitionsJoined) {
@@ -85,7 +87,6 @@ export class CompetitionsService {
                 c.competition['cash_value'] = cash_value;
                 c.competition['account_value'] = account_value;
                 c.competition['today_percentage_change'] = today_percentage_change
-                console.log(c.competition)
                 competitions.push(c.competition)
             }
         }
@@ -130,18 +131,22 @@ export class CompetitionsService {
     }
 
 
-    async remove(competitionId: Types.ObjectId, user: UserDocument) {
-        const competition = await this.competitionModel.findOne({'_id': competitionId, owner: user.id})
+    async remove(competitionId: Types.ObjectId, user: UserDocument, isAdmin: boolean = false) {
+        const competition = !isAdmin ? await this.competitionModel.findOne({
+            '_id': competitionId,
+            owner: user.id
+        }) : this.competitionModel.findOne({'_id': competitionId})
         if (!competition) returnErrorResponse(ERROR_MESSAGES.COMPETITION_NOT_FOUND)
         await competition.deleteOne()
         return successResponse(SUCCESS_MESSAGES.COMPETITION_DELETED)
     }
 
-    getMinAndMaxStartingCash(): { minStartingCash: number, maxStartingCash: number, capacityFee: number } {
+    async getMinAndMaxStartingCash(): Promise<{ minStartingCash: number, maxStartingCash: number, capacityFee: number }> {
+        const {MAX_STARTING_CASH, MIN_STARTING_CASH, CAPACITY_FEE} = await this.appSettings.getSettings()
         return {
-            minStartingCash: this.configService.get('MIN_STARTING_CASH'),
-            maxStartingCash: this.configService.get('MAX_STARTING_CASH'),
-            capacityFee: this.configService.get('CAPACITY_FEE')
+            minStartingCash: MIN_STARTING_CASH,
+            maxStartingCash: MAX_STARTING_CASH,
+            capacityFee: CAPACITY_FEE
         }
     }
 
@@ -243,4 +248,15 @@ export class CompetitionsService {
         }).sort({points: -1}).populate('participant', 'full_name').limit(pagination.limit).skip(pagination.page).exec()
         return successResponse({leader_board_list: leaderBoardList})
     }
+
+
+    // admin resource
+    async getAllCompetitions(pagination: Pagination) {
+        const count = await this.competitionModel.countDocuments({});
+        const competitions = await this.competitionModel.find().skip(pagination.page).limit(pagination.limit).sort({created: -1}).exec();
+        return successResponse({competitions, total_rows: count})
+    }
+
+
+
 }

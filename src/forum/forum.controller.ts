@@ -45,4 +45,6 @@ export class ForumController {
     removeChat(@Param('chat_id') chatId: Types.ObjectId, @AuthUser() user: UserDocument) {
         return this.forumService.deleteChat(chatId, user);
     }
+
+
 }

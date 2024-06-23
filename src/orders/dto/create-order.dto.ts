@@ -1,7 +1,8 @@
 import {IsEnum, IsNotEmpty, IsNumber, Min, MIN, ValidateIf} from "class-validator";
-import {ORDER_DURATION, ORDER_TYPE, TRADE_ACTION} from "../../enums/orders.enum";
+import {ORDER_DURATION, ORDER_STATUS, ORDER_TYPE, TRADE_ACTION} from "../../enums/orders.enum";
 import {ApiProperty} from "@nestjs/swagger";
 import {Types} from "mongoose";
+import {PaginationDto} from "../../enums/pagination.enum";
 
 export class CreateOrderDto {
 
@@ -32,4 +33,12 @@ export class CreateOrderDto {
 
     @IsNotEmpty()
     competition_id: Types.ObjectId
+}
+
+export class OrderQueryDto extends PaginationDto {
+    competition_id?: Types.ObjectId
+    user_id?: Types.ObjectId
+    status?: ORDER_STATUS
+    trade_action?: TRADE_ACTION
+
 }
