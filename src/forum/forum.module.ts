@@ -14,6 +14,7 @@ import {CompetitionsService} from "../competitions/services/competitions.service
     }])],
     controllers: [ForumController],
     providers: [ForumService],
+    exports:[ForumService]
 })
 export class ForumModule {
 }
