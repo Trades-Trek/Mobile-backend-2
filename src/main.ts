@@ -14,7 +14,7 @@ const crypto = require('crypto');
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.enableCors({
-    origin: ' https://trades-trek-client-staging.vercel.app', // Allow requests from the Next.js frontend
+    origin: 'https://trades-trek-client-version2.vercel.app', // Allow requests from the Next.js frontend
     credentials: true, // Enable cookies and HTTP authentication
   });
  
