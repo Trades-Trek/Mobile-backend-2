@@ -42,12 +42,12 @@ import { AppSettingsModule } from './app-settings/app-settings.module';
         TypeOrmModule.forRootAsync({
             imports: [ConfigModule],
             useFactory: (configService: ConfigService) => ({
-                type: 'mysql',
-                host: 'ttwebadmin.c3g8gce48972.us-east-1.rds.amazonaws.com',
-                port: 3306,
-                username: 'ttadmin',
-                password: '5vOwv851szeR',
-                database: 'ttwebadmin',
+                type: 'postgres',
+                host: 'tyke.db.elephantsql.com',
+                port: 5432,  // default PostgreSQL port
+                username: 'enhqeckn',
+                password: 'B3w6UPxFFxFiKQvgk6uxPbCJB4208IM8',
+                database: 'enhqeckn',
                 entities: ['dist/**/*.entity{ .ts,.js}'],
                 // synchronize: true,
                 logging: true
@@ -69,7 +69,7 @@ import { AppSettingsModule } from './app-settings/app-settings.module';
         MongooseModule.forRootAsync({
             imports: [ConfigModule],
             useFactory: (configService: ConfigService) => ({
-                uri: configService.get('DB_URL'),
+                uri: 'mongodb+srv://tradestreklimited:uYqd9tEproX4rYMi@cluster0.wpjfsau.mongodb.net/mobilebackend2?retryWrites=true&w=majority',
             }),
             inject: [ConfigService],
         }),

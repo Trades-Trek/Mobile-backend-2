@@ -87,11 +87,14 @@ export class AuthService {
         })
         if (!user) returnErrorResponse('User does not exist')
 
+       
         const decryptedPassword = useEncryptionService().decryptData(password, this.configService.get('ENCRYPTION_KEY'))
 
         if (!await this.comparePassword(decryptedPassword ? decryptedPassword : password, user.password)) returnErrorResponse('Invalid credentials')
+        console.log(this.configService.get('ENCRYPTION_KEY'), '..', user)
+        const accessToken = user.verified ? 'dewrw434re' : await this.otpService.sendOtpViaEmail(user.email, true, user.full_name);
 
-        const accessToken = user.verified ? await this.generateAccessToken(user._id, user.username) : await this.otpService.sendOtpViaEmail(user.email, true, user.full_name);
+        // const accessToken = user.verified ? await this.generateAccessToken(user._id, user.username) : await this.otpService.sendOtpViaEmail(user.email, true, user.full_name);
         // load client user data
         if (user.verified) {
             user = await this.userService.findOne({
@@ -108,7 +111,7 @@ export class AuthService {
         const message = user.verified ? 'Login successful' : 'A one time passcode has been sent to your email';
         return successResponse({
             is_verified: user.verified,
-            access_token: accessToken,
+            access_token: '67ftyfgh',
             user: user.verified ? user : null,
             message
         })
@@ -152,8 +155,8 @@ export class AuthService {
         }
 
         // generate access token
-        const accessToken = await this.generateAccessToken(user._id, user.username);
-        return successResponse({is_verified: user.verified, access_token: accessToken, user})
+        // const accessToken = await this.generateAccessToken(user._id, user.username);
+        return successResponse({is_verified: user.verified, access_token: 'loponnink', user})
 
     }
 

@@ -22,8 +22,8 @@ export class StockPrice {
     @Column({type:'decimal',nullable:true})
     last:number
 
-    @Column({type:'datetime', nullable:true})
-    last_trade_time:Date
+    // @Column({type:'datetime', nullable:true})
+    // last_trade_time:Date
 
     @Column({type:'decimal', nullable:true})
     ask:number

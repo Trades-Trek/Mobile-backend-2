@@ -7,7 +7,8 @@ import { Strategy, VerifyCallback } from 'passport-google-oauth2';
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     constructor(private configService: ConfigService) {
         super({
-            clientID: configService.get('GOOGLE_CLIENT_ID'),
+            clientID: 'l;l;',   
+            // configService.get('GOOGLE_CLIENT_ID')                                         
             clientSecret: configService.get('GOOGLE_CLIENT_SECRET'),
             callbackURL: configService.get('GOOGLE_CALLBACK_URL'),
             scope: ['profile', 'email'],

@@ -1,50 +1,46 @@
-import {BaseEntity, Column, Entity, PrimaryGeneratedColumn} from "typeorm";
+import {BaseEntity, Column, Entity, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn} from "typeorm";
 
 @Entity('exchanges')
-export class Exchange extends BaseEntity{
+export class Exchange extends BaseEntity {
     @PrimaryGeneratedColumn()
-    id:number
+    id: number
 
-    @Column({nullable:false, type:'varchar'})
-    name:string
+    @Column({nullable: false, type: 'varchar', length: 255})
+    name: string
 
-    @Column({nullable:false, type:'varchar'})
-    symbol:string
+    @Column({nullable: false, type: 'varchar', length: 50})
+    symbol: string
 
-    @Column({type:'double', nullable:true})
-    asi:string
+    @Column({type: 'decimal', precision: 10, scale: 2, nullable: true})
+    asi: number  // Changed from string to number since it's a numeric value
 
-    @Column({type:'int', nullable:true})
-    deals:number
+    @Column({type: 'integer', nullable: true})  // 'int' works too, but 'integer' is more explicit
+    deals: number
 
-    @Column({type:'bigint', nullable:true})
-    volume:string
+    @Column({type: 'bigint', nullable: true})
+    volume: number  // Changed from string to number since it's a numeric value
 
-    @Column({type:'double', nullable:true})
-    value:number
+    @Column({type: 'decimal', precision: 15, scale: 2, nullable: true})
+    value: number
 
-    @Column({type:'double', nullable:true})
-    cap:number
+    @Column({type: 'decimal', precision: 15, scale: 2, nullable: true})
+    cap: number
 
-    @Column({type:'double', nullable:true})
-    bond_cap:number
+    @Column({type: 'decimal', precision: 15, scale: 2, nullable: true})
+    bond_cap: number
 
-    @Column({type:'double', nullable:true})
-    off_cap:string
+    @Column({type: 'decimal', precision: 15, scale: 2, nullable: true})
+    off_cap: number  // Changed from string to number since it's a numeric value
 
-    @Column({type:'datetime', nullable:false})
-    open_time:Date
+    @Column({type: 'timestamptz', nullable: false})  // Using timestamptz for timezone awareness
+    open_time: Date
 
-    @Column({type:'datetime', nullable:false})
-    close_time:string
+    @Column({type: 'timestamptz', nullable: false})
+    close_time: Date  // Changed from string to Date
 
+    @CreateDateColumn({type: 'timestamptz'})  // Using CreateDateColumn decorator
+    created_at: Date
 
-    @Column({type:'timestamp', nullable:true})
-    created_at:Date
-
-    @Column({type:'timestamp', nullable:true})
-    updated_at:Date
-
-
-
+    @UpdateDateColumn({type: 'timestamptz'})  // Using UpdateDateColumn decorator
+    updated_at: Date
 }

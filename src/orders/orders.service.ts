@@ -119,6 +119,7 @@ export class OrdersService {
             select: {id: true, symbol: true, open_time: true, close_time: true}
         })
 
+        //@ts-ignore
         if (orderExchange && orderExchange.close_time > Date.now().toString()) {
             const stockPrice = await this.stockPriceService.findStockPrice({symbol: order.stock_symbol})
             // retrieve participant
@@ -149,42 +150,42 @@ export class OrdersService {
         }
     }
 
-    @Cron(CronExpression.EVERY_10_MINUTES)
-    async handleLimitOrders() {
-        console.log('running cronjob every 10 minutes')
-        const orders = await this.orderModel.find({
-            status: ORDER_STATUS.PENDING,
-            type: ORDER_TYPE.LIMIT
-        }).populate('user').exec();
-        if (orders && orders.length) {
-            for (const order of orders) {
-                const stockPrice = await this.stockPriceService.findStockPrice({symbol: order.stock_symbol})
-                // retrieve stock exchange
-                const last = stockPrice.last;
-                console.log(`stock current price - ${last}`)
-                const conditionsMet = order.trade_action === TRADE_ACTION.BUY && last <= order.price ? true : order.trade_action === TRADE_ACTION.SELL && last >= order.price;
-                const delay = order.trade_action === TRADE_ACTION.BUY ? order.market_delay ?? null : order.quick_sell ?? null;
-                if (conditionsMet) {
-                    console.log('order conditions met')
-                    if (delay) {
-                        this.addCronJob(order.id, delay, () => {
-                            this.eventEmitter.emit(
-                                'order.execute',
-                                new ExecuteOrderEvent(order.id, order.user),
-                            )
-                        })
-                    } else {
-                        this.eventEmitter.emit(
-                            'order.execute',
-                            new ExecuteOrderEvent(order.id, order.user),
-                        )
-                    }
-                } else {
-                    console.log('order conditions not met')
-                }
-            }
-        }
-    }
+    // @Cron(CronExpression.EVERY_10_MINUTES)
+    // async handleLimitOrders() {
+    //     console.log('running cronjob every 10 minutes')
+    //     const orders = await this.orderModel.find({
+    //         status: ORDER_STATUS.PENDING,
+    //         type: ORDER_TYPE.LIMIT
+    //     }).populate('user').exec();
+    //     if (orders && orders.length) {
+    //         for (const order of orders) {
+    //             const stockPrice = await this.stockPriceService.findStockPrice({symbol: order.stock_symbol})
+    //             // retrieve stock exchange
+    //             const last = stockPrice.last;
+    //             console.log(`stock current price - ${last}`)
+    //             const conditionsMet = order.trade_action === TRADE_ACTION.BUY && last <= order.price ? true : order.trade_action === TRADE_ACTION.SELL && last >= order.price;
+    //             const delay = order.trade_action === TRADE_ACTION.BUY ? order.market_delay ?? null : order.quick_sell ?? null;
+    //             if (conditionsMet) {
+    //                 console.log('order conditions met')
+    //                 if (delay) {
+    //                     this.addCronJob(order.id, delay, () => {
+    //                         this.eventEmitter.emit(
+    //                             'order.execute',
+    //                             new ExecuteOrderEvent(order.id, order.user),
+    //                         )
+    //                     })
+    //                 } else {
+    //                     this.eventEmitter.emit(
+    //                         'order.execute',
+    //                         new ExecuteOrderEvent(order.id, order.user),
+    //                     )
+    //                 }
+    //             } else {
+    //                 console.log('order conditions not met')
+    //             }
+    //         }
+    //     }
+    // }
 
     async getUserStocks(user: UserDocument, competitionId: Types.ObjectId, status: ORDER_STATUS = ORDER_STATUS.COMPLETED, tradeAction: TRADE_ACTION = TRADE_ACTION.BUY, pagination?: Pagination) {
         return await this.orderModel.find({

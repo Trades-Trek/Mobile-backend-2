@@ -15,7 +15,6 @@ export class CompanyService {
                 private companyRepository: Repository<Company>) {
     }
 
-
     async findAll(pagination: Pagination) {
         const [companies, count] = await this.companyRepository.findAndCount({
             relations:{stock_price:true},

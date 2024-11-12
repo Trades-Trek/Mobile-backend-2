@@ -10,7 +10,7 @@ export default async ()  => ({
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
     NODE_ENV: process.env.NODE_ENV,
-    ROLLBAR_TOKEN:process.env.ROLLBAR_TOKEN,
+    ROLLBAR_TOKEN:process.env.ROLLBAR_TOKEN || 'sasasasa',
     PORT: parseInt(process.env.PORT, 10) || 3000,
     ...process.env.NODE_ENV === 'development' ? development() : process.env.NODE_ENV === 'staging' ? staging() : production(),
     ENCRYPTION_SECRET_KEY:process.env.ENCRYPTION_SECRET_KEY,

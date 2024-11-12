@@ -23,7 +23,7 @@ export class StockNews extends BaseEntity {
     @Column({type: 'bigint', nullable: false})
     symbols: string
 
-    @Column({type: 'tinyint', nullable: false})
+    @Column({type: 'boolean', nullable: false})
     is_visible: boolean
 
     @Column({type: 'varchar', nullable: false})
